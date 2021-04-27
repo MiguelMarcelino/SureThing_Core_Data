@@ -13,3 +13,7 @@ mvn compile
 ```
 mvn test
 ```
+
+```
+mvn install
+```

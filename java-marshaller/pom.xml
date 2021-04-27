@@ -51,7 +51,7 @@
 	                <artifactId>os-maven-plugin</artifactId>
 	            </extension>
 	        </extensions>
-    
+
 		<plugins>
 			
 			<!-- ProtoBuf Plugin  ... -->
