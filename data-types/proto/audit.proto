@@ -5,8 +5,8 @@ package pt.ulisboa.tecnico.surethingcore;
 //option java_package = "pt.ulisboa.tecnico.surething.verifier.proto";
 //option java_outer_classname = "SureThingEntities";
 
-import location-proof.proto
-import ledger.proto
+import "location-proof.proto";
+import "ledger.proto";
 
 message AuditResultProto {
     //----------------------------

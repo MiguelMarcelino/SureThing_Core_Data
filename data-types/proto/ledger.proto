@@ -13,7 +13,7 @@ package pt.ulisboa.tecnico.surethingcore;
 /*******************************************/
 
 
-import location-proof.proto
+import "location-proof.proto";
 
 message MerkleTreeHeadProto {
     //----------------------------
