@@ -1,19 +1,7 @@
-```
-mvn clean
-```
+# java-marshaller
+
+### Maven
 
 ```
-mvn generate-sources
-```
-
-```
-mvn compile
-```
-
-```
-mvn test
-```
-
-```
-mvn install
+mvn clean generate-sources compile install
 ```
