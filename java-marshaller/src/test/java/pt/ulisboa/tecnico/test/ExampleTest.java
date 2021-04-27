@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.surethingcore;
+package pt.ulisboa.tecnico.test;
 
 import org.junit.jupiter.api.*;
 
@@ -28,6 +28,7 @@ public class ExampleTest {
 
 	@Test
 	public void testMarshaller() {
+		
 		
 	}
 	

@@ -2,8 +2,9 @@ syntax = "proto3";
 
 package pt.ulisboa.tecnico.surethingcore;
 
-//option java_package = "pt.ulisboa.tecnico.surething.verifier.proto";
-//option java_outer_classname = "SureThingEntities";
+option java_multiple_files = true;
+option java_package = "pt.ulisboa.tecnico.surethingcore.audit";
+option java_outer_classname = "SureThingAuditEntities";
 
 import "location-proof.proto";
 import "ledger.proto";

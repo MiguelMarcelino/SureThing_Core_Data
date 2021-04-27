@@ -2,16 +2,9 @@ syntax = "proto3";
 
 package pt.ulisboa.tecnico.surethingcore;
 
-//option java_package = "pt.ulisboa.tecnico.surething.verifier.proto";
-//option java_outer_classname = "SureThingEntities";
-
-
-/*******************************************/
-/* Definition for the SureThing data types */
-/*                                         */
-/*           Feel free to change           */
-/*******************************************/
-
+option java_multiple_files = true;
+option java_package = "pt.ulisboa.tecnico.surethingcore.ledger";
+option java_outer_classname = "SureThingLedgerEntities";
 
 import "location-proof.proto";
 
