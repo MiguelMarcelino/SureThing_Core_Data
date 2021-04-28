@@ -22,9 +22,9 @@ import marshallers
 ## protoc
 ### To generate fresh marshallers from .proto files:
 
-```
-1- generate files
 
+1- generate files
+```
 -> protoc --proto_path=../data-types/proto --python_out=./marshallers ../data-types/proto/*.proto
 
 ```
