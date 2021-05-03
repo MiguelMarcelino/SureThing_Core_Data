@@ -90,7 +90,7 @@ message LocationEndorsement{
 	string endorsementEvidence = 4;
 	
 	// witness signature
-	byte signature = 5;
+	bytes signature = 5;
 	
 }
 
@@ -111,7 +111,7 @@ message LocationCertificate{
 	string verificationEvidence = 4;
 	
 	// verifier signature
-	byte signature = 5;
+	bytes signature = 5;
 
 }
 
