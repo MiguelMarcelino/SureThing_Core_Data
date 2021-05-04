@@ -1,9 +1,9 @@
 # python-marshaller
 
 
-## Marshallers
+## Surething Core Marshallers
 
-package marshallers contains the generated modules from the files in ../data-types/proto/*.proto
+package surethingcorepython contains the generated modules (marshallers) from .proto files in ../data-types/proto/*.proto
 
 
 ## install
