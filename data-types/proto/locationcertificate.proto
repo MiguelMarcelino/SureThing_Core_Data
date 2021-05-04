@@ -36,6 +36,3 @@ message LocationCertificate{
 	bytes signature = 7;
 
 }
-
-
-

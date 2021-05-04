@@ -40,5 +40,20 @@ message LocationClaim{
 
 }
 
+// WiFi evidence : One possible definition 
+message ClaimEvidence {
+
+    // unique id
+    string id = 1;
+
+    // List of APs identified by their ssids
+    repeated string ssid = 2;
+
+    // list of rssi colleced from APs
+    repeated int64 rssi = 3;
+
+    // ...
+}
+
 
 
