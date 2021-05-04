@@ -12,7 +12,7 @@ package surethingcorepython contains the generated modules (marshallers) from .p
 -> pip install surethingcorepython
 ```
 
-## Example : LedgerApp
+## Example : KIOSK
 
 ```
 import surethingcorepython
