@@ -44,13 +44,20 @@ message LocationClaim{
 message ClaimEvidence {
 
     // unique id
-    string id = 1;
+    int64 id = 1;
 
-    // List of APs identified by their ssids
-    repeated string ssid = 2;
+    // Access point (AP) definition
+    message AP{
 
-    // list of rssi colleced from APs
-    repeated int64 rssi = 3;
+        // AP identifier
+        string ssid = 1;
+
+        // measured RSSI 
+        int64 rssi = 2;
+    }
+
+    // detected AP
+    AP ap = 2;
 
     // ...
 }
