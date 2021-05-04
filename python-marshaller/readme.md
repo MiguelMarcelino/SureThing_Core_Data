@@ -43,5 +43,4 @@ from . import location_proof_pb2 as location__proof__pb2
 
 ```
 
-How To Package Your Python Code
-(https://python-packaging.readthedocs.io/en/latest/)
+[How To Package Your Python Code](https://python-packaging.readthedocs.io/en/latest/).
