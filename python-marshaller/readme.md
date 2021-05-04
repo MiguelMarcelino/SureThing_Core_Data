@@ -6,16 +6,16 @@
 package marshallers contains the generated modules from the files in ../data-types/proto/*.proto
 
 
-## Python protobuf
+## install
 
 ```
--> pip install protobuf
+-> pip install surethingcorepython
 ```
 
 ## Example : LedgerApp
 
 ```
-import marshallers
+import surethingcorepython
 
 ```
 
@@ -25,7 +25,7 @@ import marshallers
 
 1- generate files
 ```
--> protoc --proto_path=../data-types/proto --python_out=./marshallers ../data-types/proto/*.proto
+-> protoc --proto_path=../data-types/proto --python_out=./surethingcorepython ../data-types/proto/*.proto
 
 ```
 2- fix nested import in proto files
