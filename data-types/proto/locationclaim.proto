@@ -57,7 +57,7 @@ message ClaimEvidence {
     }
 
     // detected AP
-    AP ap = 2;
+    repeated AP ap = 2;
 
     // ...
 }
