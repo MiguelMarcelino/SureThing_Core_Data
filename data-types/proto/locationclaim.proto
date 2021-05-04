@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package pt.ulisboa.tecnico.surethingcore;
+
+option java_multiple_files = true;
+option java_package = "pt.ulisboa.tecnico.surethingcore.locationclaim";
+option java_outer_classname = "SureThingLocationClaimEntities";
+
+import "google/protobuf/timestamp.proto";
+
+
+enum EvidenceType{
+    WIFI = 0;
+    GPS = 1;
+    BLUETOOTH = 2;
+    BEACON = 3;
+    AMBIENTSENSOR = 4;
+}
+
+message LocationClaim{
+
+	// prover unique id - pseudonyms -- identity scheme
+	int64 proverId = 1;
+	
+	// prover's location - lat, long - name, hierarchy of names, ... -- location schema
+	string location = 2;
+	
+    // type of the evidence
+    EvidenceType evidenceType = 3;
+
+	// location evidence ??  - Screen signing , photo, ... -- evidence scheme
+	repeated google.protobuf.Any claimEvidence = 4;
+
+    // timestamp of location claim - time/date, time interval, ... -- dating scheme
+	google.protobuf.Timestamp timestamp = 5;
+	
+	// prover signature
+	bytes signature = 6;
+
+}
+
+
+
