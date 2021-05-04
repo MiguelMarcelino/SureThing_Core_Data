@@ -28,10 +28,10 @@ message LocationCertificate{
 	// verification evidence ??
 	repeated google.protobuf.Any verificationEvidence = 5;
 
-    // timestamp of location certificate - time/date, … -- dating scheme
+    // timestamp of location certificate - time/date, … -- date scheme
 	google.protobuf.Timestamp timestamp = 6;
 	
-	// verifier signature
+	// verifier's signature
 	bytes signature = 7;
 
 }

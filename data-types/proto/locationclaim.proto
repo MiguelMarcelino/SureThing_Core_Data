@@ -7,6 +7,7 @@ option java_package = "pt.ulisboa.tecnico.surethingcore.locationclaim";
 option java_outer_classname = "SureThingLocationClaimEntities";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
 
 
 enum EvidenceType{
@@ -31,10 +32,10 @@ message LocationClaim{
 	// location evidence ??  - Screen signing , photo, ... -- evidence scheme
 	repeated google.protobuf.Any claimEvidence = 4;
 
-    // timestamp of location claim - time/date, time interval, ... -- dating scheme
+    // timestamp of location claim - time/date, time interval, ... -- date scheme
 	google.protobuf.Timestamp timestamp = 5;
 	
-	// prover signature
+	// prover's signature
 	bytes signature = 6;
 
 }

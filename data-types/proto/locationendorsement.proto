@@ -28,10 +28,10 @@ message LocationEndorsement{
 	// endorsement evidence ??
 	repeated google.protobuf.Any endorsementEvidence = 5;
 
-    // timestamp of location endorsement - time/date, time interval, ... -- dating scheme
+    // timestamp of location endorsement - time/date, time interval, ... -- date scheme
 	google.protobuf.Timestamp timestamp = 6;
 	
-	// witness signature
+	// witness's signature
 	bytes signature = 7;
 	
 }
