@@ -19,7 +19,7 @@ message LocationEndorsement{
 	// the original location claim of the prover
 	repeated LocationClaim claims = 2;
 	
-	// ??
+	// ?? - not needed
 	string endorsement = 3;
 	
     // type of the evidence

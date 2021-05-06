@@ -10,7 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 
 
-enum EvidenceType{
+enum EvidenceType {
     WIFI = 0;
     GPS = 1;
     BLUETOOTH = 2;
@@ -18,7 +18,29 @@ enum EvidenceType{
     AMBIENTSENSOR = 4;
 }
 
+enum IdentityType {
+    NUMERIC = 0;
+    FREE_TEXT = 1;
+    COMMON_NAME = 2; // X-509 name syntax
+}
+
+enum LocationType {
+    LAT_LONG = 0;
+    POI_NAME = 1;
+    PROXIMITY_TO_POI = 2;
+    OLC_CODE = 3;
+}
+
+enum TimeType {
+    TIMESTAMP = 0;
+    INTERVAL = 1; //start and end timestamps
+    RELATIVE_TO_EPOCH = 2;
+}
+
 message LocationClaim{
+
+    // unique identifier for claim
+    string uuid = 0;
 
 	// prover unique id - pseudonyms -- identity scheme
 	int64 proverId = 1;
@@ -34,10 +56,24 @@ message LocationClaim{
 
     // timestamp of location claim - time/date, time interval, ... -- date scheme
 	google.protobuf.Timestamp timestamp = 5;
-	
-	// prover's signature
-	bytes signature = 6;
+}
 
+message LocationChain {
+    current
+    previous
+}
+
+message SignedLocationClaim{
+    LocationClaim claim;
+	// prover's signature
+	Signature signature = 6;
+}
+
+message Signature {
+    string CryptoAlgo;
+    int64 nonce;
+    bytes value;
+    // Any metaData;
 }
 
 // WiFi evidence : One possible definition 

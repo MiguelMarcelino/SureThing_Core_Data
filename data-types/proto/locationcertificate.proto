@@ -18,7 +18,7 @@ message LocationCertificate{
 	int64 verifierId = 1;
 	
 	// the original location claim of the prover
-	LocationClaim claim = 2;
+	repeated LocationClaim claim = 2;
 	
 	// list of location endorsements by witnesses
 	repeated LocationEndorsement endorsements = 3;
