@@ -10,70 +10,108 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 
 
-enum EvidenceType {
-    WIFI = 0;
-    GPS = 1;
-    BLUETOOTH = 2;
-    BEACON = 3;
-    AMBIENTSENSOR = 4;
+//enum IdentityType {
+//    NUMERIC = 0;
+//    FREE_TEXT = 1;
+//    COMMON_NAME = 2; // X-509 name syntax
+//}
+
+// enum LocationType {
+//     LAT_LONG = 0;
+//     POI_NAME = 1;
+//     PROXIMITY_TO_POI = 2;
+//     OLC_CODE = 3;
+// }
+
+message Location {
+    oneof location {
+        google.type.LatLng latLng = 0;
+        PoI poi = 1;
+        PoIProximity proximityToPoI = 2;
+        OLC olc = 3;
+    }
 }
 
-enum IdentityType {
-    NUMERIC = 0;
-    FREE_TEXT = 1;
-    COMMON_NAME = 2; // X-509 name syntax
+message PoI {
+    string id = 0;
+    string name = 1;
+    google.Type.LocalizedText localizedName = 1;
 }
 
-enum LocationType {
-    LAT_LONG = 0;
-    POI_NAME = 1;
-    PROXIMITY_TO_POI = 2;
-    OLC_CODE = 3;
+message PoIProximity {
+    string poiId = 0;
+    int64 distanceValue = 1;
+    string distanceUnit = 2;
 }
 
-enum TimeType {
-    TIMESTAMP = 0;
-    INTERVAL = 1; //start and end timestamps
-    RELATIVE_TO_EPOCH = 2;
+// reference: https://github.com/google/open-location-code/blob/1796878d947c6e281e383e69bbd0821f82db9566/java/src/main/java/com/google/openlocationcode/OpenLocationCode.java#L106
+message OLC {
+    double southLatitude = 0;
+    double westLongitude = 1;
+    double northLatitude = 2;
+    double eastLongitude = 3;
+    int32 length = 4;
+}
+
+//enum TimeType {
+//    TIMESTAMP = 0;
+//    INTERVAL = 1; //start and end timestamps
+//    RELATIVE_TO_EPOCH = 2;
+//}
+
+message Time {
+    oneof time {
+        google.protobuf.Timestamp timestamp = 0;
+        TimeInterval interval = 1;
+        EpochTime relativeToEpoch = 2;
+    }
+}
+
+message TimeInterval {
+    google.protobuf.Timestamp begin = 0;
+    google.protobuf.Timestamp end = 1;
+}
+
+message EpochTime {
+    string epochId = 0;
+    int64 time = 1;
 }
 
 message LocationClaim{
 
     // unique identifier for claim
-    string uuid = 0;
+    string claimId = 0;
 
 	// prover unique id - pseudonyms -- identity scheme
-	int64 proverId = 1;
+	string proverId = 1;
 	
 	// prover's location - lat, long - name, hierarchy of names, ... -- location schema
-	string location = 2;
+	Location location = 2;
 	
     // type of the evidence
-    EvidenceType evidenceType = 3;
+    // ? repeated?
+    string evidenceType = 3;
 
 	// location evidence ??  - Screen signing , photo, ... -- evidence scheme
-	repeated google.protobuf.Any claimEvidence = 4;
+    // ? repeated?
+	google.protobuf.Any claimEvidence = 4;
 
     // timestamp of location claim - time/date, time interval, ... -- date scheme
-	google.protobuf.Timestamp timestamp = 5;
-}
-
-message LocationChain {
-    current
-    previous
+	//google.protobuf.Timestamp timestamp = 5;
+    Time time = 5;
 }
 
 message SignedLocationClaim{
-    LocationClaim claim;
+    LocationClaim claim = 0;
 	// prover's signature
 	Signature signature = 6;
 }
 
 message Signature {
-    string CryptoAlgo;
-    int64 nonce;
-    bytes value;
-    // Any metaData;
+    string CryptoAlgo = 0;
+    int64 nonce = 1;
+    bytes value = 2;
+    google.proto.Any metaData;
 }
 
 // WiFi evidence : One possible definition 
