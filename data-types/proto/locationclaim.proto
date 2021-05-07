@@ -15,6 +15,13 @@ import "localized_text.proto";
 //import "google/type/latlng.proto";  
 //import "google/type/localizedtext.proto";
 
+// Google Common Types
+//
+//Note: Some common types are defined in the package google.protobuf 
+//as they are directly supported by Protocol Buffers compiler and runtime. Those types are called Well-Known Types.
+//https://github.com/googleapis/googleapis/tree/master/google/type
+
+// Conclusion : these types (not well-known types) are not supported yet by protoc.
 
 // supported location schemas
 message Location {
