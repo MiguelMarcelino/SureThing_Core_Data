@@ -12,7 +12,7 @@ _sym_db = _symbol_database.Default()
 
 
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
-import locationclaim_pb2 as locationclaim__pb2
+from . import locationclaim_pb2 as locationclaim__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(

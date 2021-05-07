@@ -13,8 +13,8 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
-import latlng_pb2 as latlng__pb2
-import localized_text_pb2 as localized__text__pb2
+from . import latlng_pb2 as latlng__pb2
+from . import localized_text_pb2 as localized__text__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
