@@ -11,8 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from . import location_proof_pb2 as location__proof__pb2
-from . import ledger_pb2 as ledger__pb2
+import location_proof_pb2 as location__proof__pb2
+import ledger_pb2 as ledger__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(

@@ -9,6 +9,7 @@ option java_outer_classname = "LocationClaimEntities";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "latlng.proto";
+import "localized_text.proto";
 
 // %TODO: Fix following imports
 //import "google/type/latlng.proto";  
@@ -29,7 +30,7 @@ message Location {
 message PoI {
     string id = 1;
     string name = 2;
-    google.Type.LocalizedText localizedName = 3;
+    google.type.LocalizedText localizedName = 3;
 }
 
 // Point of Interest proximity location

@@ -1,12 +1,11 @@
 syntax = "proto3";
 
-package pt.ulisboa.tecnico.surethingcore;
+package eu.surething_project.core;
 
 option java_multiple_files = true;
-option java_package = "pt.ulisboa.tecnico.surethingcore.locationcertificate";
-option java_outer_classname = "SureThingLocationCertificateEntities";
+option java_package = "eu.surething_project.core.locationcertificate";
+option java_outer_classname = "LocationCertificateEntities";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "locationclaim.proto";
 import "locationendorsement.proto";
@@ -37,7 +36,7 @@ message LocationCertificate{
 
 message SignedLocationCertificate{
 	
-	LocationCertificate certificate = 0;
+	LocationCertificate certificate = 1;
 	// verifier's signature
-	Signature signature = 1;
+	Signature signature = 2;
 }

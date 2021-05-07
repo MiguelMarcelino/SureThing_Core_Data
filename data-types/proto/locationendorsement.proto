@@ -1,12 +1,11 @@
 syntax = "proto3";
 
-package pt.ulisboa.tecnico.surethingcore;
+package eu.surething_project.core;
 
 option java_multiple_files = true;
-option java_package = "pt.ulisboa.tecnico.surethingcore.locationendorsement";
-option java_outer_classname = "SureThingLocationEndorsementEntities";
+option java_package = "eu.surething_project.core.locationendorsement";
+option java_outer_classname = "LocationEndorsementEntities";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "locationclaim.proto";
 
@@ -14,27 +13,27 @@ import "locationclaim.proto";
 message LocationEndorsement{
 	
 	// witness unique id
-	string witnessId = 0;
+	string witnessId = 1;
 	
 	// the original location claim of the prover
-	repeated LocationClaim claims = 1;
+	repeated LocationClaim claims = 2;
 
 	// timestamp of location endorsement - time/date, time interval, ... -- date scheme
-	Time time = 2;
+	Time time = 3;
 	
 	// type of the evidence
-    string evidenceType = 3;
+    string evidenceType = 4;
 
 	// endorsement evidence ??
-	repeated google.protobuf.Any endorsementEvidence = 4;
+	repeated google.protobuf.Any endorsementEvidence = 5;
 	
 }
 
 message SignedLocationEndorsement{
 	
-	LocationEndorsement endorsement = 0;
+	LocationEndorsement endorsement = 1;
 	// witness's signature
-	Signature signature = 1;
+	Signature signature = 2;
 }
 
 
