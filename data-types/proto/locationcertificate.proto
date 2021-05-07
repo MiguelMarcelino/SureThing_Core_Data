@@ -15,7 +15,7 @@ import "locationendorsement.proto";
 message LocationCertificate{
 	
 	// verifier unique id	
-	int64 verifierId = 1;
+	string verifierId = 1;
 	
 	// the original location claim of the prover
 	repeated LocationClaim claim = 2;
@@ -24,15 +24,20 @@ message LocationCertificate{
 	repeated LocationEndorsement endorsements = 3;
 
     // type of the evidence
-    EvidenceType evidenceType = 4;
+    string evidenceType = 4;
 	
 	// verification evidence ??
 	repeated google.protobuf.Any verificationEvidence = 5;
 
     // timestamp of location certificate - time/date, … -- date scheme
-	google.protobuf.Timestamp timestamp = 6;
+	Time time = 6;
 	
-	// verifier's signature
-	bytes signature = 7;
+}
 
+
+message SignedLocationCertificate{
+	
+	LocationCertificate certificate = 0;
+	// verifier's signature
+	Signature signature = 1;
 }

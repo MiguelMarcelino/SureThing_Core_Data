@@ -14,24 +14,28 @@ import "locationclaim.proto";
 message LocationEndorsement{
 	
 	// witness unique id
-	int64 witnessId = 1;
+	string witnessId = 0;
 	
 	// the original location claim of the prover
-	repeated LocationClaim claims = 2;
+	repeated LocationClaim claims = 1;
+
+	// timestamp of location endorsement - time/date, time interval, ... -- date scheme
+	Time time = 2;
 	
-	// ?? - not needed
-	string endorsement = 3;
-	
-    // type of the evidence
-    EvidenceType evidenceType = 4;
+	// type of the evidence
+    string evidenceType = 3;
 
 	// endorsement evidence ??
-	repeated google.protobuf.Any endorsementEvidence = 5;
-
-    // timestamp of location endorsement - time/date, time interval, ... -- date scheme
-	google.protobuf.Timestamp timestamp = 6;
-	
-	// witness's signature
-	bytes signature = 7;
+	repeated google.protobuf.Any endorsementEvidence = 4;
 	
 }
+
+message SignedLocationEndorsement{
+	
+	LocationEndorsement endorsement = 0;
+	// witness's signature
+	Signature signature = 1;
+}
+
+
+

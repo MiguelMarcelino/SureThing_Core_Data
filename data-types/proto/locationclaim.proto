@@ -1,14 +1,54 @@
 syntax = "proto3";
 
-package pt.ulisboa.tecnico.surethingcore;
+package eu.surething_project.core;
 
 option java_multiple_files = true;
-option java_package = "pt.ulisboa.tecnico.surethingcore.locationclaim";
-option java_outer_classname = "SureThingLocationClaimEntities";
+option java_package = "eu.surething_project.core.locationclaim";
+option java_outer_classname = "LocationClaimEntities";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
+import "latlng.proto";
 
+// %TODO: Fix following imports
+//import "google/type/latlng.proto";  
+//import "google/type/localizedtext.proto";
+
+
+// supported location schemas
+message Location {
+    oneof location {
+        google.type.LatLng latLng = 1;
+        PoI poi = 2;
+        PoIProximity proximityToPoI = 3;
+        OLC olc = 4;
+    }
+}
+
+// Point of Interest (PoI) location
+message PoI {
+    string id = 1;
+    string name = 2;
+    google.Type.LocalizedText localizedName = 3;
+}
+
+// Point of Interest proximity location
+message PoIProximity {
+    string poiId = 1;
+    int64 distanceValue = 2;
+    string distanceUnit = 3;
+}
+
+
+// Open Location Codes
+// reference: https://github.com/google/open-location-code/blob/1796878d947c6e281e383e69bbd0821f82db9566/java/src/main/java/com/google/openlocationcode/OpenLocationCode.java#L106
+message OLC {
+    double southLatitude = 1;
+    double westLongitude = 2;
+    double northLatitude = 3;
+    double eastLongitude = 4;
+    int32 length = 5;
+}
 
 //enum IdentityType {
 //    NUMERIC = 0;
@@ -23,102 +63,83 @@ import "google/protobuf/any.proto";
 //     OLC_CODE = 3;
 // }
 
-message Location {
-    oneof location {
-        google.type.LatLng latLng = 0;
-        PoI poi = 1;
-        PoIProximity proximityToPoI = 2;
-        OLC olc = 3;
-    }
-}
-
-message PoI {
-    string id = 0;
-    string name = 1;
-    google.Type.LocalizedText localizedName = 1;
-}
-
-message PoIProximity {
-    string poiId = 0;
-    int64 distanceValue = 1;
-    string distanceUnit = 2;
-}
-
-// reference: https://github.com/google/open-location-code/blob/1796878d947c6e281e383e69bbd0821f82db9566/java/src/main/java/com/google/openlocationcode/OpenLocationCode.java#L106
-message OLC {
-    double southLatitude = 0;
-    double westLongitude = 1;
-    double northLatitude = 2;
-    double eastLongitude = 3;
-    int32 length = 4;
-}
-
 //enum TimeType {
 //    TIMESTAMP = 0;
 //    INTERVAL = 1; //start and end timestamps
 //    RELATIVE_TO_EPOCH = 2;
 //}
 
+
+// supported time schemas
 message Time {
     oneof time {
-        google.protobuf.Timestamp timestamp = 0;
-        TimeInterval interval = 1;
-        EpochTime relativeToEpoch = 2;
+        google.protobuf.Timestamp timestamp = 1;
+        TimeInterval interval = 2;
+        EpochTime relativeToEpoch = 3;
     }
 }
 
+// Time interval
 message TimeInterval {
-    google.protobuf.Timestamp begin = 0;
-    google.protobuf.Timestamp end = 1;
+    google.protobuf.Timestamp begin = 1;
+    google.protobuf.Timestamp end = 2;
 }
 
+// Epoch time 
 message EpochTime {
-    string epochId = 0;
-    int64 time = 1;
+    string epochId = 1;
+    int64 time = 2;
 }
 
+
+// definition of the location claim
 message LocationClaim{
 
     // unique identifier for claim
-    string claimId = 0;
+    string claimId = 1;
 
 	// prover unique id - pseudonyms -- identity scheme
-	string proverId = 1;
+	string proverId = 2;
 	
-	// prover's location - lat, long - name, hierarchy of names, ... -- location schema
-	Location location = 2;
-	
+	// prover's location -- location schemas
+	Location location = 3;
+
+    // timestamp of location claim -- time schemas
+    Time time = 4;
+
     // type of the evidence
-    // ? repeated?
-    string evidenceType = 3;
+    string evidenceType = 5;
 
 	// location evidence ??  - Screen signing , photo, ... -- evidence scheme
     // ? repeated?
-	google.protobuf.Any claimEvidence = 4;
+	google.protobuf.Any claimEvidence = 6;
 
-    // timestamp of location claim - time/date, time interval, ... -- date scheme
-	//google.protobuf.Timestamp timestamp = 5;
-    Time time = 5;
+    // reference to another location claim
+    string next = 7;
 }
 
+// signed location claim 
 message SignedLocationClaim{
-    LocationClaim claim = 0;
+    // 
+    LocationClaim claim = 1;
 	// prover's signature
-	Signature signature = 6;
+	Signature signature = 2;
 }
 
+// singature definition
 message Signature {
-    string CryptoAlgo = 0;
-    int64 nonce = 1;
-    bytes value = 2;
-    google.proto.Any metaData;
+    string CryptoAlgo = 1;
+    int64 nonce = 2;
+    bytes value = 3;
+    google.protobuf.Any metaData = 4;
 }
 
-// WiFi evidence : One possible definition 
-message ClaimEvidence {
+
+// Example: WiFi evidence : One possible definition 
+message WiFiClaimEvidence {
 
     // unique id
-    int64 id = 1;
+    string id = 1;
 
     // Access point (AP) definition
     message AP{
@@ -127,11 +148,11 @@ message ClaimEvidence {
         string ssid = 1;
 
         // measured RSSI 
-        int64 rssi = 2;
+        string rssi = 2;
     }
 
-    // detected AP
-    repeated AP ap = 2;
+    // detected APs
+    repeated AP aps = 2;
 
     // ...
 }
