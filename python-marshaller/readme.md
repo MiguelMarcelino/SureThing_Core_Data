@@ -28,7 +28,7 @@ import surethingcorepython
 -> protoc --proto_path=../data-types/proto --python_out=./surethingcorepython ../data-types/proto/*.proto
 
 ```
-2- fix nested import in proto files
+2- fix nested imports in proto files
 
 ```
 audit_pb_2.py
@@ -40,6 +40,12 @@ from . import ledger_pb2 as ledger__pb2
 ledger_pb2.py
 
 from . import location_proof_pb2 as location__proof__pb2
+
+
+locationclaim_pb2.py
+
+from . import latlng_pb2 as latlng__pb2
+from . import localized_text_pb2 as localized__text__pb2
 
 
 locationendorsement_pb2.py
