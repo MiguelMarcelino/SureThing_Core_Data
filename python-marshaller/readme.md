@@ -46,17 +46,19 @@ locationclaim_pb2.py
 
 from . import latlng_pb2 as latlng__pb2
 from . import localized_text_pb2 as localized__text__pb2
+from . import signature_pb2 as signature__pb2
 
 
 locationendorsement_pb2.py
 
 from . import locationclaim_pb2 as locationclaim__pb2
+from . import signature_pb2 as signature__pb2
 
 
 locationcertificate_pb2.py
 
 from . import locationclaim_pb2 as locationclaim__pb2
-from . import locationendorsement_pb2 as locationendorsement__pb2
+from . import signature_pb2 as signature__pb2
 
 
 ```
