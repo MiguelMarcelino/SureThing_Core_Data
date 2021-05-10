@@ -37,7 +37,7 @@ message Location {
 message PoI {
     string id = 1;
     string name = 2;
-    google.type.LocalizedText localizedName = 3;
+    repeated google.type.LocalizedText localizedName = 3;
 }
 
 // Point of Interest proximity location
@@ -99,6 +99,7 @@ message EpochTime {
     int64 time = 2;
 }
 
+// null?
 
 // definition of the location claim
 message LocationClaim{
@@ -123,8 +124,11 @@ message LocationClaim{
 	google.protobuf.Any claimEvidence = 6;
 
     // reference to another location claim
-    string next = 7;
+    string prevClaimId = 7;
+    string prevClaimHash = 8; // what hash algo?
 }
+
+// reference: Any OneOf https://gist.github.com/zz85/c645a51ae0c1df67161f13a495317dd8
 
 // signed location claim 
 message SignedLocationClaim{

@@ -16,7 +16,7 @@ message LocationEndorsement{
 	string witnessId = 1;
 	
 	// the original location claim of the prover
-	repeated LocationClaim claims = 2;
+	repeated string claimsIds = 2;
 
 	// timestamp of location endorsement - time/date, time interval, ... -- date scheme
 	Time time = 3;

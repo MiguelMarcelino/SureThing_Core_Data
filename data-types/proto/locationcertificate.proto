@@ -17,10 +17,10 @@ message LocationCertificate{
 	string verifierId = 1;
 	
 	// the original location claim of the prover
-	repeated LocationClaim claim = 2;
+	repeated string claimsIds = 2;
 	
 	// list of location endorsements by witnesses
-	repeated LocationEndorsement endorsements = 3;
+	repeated string endorsementsIds = 3; // map of claim id to endorsement
 
     // type of the evidence
     string evidenceType = 4;
