@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 from . import locationclaim_pb2 as locationclaim__pb2
-from . import locationendorsement_pb2 as locationendorsement__pb2
+from . import signature_pb2 as signature__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -22,60 +22,60 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n-eu.surething_project.core.locationcertificateB\033LocationCertificateEntitiesP\001',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x19locationcertificate.proto\x12\x19\x65u.surething_project.core\x1a\x19google/protobuf/any.proto\x1a\x13locationclaim.proto\x1a\x19locationendorsement.proto\"\xa1\x02\n\x13LocationCertificate\x12\x12\n\nverifierId\x18\x01 \x01(\t\x12\x37\n\x05\x63laim\x18\x02 \x03(\x0b\x32(.eu.surething_project.core.LocationClaim\x12\x44\n\x0c\x65ndorsements\x18\x03 \x03(\x0b\x32..eu.surething_project.core.LocationEndorsement\x12\x14\n\x0c\x65videnceType\x18\x04 \x01(\t\x12\x32\n\x14verificationEvidence\x18\x05 \x03(\x0b\x32\x14.google.protobuf.Any\x12-\n\x04time\x18\x06 \x01(\x0b\x32\x1f.eu.surething_project.core.Time\"\x99\x01\n\x19SignedLocationCertificate\x12\x43\n\x0b\x63\x65rtificate\x18\x01 \x01(\x0b\x32..eu.surething_project.core.LocationCertificate\x12\x37\n\tsignature\x18\x02 \x01(\x0b\x32$.eu.surething_project.core.SignatureBN\n-eu.surething_project.core.locationcertificateB\x1bLocationCertificateEntitiesP\x01\x62\x06proto3'
+  serialized_pb=b'\n\x19locationcertificate.proto\x12\x19\x65u.surething_project.core\x1a\x19google/protobuf/any.proto\x1a\x13locationclaim.proto\x1a\x0fsignature.proto\"\xc0\x01\n\x14LocationVerification\x12\x12\n\nverifierId\x18\x01 \x01(\t\x12\x0f\n\x07\x63laimId\x18\x02 \x01(\t\x12\x16\n\x0e\x65ndorsementIds\x18\x03 \x03(\t\x12-\n\x04time\x18\x04 \x01(\x0b\x32\x1f.eu.surething_project.core.Time\x12\x14\n\x0c\x65videnceType\x18\x05 \x01(\t\x12&\n\x08\x65vidence\x18\x06 \x03(\x0b\x32\x14.google.protobuf.Any\"\x95\x01\n\x13LocationCertificate\x12\x45\n\x0cverification\x18\x01 \x01(\x0b\x32/.eu.surething_project.core.LocationVerification\x12\x37\n\tsignature\x18\x02 \x01(\x0b\x32$.eu.surething_project.core.SignatureBN\n-eu.surething_project.core.locationcertificateB\x1bLocationCertificateEntitiesP\x01\x62\x06proto3'
   ,
-  dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,locationclaim__pb2.DESCRIPTOR,locationendorsement__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,locationclaim__pb2.DESCRIPTOR,signature__pb2.DESCRIPTOR,])
 
 
 
 
-_LOCATIONCERTIFICATE = _descriptor.Descriptor(
-  name='LocationCertificate',
-  full_name='eu.surething_project.core.LocationCertificate',
+_LOCATIONVERIFICATION = _descriptor.Descriptor(
+  name='LocationVerification',
+  full_name='eu.surething_project.core.LocationVerification',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='verifierId', full_name='eu.surething_project.core.LocationCertificate.verifierId', index=0,
+      name='verifierId', full_name='eu.surething_project.core.LocationVerification.verifierId', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='claim', full_name='eu.surething_project.core.LocationCertificate.claim', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='endorsements', full_name='eu.surething_project.core.LocationCertificate.endorsements', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='evidenceType', full_name='eu.surething_project.core.LocationCertificate.evidenceType', index=3,
-      number=4, type=9, cpp_type=9, label=1,
+      name='claimId', full_name='eu.surething_project.core.LocationVerification.claimId', index=1,
+      number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='verificationEvidence', full_name='eu.surething_project.core.LocationCertificate.verificationEvidence', index=4,
-      number=5, type=11, cpp_type=10, label=3,
+      name='endorsementIds', full_name='eu.surething_project.core.LocationVerification.endorsementIds', index=2,
+      number=3, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='time', full_name='eu.surething_project.core.LocationCertificate.time', index=5,
-      number=6, type=11, cpp_type=10, label=1,
+      name='time', full_name='eu.surething_project.core.LocationVerification.time', index=3,
+      number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='evidenceType', full_name='eu.surething_project.core.LocationVerification.evidenceType', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='evidence', full_name='eu.surething_project.core.LocationVerification.evidence', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -91,28 +91,28 @@ _LOCATIONCERTIFICATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=132,
-  serialized_end=421,
+  serialized_start=122,
+  serialized_end=314,
 )
 
 
-_SIGNEDLOCATIONCERTIFICATE = _descriptor.Descriptor(
-  name='SignedLocationCertificate',
-  full_name='eu.surething_project.core.SignedLocationCertificate',
+_LOCATIONCERTIFICATE = _descriptor.Descriptor(
+  name='LocationCertificate',
+  full_name='eu.surething_project.core.LocationCertificate',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='certificate', full_name='eu.surething_project.core.SignedLocationCertificate.certificate', index=0,
+      name='verification', full_name='eu.surething_project.core.LocationCertificate.verification', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='signature', full_name='eu.surething_project.core.SignedLocationCertificate.signature', index=1,
+      name='signature', full_name='eu.surething_project.core.LocationCertificate.signature', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -130,19 +130,24 @@ _SIGNEDLOCATIONCERTIFICATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=424,
-  serialized_end=577,
+  serialized_start=317,
+  serialized_end=466,
 )
 
-_LOCATIONCERTIFICATE.fields_by_name['claim'].message_type = locationclaim__pb2._LOCATIONCLAIM
-_LOCATIONCERTIFICATE.fields_by_name['endorsements'].message_type = locationendorsement__pb2._LOCATIONENDORSEMENT
-_LOCATIONCERTIFICATE.fields_by_name['verificationEvidence'].message_type = google_dot_protobuf_dot_any__pb2._ANY
-_LOCATIONCERTIFICATE.fields_by_name['time'].message_type = locationclaim__pb2._TIME
-_SIGNEDLOCATIONCERTIFICATE.fields_by_name['certificate'].message_type = _LOCATIONCERTIFICATE
-_SIGNEDLOCATIONCERTIFICATE.fields_by_name['signature'].message_type = locationclaim__pb2._SIGNATURE
+_LOCATIONVERIFICATION.fields_by_name['time'].message_type = locationclaim__pb2._TIME
+_LOCATIONVERIFICATION.fields_by_name['evidence'].message_type = google_dot_protobuf_dot_any__pb2._ANY
+_LOCATIONCERTIFICATE.fields_by_name['verification'].message_type = _LOCATIONVERIFICATION
+_LOCATIONCERTIFICATE.fields_by_name['signature'].message_type = signature__pb2._SIGNATURE
+DESCRIPTOR.message_types_by_name['LocationVerification'] = _LOCATIONVERIFICATION
 DESCRIPTOR.message_types_by_name['LocationCertificate'] = _LOCATIONCERTIFICATE
-DESCRIPTOR.message_types_by_name['SignedLocationCertificate'] = _SIGNEDLOCATIONCERTIFICATE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
+
+LocationVerification = _reflection.GeneratedProtocolMessageType('LocationVerification', (_message.Message,), {
+  'DESCRIPTOR' : _LOCATIONVERIFICATION,
+  '__module__' : 'locationcertificate_pb2'
+  # @@protoc_insertion_point(class_scope:eu.surething_project.core.LocationVerification)
+  })
+_sym_db.RegisterMessage(LocationVerification)
 
 LocationCertificate = _reflection.GeneratedProtocolMessageType('LocationCertificate', (_message.Message,), {
   'DESCRIPTOR' : _LOCATIONCERTIFICATE,
@@ -150,13 +155,6 @@ LocationCertificate = _reflection.GeneratedProtocolMessageType('LocationCertific
   # @@protoc_insertion_point(class_scope:eu.surething_project.core.LocationCertificate)
   })
 _sym_db.RegisterMessage(LocationCertificate)
-
-SignedLocationCertificate = _reflection.GeneratedProtocolMessageType('SignedLocationCertificate', (_message.Message,), {
-  'DESCRIPTOR' : _SIGNEDLOCATIONCERTIFICATE,
-  '__module__' : 'locationcertificate_pb2'
-  # @@protoc_insertion_point(class_scope:eu.surething_project.core.SignedLocationCertificate)
-  })
-_sym_db.RegisterMessage(SignedLocationCertificate)
 
 
 DESCRIPTOR._options = None

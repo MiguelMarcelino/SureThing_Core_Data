@@ -13,17 +13,18 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 from . import locationclaim_pb2 as locationclaim__pb2
+from . import signature_pb2 as signature__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='locationendorsement.proto',
   package='eu.surething_project.core',
   syntax='proto3',
-  serialized_options=b'\n-eu.surething_project.core.locationendorsementB\033LocationEndorsementEntitiesP\001',
+  serialized_options=b'\n\031eu.surething_project.coreB\033LocationEndorsementEntitiesP\001',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x19locationendorsement.proto\x12\x19\x65u.surething_project.core\x1a\x19google/protobuf/any.proto\x1a\x13locationclaim.proto\"\xda\x01\n\x13LocationEndorsement\x12\x11\n\twitnessId\x18\x01 \x01(\t\x12\x38\n\x06\x63laims\x18\x02 \x03(\x0b\x32(.eu.surething_project.core.LocationClaim\x12-\n\x04time\x18\x03 \x01(\x0b\x32\x1f.eu.surething_project.core.Time\x12\x14\n\x0c\x65videnceType\x18\x04 \x01(\t\x12\x31\n\x13\x65ndorsementEvidence\x18\x05 \x03(\x0b\x32\x14.google.protobuf.Any\"\x99\x01\n\x19SignedLocationEndorsement\x12\x43\n\x0b\x65ndorsement\x18\x01 \x01(\x0b\x32..eu.surething_project.core.LocationEndorsement\x12\x37\n\tsignature\x18\x02 \x01(\x0b\x32$.eu.surething_project.core.SignatureBN\n-eu.surething_project.core.locationendorsementB\x1bLocationEndorsementEntitiesP\x01\x62\x06proto3'
+  serialized_pb=b'\n\x19locationendorsement.proto\x12\x19\x65u.surething_project.core\x1a\x19google/protobuf/any.proto\x1a\x13locationclaim.proto\x1a\x0fsignature.proto\"\xa6\x01\n\x13LocationEndorsement\x12\x11\n\twitnessId\x18\x01 \x01(\t\x12\x0f\n\x07\x63laimId\x18\x02 \x01(\t\x12-\n\x04time\x18\x03 \x01(\x0b\x32\x1f.eu.surething_project.core.Time\x12\x14\n\x0c\x65videnceType\x18\x04 \x01(\t\x12&\n\x08\x65vidence\x18\x05 \x01(\x0b\x32\x14.google.protobuf.Any\"\xa0\x01\n\x19SignedLocationEndorsement\x12\x43\n\x0b\x65ndorsement\x18\x01 \x01(\x0b\x32..eu.surething_project.core.LocationEndorsement\x12>\n\x10witnessSignature\x18\x02 \x01(\x0b\x32$.eu.surething_project.core.SignatureB:\n\x19\x65u.surething_project.coreB\x1bLocationEndorsementEntitiesP\x01\x62\x06proto3'
   ,
-  dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,locationclaim__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,locationclaim__pb2.DESCRIPTOR,signature__pb2.DESCRIPTOR,])
 
 
 
@@ -44,9 +45,9 @@ _LOCATIONENDORSEMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='claims', full_name='eu.surething_project.core.LocationEndorsement.claims', index=1,
-      number=2, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='claimId', full_name='eu.surething_project.core.LocationEndorsement.claimId', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -65,9 +66,9 @@ _LOCATIONENDORSEMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='endorsementEvidence', full_name='eu.surething_project.core.LocationEndorsement.endorsementEvidence', index=4,
-      number=5, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='evidence', full_name='eu.surething_project.core.LocationEndorsement.evidence', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -83,8 +84,8 @@ _LOCATIONENDORSEMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=105,
-  serialized_end=323,
+  serialized_start=122,
+  serialized_end=288,
 )
 
 
@@ -104,7 +105,7 @@ _SIGNEDLOCATIONENDORSEMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='signature', full_name='eu.surething_project.core.SignedLocationEndorsement.signature', index=1,
+      name='witnessSignature', full_name='eu.surething_project.core.SignedLocationEndorsement.witnessSignature', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -122,15 +123,14 @@ _SIGNEDLOCATIONENDORSEMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=326,
-  serialized_end=479,
+  serialized_start=291,
+  serialized_end=451,
 )
 
-_LOCATIONENDORSEMENT.fields_by_name['claims'].message_type = locationclaim__pb2._LOCATIONCLAIM
 _LOCATIONENDORSEMENT.fields_by_name['time'].message_type = locationclaim__pb2._TIME
-_LOCATIONENDORSEMENT.fields_by_name['endorsementEvidence'].message_type = google_dot_protobuf_dot_any__pb2._ANY
+_LOCATIONENDORSEMENT.fields_by_name['evidence'].message_type = google_dot_protobuf_dot_any__pb2._ANY
 _SIGNEDLOCATIONENDORSEMENT.fields_by_name['endorsement'].message_type = _LOCATIONENDORSEMENT
-_SIGNEDLOCATIONENDORSEMENT.fields_by_name['signature'].message_type = locationclaim__pb2._SIGNATURE
+_SIGNEDLOCATIONENDORSEMENT.fields_by_name['witnessSignature'].message_type = signature__pb2._SIGNATURE
 DESCRIPTOR.message_types_by_name['LocationEndorsement'] = _LOCATIONENDORSEMENT
 DESCRIPTOR.message_types_by_name['SignedLocationEndorsement'] = _SIGNEDLOCATIONENDORSEMENT
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
