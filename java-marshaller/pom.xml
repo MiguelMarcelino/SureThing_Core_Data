@@ -5,8 +5,7 @@
   <version>0.0.1</version>
   <name>java-marshaller</name>
   <packaging>jar</packaging>
-  <description>SureThing Java Marshaller Lib</description>
-  
+  <description>SureThing Java Marshaller Library</description>
   
   <properties>
   		<!-- compiler properties -->
@@ -61,7 +60,17 @@
 	    </extensions>
 
 		<plugins>
-			
+			<!-- Plug-in used to compile the sources of your project. Java 9 requires 
+				at least version 3.7.0 to properly handle modules. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${version.maven-compiler-plugin}</version>
+				<configuration>
+					<source>${version.java}</source>
+					<target>${version.java}</target>
+				</configuration>
+			</plugin>
 			<!-- ProtoBuf Plugin  ... -->
             <plugin>
 				<groupId>org.xolstice.maven.plugins</groupId>
