@@ -28,10 +28,9 @@ public class ExampleTest {
 	// tests
 
 	@Test
-	public void testMarshaller() {
+	public void testLocationClaim() {
 		
-		//LocationProofProto.getDescriptor();
-
+		
 		// create claim
 
 		// serialize
@@ -41,10 +40,28 @@ public class ExampleTest {
 		// check contents of claim
 	}
 	
-	// endorsement structure
-	// ...
+	@Test
+	public void testLocationEndorsement() {
+		
+		// create claim
 
-	// verification structure
-	// ...
+		// serialize
 
+		// desserialize
+
+		// check contents of claim
+	}
+	
+	@Test
+	public void testLocationCertificate() {
+		
+		// create claim
+
+		// serialize
+
+		// desserialize
+
+		// check contents of claim
+	}
+	
 }

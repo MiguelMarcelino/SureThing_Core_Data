@@ -9,13 +9,13 @@ package surethingcorepython contains the generated modules (marshallers) from .p
 ## install
 
 ```
--> pip install surethingcorepython
+-> pip install surethingcore
 ```
 
 ## Example : KIOSK
 
 ```
-import surethingcorepython
+import surethingcore
 
 ```
 
@@ -25,41 +25,34 @@ import surethingcorepython
 
 1- generate files
 ```
--> protoc --proto_path=../data-types/proto --python_out=./surethingcorepython ../data-types/proto/*.proto
+-> protoc --proto_path=../data-types/proto --python_out=./surethingcore ../data-types/proto/*.proto
 
 ```
 2- fix nested imports in proto files
 
 ```
-audit_pb_2.py
 
-from . import location_proof_pb2 as location__proof__pb2
-from . import ledger_pb2 as ledger__pb2
+loc_claim_pb2.py
 
-
-ledger_pb2.py
-
-from . import location_proof_pb2 as location__proof__pb2
+from . import loc_time_pb2 as loc__time__pb2
+from . import signature_pb2 as signature__pb2
 
 
-locationclaim_pb2.py
+loc_endorse_pb2.py 
+
+from . import loc_time_pb2 as loc__time__pb2
+from . import signature_pb2 as signature__pb2
+
+
+loc_cert_pb2.py
+
+from . import loc_time_pb2 as loc__time__pb2
+from . import signature_pb2 as signature__pb2
+
+loc_time_pb2.py
 
 from . import latlng_pb2 as latlng__pb2
 from . import localized_text_pb2 as localized__text__pb2
-from . import signature_pb2 as signature__pb2
-
-
-locationendorsement_pb2.py
-
-from . import locationclaim_pb2 as locationclaim__pb2
-from . import signature_pb2 as signature__pb2
-
-
-locationcertificate_pb2.py
-
-from . import locationclaim_pb2 as locationclaim__pb2
-from . import signature_pb2 as signature__pb2
-
 
 ```
 

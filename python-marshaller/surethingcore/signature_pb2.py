@@ -17,9 +17,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='signature.proto',
   package='eu.surething_project.core',
   syntax='proto3',
-  serialized_options=b'\n\031eu.surething_project.coreB\021SignatureEntitiesP\001',
+  serialized_options=b'\n\031eu.surething_project.coreB\016SignatureProtoP\001',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fsignature.proto\x12\x19\x65u.surething_project.core\"=\n\tSignature\x12\r\n\x05value\x18\x01 \x01(\x0c\x12\x12\n\ncryptoAlgo\x18\x02 \x01(\t\x12\r\n\x05nonce\x18\x03 \x01(\x03\x42\x30\n\x19\x65u.surething_project.coreB\x11SignatureEntitiesP\x01\x62\x06proto3'
+  serialized_pb=b'\n\x0fsignature.proto\x12\x19\x65u.surething_project.core\"=\n\tSignature\x12\r\n\x05value\x18\x01 \x01(\x0c\x12\x12\n\ncryptoAlgo\x18\x02 \x01(\t\x12\r\n\x05nonce\x18\x03 \x01(\x03\x42-\n\x19\x65u.surething_project.coreB\x0eSignatureProtoP\x01\x62\x06proto3'
 )
 
 

@@ -17,9 +17,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='wi_fi.proto',
   package='eu.surething_project.core.wi_fi',
   syntax='proto3',
-  serialized_options=b'\n\037eu.surething_project.core.wi_fiB\014WiFiEntitiesP\001',
+  serialized_options=b'\n\037eu.surething_project.core.wi_fiB\tWiFiProtoP\001',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0bwi_fi.proto\x12\x1f\x65u.surething_project.core.wi_fi\"\x8b\x01\n\x14WiFiNetworksEvidence\x12\n\n\x02id\x18\x01 \x01(\t\x12\x45\n\x03\x61ps\x18\x02 \x03(\x0b\x32\x38.eu.surething_project.core.wi_fi.WiFiNetworksEvidence.AP\x1a \n\x02\x41P\x12\x0c\n\x04ssid\x18\x01 \x01(\t\x12\x0c\n\x04rssi\x18\x02 \x01(\tB1\n\x1f\x65u.surething_project.core.wi_fiB\x0cWiFiEntitiesP\x01\x62\x06proto3'
+  serialized_pb=b'\n\x0bwi_fi.proto\x12\x1f\x65u.surething_project.core.wi_fi\"\x8b\x01\n\x14WiFiNetworksEvidence\x12\n\n\x02id\x18\x01 \x01(\t\x12\x45\n\x03\x61ps\x18\x02 \x03(\x0b\x32\x38.eu.surething_project.core.wi_fi.WiFiNetworksEvidence.AP\x1a \n\x02\x41P\x12\x0c\n\x04ssid\x18\x01 \x01(\t\x12\x0c\n\x04rssi\x18\x02 \x01(\tB.\n\x1f\x65u.surething_project.core.wi_fiB\tWiFiProtoP\x01\x62\x06proto3'
 )
 
 
