@@ -31,7 +31,20 @@ public class ExampleTest {
 	public void testMarshaller() {
 		
 		//LocationProofProto.getDescriptor();
+
+		// create claim
+
+		// serialize
+
+		// desserialize
+
+		// check contents of claim
 	}
 	
+	// endorsement structure
+	// ...
+
+	// verification structure
+	// ...
 
 }
