@@ -52,14 +52,18 @@ This adds programmer convenience with the marshalled types.
 ## Identity schemes
 
 The SureThing entities -- Prover, Witness, Verifier -- are represented by a `string` identifier that can be assumed to be **unique** in the application scope.
-The identity can be a number, a textual name, a pseudonym, a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), etc.
+The identity can be a number, a textual name, a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), etc.
 Despite this enumeration there are no predefined types for these identities and it will be up to the application to make sense of the identifier and its internal structure.
-For this reason, the identifiers do not carry an identity type descriminant. 
+For this reason, the identifiers do not carry an identity type discriminant.
 It is assumed that the identifier type can be recognized by syntax of the text it contains.
 
 Example numeric identifier: `2207`  
-Example text name: `John Smith`  
+Example textual identifier: `Alice Sure`  
 Example UUID: `123e4567-e89b-12d3-a456-426614174000`.
+
+If we do not want to provide an identifier, then the empty string value should be used "".
+
+When using a name, it does not have to be the actual name of the entity/person, it can a pseudonym.
 
 ## Any evidence
 
