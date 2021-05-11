@@ -6,6 +6,7 @@ option java_multiple_files = true;
 option java_package = "eu.surething_project.core";
 option java_outer_classname = "LocTimeProto";
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "latlng.proto";
 import "localized_text.proto";
@@ -50,6 +51,7 @@ message Time {
         google.protobuf.Timestamp timestamp = 1; // timestamp
         TimeInterval interval = 2; // interval defined by two timestamps
         EpochTime relativeToEpoch = 3; // time relative to epoch
+        google.protobuf.Empty empty = 4; // use when we do no have time information
     }
 }
 
