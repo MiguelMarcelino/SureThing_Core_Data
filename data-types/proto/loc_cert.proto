@@ -23,7 +23,7 @@ message LocationVerification {
     // type of the evidence
     string evidenceType = 5;
 	// verification evidence
-	repeated google.protobuf.Any evidence = 6;
+	google.protobuf.Any evidence = 6;
 }
 
 // A location certificate is a verified location claim, optionally supported by endorsements
