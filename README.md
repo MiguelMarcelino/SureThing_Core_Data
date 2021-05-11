@@ -1,4 +1,4 @@
-# SureThing_Core_Data
+# SureThing Core Data
 
 This repository contains the central datatypes defined for the SureThing framework.  
 The underlying representation format is **protobuf** (Protocol Buffers).
@@ -65,15 +65,30 @@ If we do not want to provide an identifier, then the empty string value should b
 
 When using a name, it does not have to be the actual name of the entity/person, it can a pseudonym.
 
-## Any evidence
+## Extensibility
 
-This was not the same approach as taken with time and location (`oneof`), as evidence types are expected to be more dynamic and application-specific, and, in these cases, we could not way for an alternative to be added to the core framework definitions.
+The SureThing framework data types need to be extensible, since the range of applications to support is not pre-determined.
+We consider two types of extensibility with different degrees of agility, i.e., ability to cope with change.
+
+First, we have *release extensibility*, where a specific set of alternatives is presented in a released version of the framework.
+More options can be added in a future release, maintaining backward compatibility.
+
+Second, we have *open extensibility*, where the Protocol Buffers `Any` data type is used as a placeholder for an unspecified data type, and a `string` is used to describe the type to be added.
+This type and data fields allow for applications to recognize a subset of types, and to have special unpacking code for them.
+This extensibility does not require a new release from the framework, which allows more innovation on behalf of the applications.
+
+### Alternatives
+
+The approach taken with time and location, using the Protocol Buffers `oneof` construct, allows for the *release extensibility*.
+Applications can choose a scheme from one of the supported alternatives, or upgrade to a later release of the framework for unsupported schemes.
+
+### Any evidence
 
 The SureThing framework supports any kind of evidence.
 The way this information is represented is by two fields: the *type* string and the any field.
 The type string is the fully-qualified protobuf name of the evidence type, e.g., "eu.surething_project.core.wi_fi.WiFiNetworksEvidence", this allows the application to check if it recognizes the type of evidence, and, if so, unpack it and use it.
 
-## Representing lack of information (null)
+### Representing lack of information (null)
 
 For a string field, the lack of information is represented as the empty string "".
 
