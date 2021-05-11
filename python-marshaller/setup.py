@@ -1,12 +1,12 @@
 from setuptools import setup
-setup(name='surethingcorepython',
+setup(name='surethingcore',
  version='0.0.1',
- description = 'SureThing Core Python Marshallers',
+ description = 'SureThing Core Data Python Marshallers',
  url='#', 
  author ='SAM',
- authou_email ='sameheisa@gmail.com',
+ author_email ='sameheisa@inesc-id.pt',
  license = 'MIT',
- packages= ['surethingcorepython'],
+ packages= ['surethingcore'],
  install_requires=["protobuf"],
  zip_safe=False
 )
