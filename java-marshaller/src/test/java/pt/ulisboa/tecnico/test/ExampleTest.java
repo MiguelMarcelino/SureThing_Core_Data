@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.test;
 
 import org.junit.jupiter.api.*;
 
-import pt.ulisboa.tecnico.surethingcore.locationproof.*;
 
 /**
  *  Test suite
@@ -31,7 +30,7 @@ public class ExampleTest {
 	@Test
 	public void testMarshaller() {
 		
-		LocationProofProto.getDescriptor();
+		//LocationProofProto.getDescriptor();
 	}
 	
 
