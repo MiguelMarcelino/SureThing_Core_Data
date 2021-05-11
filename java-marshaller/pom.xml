@@ -19,6 +19,7 @@
         <version.maven-enforcer-plugin>1.4.1</version.maven-enforcer-plugin>
         <version.protobuf-maven-plugin>0.6.1</version.protobuf-maven-plugin>
         <version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
+        <version.build-helper-maven-plugin>3.2.0</version.build-helper-maven-plugin>
         <version.protoc>3.15.5</version.protoc>
         <version.javax.annotation-api>1.3.2</version.javax.annotation-api>
         
@@ -86,6 +87,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${version.build-helper-maven-plugin}</version>
                 <executions>
                     <execution>
                         <id>add-protobuf-generate-sources</id>
