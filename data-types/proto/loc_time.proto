@@ -4,13 +4,11 @@ package eu.surething_project.core;
 
 option java_multiple_files = true;
 option java_package = "eu.surething_project.core";
-option java_outer_classname = "LocationClaimEntities";
+option java_outer_classname = "LocTimeProto";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/any.proto";
 import "latlng.proto";
 import "localized_text.proto";
-import "signature.proto";
 
 // Location schemas - alternatives
 message Location {
@@ -66,26 +64,4 @@ message EpochTime {
     string epochId = 1; // unique identifier
     int64 timeValue = 2; // time value
     string timeUnit = 3; // unit of time (e.g. s - seconds)
-}
-
-// definition of the location claim
-message LocationClaim{
-    // unique identifier for claim
-    string claimId = 1;
-	// prover unique id - can also be a pseudonym
-	string proverId = 2;
-	// prover's location - in one of alternative location schemas
-	Location location = 3;
-    // time of location claim -- in one of alternative time schemas
-    Time time = 4;
-    // type of the evidence that supports the claim - fully-qualified protobuf message name
-    string evidenceType = 5;
-	// location evidence e.g. sensor readings, photo, screen signing - according to evidence type
-	google.protobuf.Any evidence = 6;
-}
-
-// signed location claim 
-message SignedLocationClaim{
-    LocationClaim claim = 1; // claim
-	Signature proverSignature = 2; // prover's signature
 }

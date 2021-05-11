@@ -4,7 +4,7 @@ package eu.surething_project.core.wi_fi;
 
 option java_multiple_files = true;
 option java_package = "eu.surething_project.core.wi_fi";
-option java_outer_classname = "WiFiEntities";
+option java_outer_classname = "WiFiProto";
 
 // Wi-Fi networks evidence 
 message WiFiNetworksEvidence {
