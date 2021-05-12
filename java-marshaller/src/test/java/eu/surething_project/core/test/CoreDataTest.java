@@ -1,23 +1,21 @@
 package eu.surething_project.core.test;
 
-import org.junit.jupiter.api.*;
 import eu.surething_project.core.*;
 import eu.surething_project.core.wi_fi.*;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.Any;
 import com.google.type.LatLng;
+import com.google.protobuf.InvalidProtocolBufferException;
+import static com.google.protobuf.util.Timestamps.compare;
 import static com.google.protobuf.util.Timestamps.fromMillis;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.ArrayList;
-import com.google.protobuf.InvalidProtocolBufferException;
-import static com.google.protobuf.util.Timestamps.compare;
-
-
 
 /**
- *  Test suite
+ *  Test suite of SureThing Core data-types
  */
 public class CoreDataTest {
 
