@@ -1,7 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+<<<<<<< Updated upstream
   <groupId>eu.surething_project</groupId>
   <artifactId>surething-core-data</artifactId>
+=======
+  <groupId>eu.surething_project.core</groupId>
+  <artifactId>surething-data-core</artifactId>
+>>>>>>> Stashed changes
   <version>0.0.1</version>
   <name>SureThing java-marshaller</name>
   <packaging>jar</packaging>
@@ -38,6 +43,14 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
+    </dependency>
+
+
+    <!-- Protobuf util-->
+    <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>4.0.0-rc-2</version>
     </dependency>
     
     <!-- JUnit  ... -->
