@@ -41,7 +41,7 @@ public class CoreDataTest {
 						.setTime(Time.newBuilder()
 										.setTimestamp(fromMillis(timeInMillis))
 										.build())
-						.setEvidenceType("WiFi")
+						.setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
 						.setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
 										.setId("ABC")
 										.addAps(WiFiNetworksEvidence.AP.newBuilder()
@@ -112,7 +112,7 @@ public class CoreDataTest {
 		()-> assertEquals(lat, 53.3),
 		()-> assertEquals(lng, 85.3),
 		()-> assertEquals(compare(t, fromMillis(timeInMillis) ), 0 ),
-		()-> assertEquals(evidenceType, "WiFi"),
+		()-> assertEquals(evidenceType, "eu.surething_project.core.wi_fi.WiFiNetworksEvidence"),
 		()-> assertEquals(evidenceId, "ABC"),
 		()-> assertEquals(ap.getSsid(), "ssid-A"),
 		()-> assertEquals(ap.getRssi(), "-89")
@@ -135,7 +135,7 @@ public class CoreDataTest {
 						.setTime(Time.newBuilder()
 										.setTimestamp(fromMillis(timeInMillis))
 										.build())
-						.setEvidenceType("WiFi")
+						.setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
 						.setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
 										.setId("DEF")
 										.addAps(WiFiNetworksEvidence.AP.newBuilder()
@@ -186,7 +186,7 @@ public class CoreDataTest {
 		()-> assertEquals(witnessId, "1"),
 		()-> assertEquals(claimId, "1"),
 		()-> assertEquals(compare(t, fromMillis(timeInMillis) ), 0 ),
-		()-> assertEquals(evidenceType, "WiFi"),
+		()-> assertEquals(evidenceType, "eu.surething_project.core.wi_fi.WiFiNetworksEvidence"),
 		()-> assertEquals(evidenceId, "DEF"),
 		()-> assertEquals(ap.getSsid(), "ssid-B"),
 		()-> assertEquals(ap.getRssi(), "-90")
@@ -212,7 +212,7 @@ public class CoreDataTest {
 						.setTime(Time.newBuilder()
 										.setTimestamp(fromMillis(timeInMillis))
 										.build())
-						.setEvidenceType("WiFi")
+						.setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
 						.setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
 										.setId("GHI")
 										.addAps(WiFiNetworksEvidence.AP.newBuilder()
@@ -270,7 +270,7 @@ public class CoreDataTest {
 		()-> assertEquals(claimId, "1"),
 		()-> assertEquals(endorsementId, "1"),
 		()-> assertEquals(compare(t, fromMillis(timeInMillis) ), 0 ),
-		()-> assertEquals(evidenceType, "WiFi"),
+		()-> assertEquals(evidenceType, "eu.surething_project.core.wi_fi.WiFiNetworksEvidence"),
 		()-> assertEquals(evidenceId, "GHI"),
 		()-> assertEquals(ap.getSsid(), "ssid-C"),
 		()-> assertEquals(ap.getRssi(), "-70")
