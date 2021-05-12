@@ -29,5 +29,5 @@ message LocationVerification {
 // A location certificate is a verified location claim, optionally supported by endorsements
 message LocationCertificate {
 	LocationVerification verification = 1;
-	Signature signature = 2;
+	Signature verifierSignature = 2;
 }
