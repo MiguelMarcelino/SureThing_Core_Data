@@ -51,14 +51,28 @@ public class CoreDataTest {
 										.build()))
 						.build();
 
+		// serialize location claim
+		byte [] locationClaimSerialized = locationClaim.toByteArray();
+
+
+		LocationClaim locationClaimDeserialized = null;
 		
 		//	deserialize
+		try{
+
+			locationClaimDeserialized = LocationClaim.parseFrom(locationClaimSerialized);
+
+		}catch(InvalidProtocolBufferException e){
+			e.printStackTrace();
+		}
 		
-		String claimId = locationClaim.getClaimId();  // claimId
-		String proverId = locationClaim.getProverId(); // proverId
+		// Check content
+
+		String claimId = locationClaimDeserialized.getClaimId();  // claimId
+		String proverId = locationClaimDeserialized.getProverId(); // proverId
 
 		// Location - oneof (LATLNG, POI, PROXIMITYTOPOI, OLC)
-		Location location = locationClaim.getLocation();
+		Location location = locationClaimDeserialized.getLocation();
 		Location.LocationCase locationCase = location.getLocationCase();
 		LatLng latLng= null;
 		switch(locationCase){
@@ -73,7 +87,7 @@ public class CoreDataTest {
 		}
 
 		// Time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
-		Time time = locationClaim.getTime();
+		Time time = locationClaimDeserialized.getTime();
 		Time.TimeCase timeCase = time.getTimeCase();
 		Timestamp timestamp = null;
 		switch(timeCase){
@@ -86,10 +100,10 @@ public class CoreDataTest {
 			case TIME_NOT_SET: break;
 		}
 
-		String evidenceType = locationClaim.getEvidenceType(); // Evidence Type - WiFi
+		String evidenceType = locationClaimDeserialized.getEvidenceType(); // Evidence Type - WiFi
 
 		// WiFi Networks Evidence details - Any - unpack evidence content
-		Any evidence = locationClaim.getEvidence();
+		Any evidence = locationClaimDeserialized.getEvidence();
 		WiFiNetworksEvidence wifiNetworksEvidence = null;
 		try {
 			wifiNetworksEvidence = evidence.unpack(WiFiNetworksEvidence.class);  
@@ -105,7 +119,7 @@ public class CoreDataTest {
 		final double lng = latLng.getLongitude(); // Location latLng - Longitude
 		final Timestamp t = timestamp; // timestamp of location claim
 			
-		// Check content
+		
 		Assertions.assertAll("Check Location Claim Content",
 		()-> assertEquals(claimId, "1"),
 		()-> assertEquals(proverId, "1"),
@@ -120,6 +134,7 @@ public class CoreDataTest {
 		);
 
 	}
+
 
 	/** 
 			test Location endorsement creation, serialization , deserilization , and check content
@@ -145,13 +160,30 @@ public class CoreDataTest {
 										.build()))
 						.build();
 
+
+		// serialize location endorsement
+		byte [] locationEndorsementSerialized = locationEndorsement.toByteArray();
+
+
+		LocationEndorsement locationEndorsementDeserialized = null;
+		
+		//	deserialize
+		try{
+
+			locationEndorsementDeserialized = locationEndorsement.parseFrom(locationEndorsementSerialized);
+
+		}catch(InvalidProtocolBufferException e){
+			e.printStackTrace();
+		}
+		
+
 		//	deserialize
 		
-		String witnessId = locationEndorsement.getWitnessId();  // witenessId
-		String claimId = locationEndorsement.getClaimId(); // claimId
+		String witnessId = locationEndorsementDeserialized.getWitnessId();  // witenessId
+		String claimId = locationEndorsementDeserialized.getClaimId(); // claimId
 
 		// Time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
-		Time time = locationEndorsement.getTime();
+		Time time = locationEndorsementDeserialized.getTime();
 		Time.TimeCase timeCase = time.getTimeCase();
 		Timestamp timestamp = null;
 		switch(timeCase){
@@ -164,10 +196,10 @@ public class CoreDataTest {
 			case TIME_NOT_SET: break;
 		}
 
-		String evidenceType = locationEndorsement.getEvidenceType(); // Evidence Type - WiFi
+		String evidenceType = locationEndorsementDeserialized.getEvidenceType(); // Evidence Type - WiFi
 
 		// WiFi Networks Evidence details - Any - unpack evidence content
-		Any evidence = locationEndorsement.getEvidence();
+		Any evidence = locationEndorsementDeserialized.getEvidence();
 		WiFiNetworksEvidence wifiNetworksEvidence = null;
 		try {
 			wifiNetworksEvidence = evidence.unpack(WiFiNetworksEvidence.class);  
@@ -192,8 +224,6 @@ public class CoreDataTest {
 		()-> assertEquals(ap.getRssi(), "-90")
 		
 		);
-
-
 
 	}
 	
@@ -222,19 +252,36 @@ public class CoreDataTest {
 										.build()))
 						.build();
 
+		
+		// serialize location certificate
+		byte [] locationCertificateSerialized = locationVerification.toByteArray();
+
+
+		LocationVerification locationCertificateDeserialized = null;
+		
+		//	deserialize
+		try{
+
+			locationCertificateDeserialized = locationVerification.parseFrom(locationCertificateSerialized);
+
+		}catch(InvalidProtocolBufferException e){
+			e.printStackTrace();
+		}
+
+
 		//	deserialize
 		
-		String verifierId = locationVerification.getVerifierId();  // witenessId
-		String claimId = locationVerification.getClaimId(); // claimId
+		String verifierId = locationCertificateDeserialized.getVerifierId();  // witenessId
+		String claimId = locationCertificateDeserialized.getClaimId(); // claimId
 
 
 		List<String> endorsementIds  = new ArrayList();
-		endorsementIds = locationVerification.getEndorsementIdsList(); // List of endorsements
+		endorsementIds = locationCertificateDeserialized.getEndorsementIdsList(); // List of endorsements
 		String endorsementId = endorsementIds.get(0);  // First endorsement
 
 
 		// Time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
-		Time time = locationVerification.getTime();
+		Time time = locationCertificateDeserialized.getTime();
 		Time.TimeCase timeCase = time.getTimeCase();
 		Timestamp timestamp = null;
 		switch(timeCase){
@@ -247,10 +294,10 @@ public class CoreDataTest {
 			case TIME_NOT_SET: break;
 		}
 
-		String evidenceType = locationVerification.getEvidenceType(); // Evidence Type - WiFi
+		String evidenceType = locationCertificateDeserialized.getEvidenceType(); // Evidence Type - WiFi
 
 		// WiFi Networks Evidence details - Any - unpack evidence content
-		Any evidence = locationVerification.getEvidence();
+		Any evidence = locationCertificateDeserialized.getEvidence();
 		WiFiNetworksEvidence wifiNetworksEvidence = null;
 		try {
 			wifiNetworksEvidence = evidence.unpack(WiFiNetworksEvidence.class);  
