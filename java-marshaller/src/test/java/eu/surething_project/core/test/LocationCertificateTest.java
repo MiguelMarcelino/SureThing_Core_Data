@@ -94,7 +94,7 @@ public class LocationCertificateTest {
 		WiFiNetworksEvidence.AP ap = aps.get(0);  // First AP
 		final Timestamp t = timestamp; // timestamp of certificate
 			
-		// Check content of the certificate
+		// Check content of the locaiton certificate
 		Assertions.assertAll("Check Location Verification Content",
 		()-> assertEquals(verifierId, "1"),
 		()-> assertEquals(claimId, "1"),
