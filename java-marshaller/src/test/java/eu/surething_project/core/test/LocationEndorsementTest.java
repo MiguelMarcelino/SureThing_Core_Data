@@ -52,7 +52,7 @@ public class LocationEndorsementTest {
         //	deserialize
         LocationEndorsement locationEndorsementDeserialized = null;
 		try{
-			locationEndorsementDeserialized = locationEndorsement.parseFrom(locationEndorsementSerialized);
+			locationEndorsementDeserialized = LocationEndorsement.parseFrom(locationEndorsementSerialized);
 		}catch(InvalidProtocolBufferException e){
 			e.printStackTrace();
 		}

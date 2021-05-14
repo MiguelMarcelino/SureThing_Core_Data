@@ -52,7 +52,7 @@ public class LocationCertificateTest {
 		//	deserialize
 		LocationVerification locationCertificateDeserialized = null;
 		try{
-			locationCertificateDeserialized = locationVerification.parseFrom(locationCertificateSerialized);
+			locationCertificateDeserialized = LocationVerification.parseFrom(locationCertificateSerialized);
 
 		}catch(InvalidProtocolBufferException e){
 			e.printStackTrace();
