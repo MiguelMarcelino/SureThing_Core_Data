@@ -65,6 +65,15 @@ If we do not want to provide an identifier, then the empty string value should b
 
 When using a name, it does not have to be the actual name of the entity/person, it can a pseudonym.
 
+## Generic signature element
+
+The data entities defined exist without signature.
+The signature is an external data definition, so that generic code for signing the data can be implemented.
+
+The nonce element is a placeholder for a freshness token.
+It should be a unique number that should not be repeated, even though the verification of the uniqueness is left to the issuer.
+The nonce is optional if the data element already contains some unique data, like an unique identifier.
+
 ## Extensibility
 
 The SureThing framework data types need to be extensible, since the range of applications to support is not pre-determined.
