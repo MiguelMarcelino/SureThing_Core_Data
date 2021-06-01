@@ -106,3 +106,13 @@ For a time field, the lack of information is represented as the Empty message (`
 For a evidence type field, which is a string, we represent the absence of evidence using the "".
 
 Reference: <https://itnext.io/protobuf-and-null-support-1908a15311b6>
+
+## Evidence
+
+The data entities contain a field for evidence of *Any* type.
+It is up to the applications to define new data definitions for specific types of evidence, and then, utility code to help with evidence data collection, evidence data summarization/fingerprinting, and evidence data verification and comparison, to check similarity between the presented and the expected evidence.
+
+In code organization, we need repositories with the following naming conventions:
+
+- `SureThing_EVIDENCE_Data` for defining evidence types
+- `Surething_EVIDENCE_Util` for implementing auxiliary procedures that can be used by applications relying on evidence.
