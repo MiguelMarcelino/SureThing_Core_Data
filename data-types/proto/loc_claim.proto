@@ -10,8 +10,13 @@ import "google/protobuf/any.proto";
 import "loc_time.proto";
 import "signature.proto";
 
+service LocClaim {
+    // Sends a location claim and expects a response (The claim may be approved or not)
+    rpc SendLocClaim(SignedLocationClaim) returns (google.protobuf.Any) {};
+}
+
 // definition of the location claim
-message LocationClaim{
+message LocationClaim {
     // unique identifier for claim
     string claimId = 1;
 	// prover unique id - can also be a pseudonym
@@ -27,7 +32,8 @@ message LocationClaim{
 }
 
 // signed location claim 
-message SignedLocationClaim{
+message SignedLocationClaim {
     LocationClaim claim = 1; // claim
 	Signature proverSignature = 2; // prover's signature
 }
+

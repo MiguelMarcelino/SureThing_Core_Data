@@ -18,7 +18,6 @@ class TestLocationCertificate(unittest.TestCase):
     def test_location_certificate(self):
         # test the creation of a location certificate
 
-
         #### create a verification
         verification = LocationVerification()
 
