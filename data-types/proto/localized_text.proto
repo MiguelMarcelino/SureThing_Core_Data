@@ -15,12 +15,12 @@
 syntax = "proto3";
 
 package google.type;
-
 option cc_enable_arenas = true;
 option go_package = "google.golang.org/genproto/googleapis/type/localized_text;localized_text";
 option java_multiple_files = true;
 option java_outer_classname = "LocalizedTextProto";
-option java_package = "com.google.type";
+// option java_package = "com.google.type";
+option java_package = "eu.surething_project.core.grpc.google.type";
 option objc_class_prefix = "GTP";
 
 // Localized variant of a text in a particular language.

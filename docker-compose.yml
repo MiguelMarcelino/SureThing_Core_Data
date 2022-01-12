@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+    bootstorage:
+        image: prover_app
+        build:
+            context: prover/
+            dockerfile: Dockerfile
+        container_name: prover
+        ports: 
+            - "8080:8080"
+    
+    expressed:
+        image: witness_app
+        build:
+            context: witness/
+            dockerfile: Dockerfile
+        container_name: witness
+        ports: 
+            - "8081:8081"
+    
+    happy:
+        image: verifier_app
+        build:
+            context: verifier/
+            dockerfile: Dockerfile
+        container_name: verifier
+        ports: 
+            - "8082:8082"

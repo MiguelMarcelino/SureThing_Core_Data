@@ -3,17 +3,12 @@ syntax = "proto3";
 package eu.surething_project.core;
 
 option java_multiple_files = true;
-option java_package = "eu.surething_project.core";
+option java_package = "eu.surething_project.core.grpc";
 option java_outer_classname = "LocClaimProto";
 
 import "google/protobuf/any.proto";
 import "loc_time.proto";
 import "signature.proto";
-
-service LocClaim {
-    // Sends a location claim and expects a response (The claim may be approved or not)
-    rpc SendLocClaim(SignedLocationClaim) returns (google.protobuf.Any) {};
-}
 
 // definition of the location claim
 message LocationClaim {
