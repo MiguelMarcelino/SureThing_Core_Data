@@ -25,22 +25,22 @@ public final class ServicesProto {
     java.lang.String[] descriptorData = {
       "\n\016services.proto\022\031eu.surething_project.c" +
       "ore\032\017loc_claim.proto\032\021loc_endorse.proto\032" +
-      "\016loc_cert.proto2\203\002\n\014EndorseClaim\022z\n\022Send" +
+      "\016loc_cert.proto2\207\002\n\014EndorseClaim\022|\n\022Send" +
       "ClaimToWitness\022..eu.surething_project.co" +
       "re.SignedLocationClaim\0324.eu.surething_pr" +
-      "oject.core.SignedLocationEndorsement\022w\n\033" +
-      "SendClaimToWitnessNoSigning\022(.eu.surethi" +
-      "ng_project.core.LocationClaim\032..eu.suret" +
-      "hing_project.core.LocationEndorsement2\221\002" +
-      "\n\014CertifyClaim\022}\n\023SendClaimToVerifier\0224." +
-      "eu.surething_project.core.SignedLocation" +
-      "Endorsement\032..eu.surething_project.core." +
-      "LocationCertificate(\001\022\201\001\n\034SendClaimToVer" +
-      "ifierNoSigning\022..eu.surething_project.co" +
-      "re.LocationEndorsement\032/.eu.surething_pr" +
-      "oject.core.LocationVerification(\001B4\n\036eu." +
-      "surething_project.core.grpcB\rServicesPro" +
-      "toP\001\210\001\001b\006proto3"
+      "oject.core.SignedLocationEndorsement\"\000\022y" +
+      "\n\033SendClaimToWitnessNoSigning\022(.eu.suret" +
+      "hing_project.core.LocationClaim\032..eu.sur" +
+      "ething_project.core.LocationEndorsement\"" +
+      "\0002\225\002\n\014CertifyClaim\022\177\n\023SendClaimToVerifie" +
+      "r\0224.eu.surething_project.core.SignedLoca" +
+      "tionEndorsement\032..eu.surething_project.c" +
+      "ore.LocationCertificate\"\000(\001\022\203\001\n\034SendClai" +
+      "mToVerifierNoSigning\022..eu.surething_proj" +
+      "ect.core.LocationEndorsement\032/.eu.sureth" +
+      "ing_project.core.LocationVerification\"\000(" +
+      "\001B1\n\036eu.surething_project.core.grpcB\rSer" +
+      "vicesProtoP\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

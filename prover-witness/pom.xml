@@ -48,6 +48,21 @@
 			<version>4.0.0-rc-2</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-stub</artifactId>
+			<version>1.43.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-protobuf</artifactId>
+			<version>1.43.2</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
