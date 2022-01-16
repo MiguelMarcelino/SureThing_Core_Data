@@ -27,19 +27,28 @@ public class ProverVerifierCommHandler {
         this.verifierClient = new VerifierClient(channel);
     }
 
-    public ManagedChannel buildChannel() {
+    /**
+     * Sends the LocationEndorsement List to the Verifier
+     * @param endorsementList
+     * @throws InterruptedException
+     */
+    public void sendDataToVerifier(List<SignedLocationEndorsement> endorsementList) throws InterruptedException {
+        try {
+            this.verifierClient.sendEndorsementsToVerifier(endorsementList);
+        } finally {
+            channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * Builds a channel to communicate with the verifier
+     * @return - a new Channel
+     */
+    private ManagedChannel buildChannel() {
         String target = verifierGrpcAddress + ":" + verifierGrpcPort;
 
         return ManagedChannelBuilder.forTarget(target)
                 .usePlaintext()
                 .build();
-    }
-
-    public void sendVerifierData(List<SignedLocationEndorsement> endorsementList) throws InterruptedException {
-        try {
-            this.verifierClient.sendClaimsToVerifier(endorsementList);
-        } finally {
-            channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
-        }
     }
 }

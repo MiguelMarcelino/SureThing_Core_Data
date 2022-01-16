@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.Verifier;
+package eu.surething_project.core.rpc_comm.prover_verifier;
 
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-
 public class VerifierClient {
     private static final Logger logger = LoggerFactory.getLogger(VerifierClient.class);
 
@@ -26,7 +25,12 @@ public class VerifierClient {
         asyncStub = CertifyClaimGrpc.newStub(channel);
     }
 
-    public void sendClaimsToVerifier(List<SignedLocationEndorsement> locationEndorsements) throws InterruptedException {
+    /**
+     * Sends data asynchronously to the Verifier
+     * @param locationEndorsements - Data to send
+     * @throws InterruptedException
+     */
+    public void sendEndorsementsToVerifier(List<SignedLocationEndorsement> locationEndorsements) throws InterruptedException {
         ArrayList<LocationCertificate> locationVerifications = new ArrayList<>();
         final CountDownLatch finishLatch = new CountDownLatch(1);
         StreamObserver<LocationCertificate> responseObserver = new StreamObserver<LocationCertificate>() {
@@ -48,7 +52,7 @@ public class VerifierClient {
             }
         };
 
-        StreamObserver<SignedLocationEndorsement> requestObserver = asyncStub.sendClaimToVerifier(responseObserver);
+        StreamObserver<SignedLocationEndorsement> requestObserver = asyncStub.checkEndorsement(responseObserver);
         try {
             for (SignedLocationEndorsement endorsement : locationEndorsements) {
                 requestObserver.onNext(endorsement);

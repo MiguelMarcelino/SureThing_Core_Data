@@ -12,7 +12,7 @@ public class LocationSimulator {
      * that differ in an approximation
      * @return
      */
-    public LatLongPair generate_latitude_longitude_coordinates(double lat_value, double long_value, int approx){
+    public LatLongPair generateLatitudeLongitudeCoordinates(double lat_value, double long_value, int approx){
         Random rd = new Random();
         double lat_high =  lat_value < 90 ? (lat_value + approx) : lat_value;
         double lat_low = lat_value > 0 ? (lat_value - approx) : lat_value;

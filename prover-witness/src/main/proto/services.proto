@@ -12,17 +12,10 @@ import "loc_cert.proto";
 
 // Sends a location claim to a witness
 service EndorseClaim {
-	rpc SendClaimToWitness(SignedLocationClaim) returns (SignedLocationEndorsement) {}
-  rpc SendClaimToWitnessNoSigning(LocationClaim) returns (LocationEndorsement) {}
+	rpc CheckClaim(SignedLocationClaim) returns (SignedLocationEndorsement) {}
 }
-
 
 // Sends a location Endorsement to the Verifier
 service CertifyClaim {
-	rpc SendClaimToVerifier(stream SignedLocationEndorsement) returns (LocationCertificate) {}
-  rpc SendClaimToVerifierNoSigning(stream LocationEndorsement) returns (LocationVerification) {}
+	rpc CheckEndorsement(stream SignedLocationEndorsement) returns (LocationCertificate) {}
 }
-
-// service LocationProofService {
-// 	rpc SendLocationCertificate(LocationCertificate);
-// }
