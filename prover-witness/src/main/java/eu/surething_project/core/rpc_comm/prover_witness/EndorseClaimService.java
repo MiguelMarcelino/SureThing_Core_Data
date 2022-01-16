@@ -7,6 +7,9 @@ import eu.surething_project.core.rpc_comm.prover_witness.witness_data.LocationCl
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+
 /**
  * Witness service to endorse claim from a given prover
  */
@@ -21,7 +24,8 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
      * @param responseObserver
      */
     @Override
-    public void checkClaim(SignedLocationClaim request, StreamObserver<SignedLocationEndorsement> responseObserver) {
+    public void checkClaim(SignedLocationClaim request, StreamObserver<SignedLocationEndorsement> responseObserver)
+            throws NoSuchAlgorithmException, SignatureException {
         responseObserver.onNext(claimVerifier.verifyLocationClaim(request));
         responseObserver.onCompleted();
     }

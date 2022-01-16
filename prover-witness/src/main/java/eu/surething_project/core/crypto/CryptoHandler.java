@@ -1,6 +1,7 @@
 package eu.surething_project.core.crypto;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 
+@Service
 public class CryptoHandler {
 
     private KeyStore ks;
@@ -33,16 +35,15 @@ public class CryptoHandler {
      * Creates a nonce
      * @return
      */
-    public byte[] createNonce() {
+    public long createNonce() {
         SecureRandom sr = new SecureRandom();
-        byte[] nonce = new byte[8];
-        sr.nextBytes(nonce);
+        long nonce = sr.nextLong();
         return nonce;
     }
 
     /**
-     * Signs a nonce using the Private Key and the SHA256withRSA Algorithm
-     * @param nonce - The nonce to sign
+     * Signs a nonce using the Private Key and the given cryptoAlgorithm
+     * @param data - The data to sign
      * @return
      * @throws NoSuchAlgorithmException
      * @throws UnrecoverableKeyException
@@ -50,22 +51,19 @@ public class CryptoHandler {
      * @throws InvalidKeyException
      * @throws SignatureException
      */
-    public byte[] signNonce(byte[] nonce) throws NoSuchAlgorithmException, UnrecoverableKeyException,
-            KeyStoreException, InvalidKeyException, SignatureException {
-        Signature sig = Signature.getInstance("SHA256withRSA");
-        PrivateKey key = (PrivateKey) ks.getKey("prover",
-                ksPassword.toCharArray());
-        sig.initSign(key);
-        sig.update(nonce);
+    public byte[] signData(byte[] data, String cryptoAlgorithm) throws NoSuchAlgorithmException, SignatureException {
+        Signature sig = Signature.getInstance(cryptoAlgorithm);
+//        PrivateKey key = (PrivateKey) ks.getKey("prover",
+//                ksPassword.toCharArray());
+//        sig.initSign(key);
+        sig.update(data);
         return sig.sign();
     }
 
-    /**
-     * This method sign the message to verify integrity
-     * @param message
-     * @return
-     */
-    public byte[] signMessage(byte[] message) {
-        return null;
+    public boolean verifyData(byte[] data, byte[] signedData, String cryptoAlgorithm) throws NoSuchAlgorithmException, SignatureException {
+        Signature sig = Signature.getInstance(cryptoAlgorithm);
+        sig.update(data);
+        return sig.verify(signedData);
     }
+
 }
