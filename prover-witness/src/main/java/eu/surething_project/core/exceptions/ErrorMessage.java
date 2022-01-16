@@ -1,7 +1,9 @@
 package eu.surething_project.core.exceptions;
 
 public enum ErrorMessage {
-    DEFAULT_EXCEPTION_MSG("There was an error in the application");
+    DEFAULT_EXCEPTION_MSG("There was an error in the application"),
+    LOCATION_CERTIFICATE_COMM_ERROR("There was an error when receiving a LocationCertificate in prover"),
+    LOCATION_ENDORSEMENT_SEND_ERROR("There was an error when sending a LocationEndorsement from prover");
 
     public final String message;
 

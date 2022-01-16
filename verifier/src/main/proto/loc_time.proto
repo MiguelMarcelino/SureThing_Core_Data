@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package eu.surething_project.core;
+
+option java_multiple_files = true;
+option java_package = "eu.surething_project.core.grpc";
+option java_outer_classname = "LocTimeProto";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "latlng.proto";
+import "localized_text.proto";
+
+// Location schemas - alternatives
+message Location {
+    oneof location {
+        google.type.LatLng latLng = 1; // latitude and longitude coordinates
+        PoI poi = 2; // point-of-interest
+        PoIProximity proximityToPoI = 3; // proximity to point-of-interest
+        OLC olc = 4; // open location code
+    }
+}
+
+// Point-of-Interest (PoI) location
+message PoI {
+    string id = 1; // unique identifier
+    string name = 2; // name of point-of-interest
+    repeated google.type.LocalizedText localizedName = 3; // name in different locales
+}
+
+// Point-of-Interest proximity location
+message PoIProximity {
+    string poiId = 1; // unique identifier for point-of-interest
+    uint64 distanceValue = 2; // distance to PoI, >= 0
+    string distanceUnit = 3; // unit of distance (e.g. cm)
+}
+
+// Open Location Codes
+// reference: https://github.com/google/open-location-code/blob/1796878d947c6e281e383e69bbd0821f82db9566/java/src/main/java/com/google/openlocationcode/OpenLocationCode.java#L106
+message OLC {
+    double southLatitude = 1;
+    double westLongitude = 2;
+    double northLatitude = 3;
+    double eastLongitude = 4;
+    int32 length = 5;
+}
+
+// Time schemas - alternatives
+message Time {
+    oneof time {
+        google.protobuf.Timestamp timestamp = 1; // timestamp
+        TimeInterval interval = 2; // interval defined by two timestamps
+        EpochTime relativeToEpoch = 3; // time relative to epoch
+        google.protobuf.Empty empty = 4; // use when we do no have time information
+    }
+}
+
+// Time interval
+message TimeInterval {
+    google.protobuf.Timestamp begin = 1;
+    google.protobuf.Timestamp end = 2;
+}
+
+// Epoch time 
+message EpochTime {
+    string epochId = 1; // unique identifier
+    int64 timeValue = 2; // time value
+    string timeUnit = 3; // unit of time (e.g. s - seconds)
+}

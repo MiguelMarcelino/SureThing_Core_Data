@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package eu.surething_project.core;
+
+option java_multiple_files = true;
+option java_package = "eu.surething_project.core.grpc";
+option java_outer_classname = "ServicesProto";
+
+import "loc_claim.proto";
+import "loc_endorse.proto";
+import "loc_cert.proto";
+
+// Sends a location claim to a witness
+service EndorseClaim {
+	rpc SendClaimToWitness(SignedLocationClaim) returns (SignedLocationEndorsement) {}
+  rpc SendClaimToWitnessNoSigning(LocationClaim) returns (LocationEndorsement) {}
+}
+
+
+// Sends a location Endorsement to the Verifier
+service CertifyClaim {
+	rpc SendClaimToVerifier(stream SignedLocationEndorsement) returns (LocationCertificate) {}
+  rpc SendClaimToVerifierNoSigning(stream LocationEndorsement) returns (LocationVerification) {}
+}
+
+// service LocationProofService {
+// 	rpc SendLocationCertificate(LocationCertificate);
+// }

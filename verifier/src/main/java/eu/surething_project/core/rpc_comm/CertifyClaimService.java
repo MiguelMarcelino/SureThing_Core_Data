@@ -1,33 +1,61 @@
 package eu.surething_project.core.rpc_comm;
 
-import com.google.protobuf.RpcCallback;
-import com.google.protobuf.RpcController;
+import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.*;
+import io.grpc.stub.StreamObserver;
 
 /**
  * Communicates with the Verifier and expects a LocationCertificate
  */
-public class CertifyClaimService extends CertifyClaim {
+public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase { //extends CertifyClaimGrpc.CertifyClaimImplBase
 
     /**
      * This method sends a claim to the verifier
-     * @param controller -
-     * @param request - sends a signed location request
-     * @param done - receives a location Certificate
+     *
+     * @param responseObserver - Response
+     * @return
      */
     @Override
-    public void sendClaimToVerifier(RpcController controller, SignedLocationEndorsement request, RpcCallback<LocationCertificate> done) {
-        // TODO
+    public StreamObserver<SignedLocationEndorsement> sendClaimToVerifier(StreamObserver<LocationCertificate> responseObserver) {
+        return new StreamObserver<SignedLocationEndorsement>() {
+            @Override
+            public void onNext(SignedLocationEndorsement value) {
+                /// TODO: Is there anything to do here?
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                throw new VerifierException(ErrorMessage.LOCATION_ENDORSEMENT_CONN_ERROR);
+            }
+
+            @Override
+            public void onCompleted() {
+                // TODO: Send Location Verification
+                responseObserver.onCompleted();
+            }
+        };
     }
 
-    /**
-     * This method has no signing (Just for Testing communication)
-     * @param controller
-     * @param request
-     * @param done
-     */
     @Override
-    public void sendClaimToVerifierNoSigning(RpcController controller, LocationEndorsement request, RpcCallback<LocationVerification> done) {
+    public StreamObserver<LocationEndorsement> sendClaimToVerifierNoSigning(StreamObserver<LocationVerification> responseObserver) {
+        return new StreamObserver<LocationEndorsement>() {
+            @Override
+            public void onNext(LocationEndorsement value) {
+                // TODO: Is there anything to do here?
+            }
 
+            @Override
+            public void onError(Throwable t) {
+                throw new VerifierException(ErrorMessage.LOCATION_ENDORSEMENT_CONN_ERROR);
+            }
+
+            @Override
+            public void onCompleted() {
+                // TODO: Send Location Verification
+                responseObserver.onCompleted();
+            }
+        };
     }
+
 }

@@ -1,15 +1,16 @@
 package eu.surething_project.core.rpc_comm;
 
-import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class GrpcServer {
     private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class.getName());
 
