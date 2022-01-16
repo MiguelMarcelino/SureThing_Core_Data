@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.Verifier;
+package eu.surething_project.core.rpc_comm.prover_verifier;
 
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import io.grpc.ManagedChannel;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class VerifierCommHandler {
+public class ProverVerifierCommHandler {
 
     @Value("{verifier.grpc.address}")
     private String verifierGrpcAddress;
@@ -22,7 +22,7 @@ public class VerifierCommHandler {
 
     private ManagedChannel channel;
 
-    public VerifierCommHandler() {
+    public ProverVerifierCommHandler() {
         this.channel = buildChannel();
         this.verifierClient = new VerifierClient(channel);
     }

@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm;
 
+import eu.surething_project.core.rpc_comm.prover_verifier.CertifyClaimService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
@@ -11,8 +12,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class GrpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(GrpcServer.class.getName());
+public class ProverGrpcServer {
+    private static final Logger logger = LoggerFactory.getLogger(ProverGrpcServer.class.getName());
 
     private Server server;
 
@@ -45,7 +46,7 @@ public class GrpcServer {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
-                    GrpcServer.this.stop();
+                    ProverGrpcServer.this.stop();
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }

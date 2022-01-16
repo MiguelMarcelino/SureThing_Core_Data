@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm;
+package eu.surething_project.core.rpc_comm.prover_verifier;
 
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
@@ -17,11 +17,12 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
      * @return
      */
     @Override
-    public StreamObserver<SignedLocationEndorsement> sendClaimToVerifier(StreamObserver<LocationCertificate> responseObserver) {
-        return new StreamObserver<SignedLocationEndorsement>() {
+    public StreamObserver<SignedLocationEndorsement> checkEndorsement(StreamObserver<LocationCertificate> responseObserver) {
+        return new StreamObserver<>() {
             @Override
             public void onNext(SignedLocationEndorsement value) {
                 /// TODO: Is there anything to do here?
+                // Perhaps receive and verify each
             }
 
             @Override
@@ -37,25 +38,5 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
         };
     }
 
-    @Override
-    public StreamObserver<LocationEndorsement> sendClaimToVerifierNoSigning(StreamObserver<LocationVerification> responseObserver) {
-        return new StreamObserver<LocationEndorsement>() {
-            @Override
-            public void onNext(LocationEndorsement value) {
-                // TODO: Is there anything to do here?
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                throw new VerifierException(ErrorMessage.LOCATION_ENDORSEMENT_CONN_ERROR);
-            }
-
-            @Override
-            public void onCompleted() {
-                // TODO: Send Location Verification
-                responseObserver.onCompleted();
-            }
-        };
-    }
 
 }
