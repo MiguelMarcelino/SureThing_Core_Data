@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness;
+package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
@@ -8,6 +8,9 @@ import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ *
+ */
 public class WitnessClient {
     private static final Logger logger = LoggerFactory.getLogger(WitnessClient.class);
 

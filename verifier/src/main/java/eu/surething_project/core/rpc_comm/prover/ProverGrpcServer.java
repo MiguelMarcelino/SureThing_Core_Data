@@ -1,5 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness;
-
+package eu.surething_project.core.rpc_comm.prover;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -12,8 +11,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class WitnessGrpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(WitnessGrpcServer.class.getName());
+public class ProverGrpcServer {
+    private static final Logger logger = LoggerFactory.getLogger(ProverGrpcServer.class.getName());
 
     private Server server;
 
@@ -22,7 +21,7 @@ public class WitnessGrpcServer {
 
     public void start() throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new EndorseClaimService())
+                .addService(new CertifyClaimService())
                 .build()
                 .start();
 
@@ -46,7 +45,7 @@ public class WitnessGrpcServer {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
-                    WitnessGrpcServer.this.stop();
+                    ProverGrpcServer.this.stop();
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }

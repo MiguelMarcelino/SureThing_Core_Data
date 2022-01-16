@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness;
+package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
@@ -8,6 +8,10 @@ import io.grpc.ManagedChannelBuilder;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Prover sends witness the SignedLocationClaim and receives a
+ * SignedLocationEndorsement
+ */
 public class ProverWitnessCommHandler {
 
     private WitnessClient witnessClient;
@@ -18,13 +22,19 @@ public class ProverWitnessCommHandler {
         this.channel = buildChannel(entity);
     }
 
-    public SignedLocationEndorsement sendWitnessData(SignedLocationClaim claim) throws InterruptedException {
+    public SignedLocationEndorsement sendWitnessData(SignedLocationClaim claim)
+            throws InterruptedException {
         SignedLocationEndorsement endorsement;
         try {
             endorsement = this.witnessClient.sendSignedClaimToWitness(claim);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
+
+        // Verify endorsement freshness
+        long nonce = claim.getProverSignature().getNonce();
+        LocationEndorsementVerifier.verifyEndorsement(nonce, endorsement);
+
         return endorsement;
     }
 

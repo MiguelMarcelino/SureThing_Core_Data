@@ -1,13 +1,13 @@
-package eu.surething_project.core.rpc_comm.prover_witness;
+package eu.surething_project.core.rpc_comm.witness;
 
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
 @Service
-public class GrpcServerHandler {
+public class WitnessGrpcServerHandler {
 
-    public GrpcServerHandler() {}
+    public WitnessGrpcServerHandler() {}
 
     public void buildServer() throws InterruptedException {
         final WitnessGrpcServer server = new WitnessGrpcServer();

@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness.witness_data;
+package eu.surething_project.core.rpc_comm.witness;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -11,8 +11,14 @@ import eu.surething_project.core.grpc.google.type.LatLng;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.FileNotFoundException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,24 +40,22 @@ public class LocationClaimVerifier {
      * @return
      */
     public SignedLocationEndorsement verifyLocationClaim(SignedLocationClaim signedLocationClaim)
-            throws NoSuchAlgorithmException, SignatureException {
-        // setup
-        String cryptoAlg = "SHA256WithRSA";
-
+            throws NoSuchAlgorithmException, SignatureException, FileNotFoundException, NoSuchPaddingException,
+            IllegalBlockSizeException, CertificateException, BadPaddingException, InvalidKeyException {
         // Get signed data
         Signature signature = signedLocationClaim.getProverSignature();
         long nonce = signature.getNonce();
         byte[] signedClaim = signature.getValue().toByteArray();
+        String cryptoAlg = signature.getCryptoAlgo();
 
         // Get LocationClaim data
         LocationClaim locClaim = signedLocationClaim.getClaim();
 
         // Verify signed data
-        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, "SHA256WithRSA");
+        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, cryptoAlg);
 
         // Start Data content verification
         String claimId = locClaim.getClaimId();
-
 
         // Build Signed endorsement
         SignedLocationEndorsement signedEndorsement = this.endorsementBuilder
@@ -60,7 +64,7 @@ public class LocationClaimVerifier {
     }
 
     /**
-     * It will be the verifier verifying this
+     * Not necessary. It will be the verifier verifying this
      * @param signedLocationClaim
      */
     public void extra(SignedLocationClaim signedLocationClaim){
@@ -78,7 +82,7 @@ public class LocationClaimVerifier {
             // case LOCATION_NOT_SET:break;
         }
 
-        // TODO: Check if prover is near the location of the current Witness
+
 
         // Time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
         Time time = locClaim.getTime();
@@ -112,6 +116,6 @@ public class LocationClaimVerifier {
         final double lng = latLng.getLongitude(); // Location latLng - Longitude
         final Timestamp t = timestamp; // timestamp of location claim
 
-        // TODO: Check network evidence (According to paper --> Maybe only required in Prover after receiving endorsement)
+        // TODO: Check network evidence (According to paper --> Maybe only required in Verifier after receiving endorsement)
     }
 }

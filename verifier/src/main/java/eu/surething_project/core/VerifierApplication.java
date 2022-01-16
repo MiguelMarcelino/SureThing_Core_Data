@@ -1,6 +1,6 @@
 package eu.surething_project.core;
 
-import eu.surething_project.core.rpc_comm.GrpcServerHandler;
+import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

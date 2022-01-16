@@ -1,7 +1,6 @@
 package eu.surething_project.core.crypto;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -12,43 +11,28 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 
-@Service
 public class CryptoHandler {
 
     private KeyStore ks;
-    @Value("client.keystore.password")
+
+    @Value("verifier.keystore.password")
     private String ksPassword;
 
-    @Value("${client.keystore.repository}")
+    @Value("${verifier.keystore.repository}")
     private String clientKeystoreRepo;
-
-    @Value("${client.certificate.repository}")
-    private String certificateRepository;
 
     public CryptoHandler(String keystoreName,
                          String keystorePassword)
             throws KeyStoreException, FileNotFoundException, CertificateException,
-                NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         this.ks = KeyStore.getInstance("JCEKS");
         File keystoreFile = new File(clientKeystoreRepo, keystoreName);
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
                 keystorePassword.toCharArray());
         this.ksPassword = keystorePassword;
-    }
-
-    /**
-     * Creates a nonce
-     * @return
-     */
-    public long createNonce() {
-        SecureRandom sr = new SecureRandom();
-        long nonce = sr.nextLong();
-        return nonce;
     }
 
     /**
@@ -74,26 +58,25 @@ public class CryptoHandler {
     }
 
     /**
-     * Encrypts data for sending
-     * @param data
+     * Decrypts data with the private key
+     * @param encryptedData
      * @param alias
      * @return
      * @throws UnrecoverableKeyException
      * @throws KeyStoreException
      * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
      */
-    public byte[] encryptDataAssym(byte[] data, String alias)
-            throws NoSuchAlgorithmException, NoSuchPaddingException,
-            FileNotFoundException, CertificateException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        CertificateFactory cf = CertificateFactory.getInstance("X509");
-        File certFile = new File(certificateRepository,
-                alias + "_certificate.cer");
-        Certificate cert = cf
-                .generateCertificate(new FileInputStream(certFile));
-
+    public byte[] decryptDataAssym(byte[] encryptedData, String alias) throws UnrecoverableKeyException,
+            KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
+        PrivateKey key = (PrivateKey) ks.getKey(alias,
+                ksPassword.toCharArray());
         Cipher c = Cipher.getInstance("AES");
-        c.init(Cipher.WRAP_MODE, cert.getPublicKey());
-        return c.doFinal(data);
+        c.init(Cipher.WRAP_MODE, key);
+        return c.doFinal(encryptedData);
     }
-
 }

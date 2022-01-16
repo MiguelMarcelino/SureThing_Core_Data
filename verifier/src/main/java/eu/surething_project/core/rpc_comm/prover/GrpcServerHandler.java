@@ -1,6 +1,5 @@
-package eu.surething_project.core.rpc_comm;
+package eu.surething_project.core.rpc_comm.prover;
 
-import eu.surething_project.core.rpc_comm.ProverGrpcServer;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

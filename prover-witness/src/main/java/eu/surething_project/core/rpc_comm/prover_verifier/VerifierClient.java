@@ -30,7 +30,7 @@ public class VerifierClient {
      * @param locationEndorsements - Data to send
      * @throws InterruptedException
      */
-    public void sendEndorsementsToVerifier(List<SignedLocationEndorsement> locationEndorsements) throws InterruptedException {
+    public LocationCertificate sendEndorsementsToVerifier(List<SignedLocationEndorsement> locationEndorsements) throws InterruptedException {
         ArrayList<LocationCertificate> locationVerifications = new ArrayList<>();
         final CountDownLatch finishLatch = new CountDownLatch(1);
         StreamObserver<LocationCertificate> responseObserver = new StreamObserver<LocationCertificate>() {
@@ -59,7 +59,7 @@ public class VerifierClient {
                 if (finishLatch.getCount() == 0) {
                     // RPC completed or errored before we finished sending.
                     // Sending further requests won't error, but they will just be thrown away.
-                    return;
+                    throw new EntityException(ErrorMessage.LOCATION_ENDORSEMENT_SEND_ERROR);
                 }
             }
         } catch(RuntimeException e) {
@@ -74,6 +74,8 @@ public class VerifierClient {
         if (!finishLatch.await(1, TimeUnit.MINUTES)) {
             logger.warn("recordRoute can not finish within 1 minutes");
         }
+
+        return locationVerifications.get(0);
     }
 
 }

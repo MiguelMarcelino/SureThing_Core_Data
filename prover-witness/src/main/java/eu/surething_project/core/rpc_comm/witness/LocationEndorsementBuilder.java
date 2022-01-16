@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness.witness_data;
+package eu.surething_project.core.rpc_comm.witness;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
@@ -8,8 +8,14 @@ import eu.surething_project.core.grpc.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.FileNotFoundException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.security.cert.CertificateException;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -24,13 +30,16 @@ public class LocationEndorsementBuilder {
     public LocationEndorsementBuilder() {  }
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
-            throws NoSuchAlgorithmException, SignatureException {
+            throws NoSuchAlgorithmException, SignatureException, FileNotFoundException,
+            NoSuchPaddingException, IllegalBlockSizeException, CertificateException, BadPaddingException,
+            InvalidKeyException {
         LocationEndorsement endorsement = buildLocationEndorsement(claimId);
         byte[] endorsementSigned = cryptoHandler.signData(endorsement.toByteArray(), cryptoAlg);
+        byte[] encryptedEndorsement = cryptoHandler.encryptDataAssym(endorsementSigned, "verifier");
         return SignedLocationEndorsement.newBuilder()
                 .setEndorsement(endorsement)
                 .setWitnessSignature(Signature.newBuilder()
-                        .setValue(ByteString.copyFrom(endorsementSigned)) // Temporary
+                        .setValue(ByteString.copyFrom(encryptedEndorsement)) // Temporary
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
                         .build())

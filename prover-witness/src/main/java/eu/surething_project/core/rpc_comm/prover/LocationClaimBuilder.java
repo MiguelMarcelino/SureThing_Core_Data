@@ -1,4 +1,4 @@
-package eu.surething_project.core.rpc_comm.prover_witness.prover_data;
+package eu.surething_project.core.rpc_comm.prover;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;

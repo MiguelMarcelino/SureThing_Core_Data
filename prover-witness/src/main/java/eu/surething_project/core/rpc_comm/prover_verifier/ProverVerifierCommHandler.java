@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm.prover_verifier;
 
+import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -32,12 +33,16 @@ public class ProverVerifierCommHandler {
      * @param endorsementList
      * @throws InterruptedException
      */
-    public void sendDataToVerifier(List<SignedLocationEndorsement> endorsementList) throws InterruptedException {
+    public LocationCertificate sendDataToVerifier(List<SignedLocationEndorsement> endorsementList) throws InterruptedException {
+        LocationCertificate certificate = null;
         try {
-            this.verifierClient.sendEndorsementsToVerifier(endorsementList);
+            certificate = this.verifierClient.sendEndorsementsToVerifier(endorsementList);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
+        // TODO: What about the nonce here?
+//        LocationCertificateVerifier.verifyCertificate();
+        return certificate;
     }
 
     /**
