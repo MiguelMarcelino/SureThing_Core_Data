@@ -86,9 +86,9 @@ public class LocationProofVerifier {
 //        // Decrypt endorsement with Verifier private Key
 //        byte[] signedEndorsement = cryptoHandler.decryptDataAssym(encryptedEndorsement, "verifier");
 
-        // Verify signed data
+        // Verify signed data (With witness public key)
         isValid = cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement,
-                claim.getClaimId(), cryptoAlg);
+                locEndorsement.getWitnessId(), cryptoAlg);
 
         // Only check data contents after it has been verified
         if(isValid) {
