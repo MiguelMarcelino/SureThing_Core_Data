@@ -43,7 +43,6 @@ public class ProverVerifierCommHandler {
             throws InterruptedException {
         LocationCertificate certificate;
         try {
-            // certificate = this.verifierClient.sendEndorsementsToVerifier(endorsementList);
             certificate = this.verifierClient.sendProofToVerifier(claim, endorsementList);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA);
