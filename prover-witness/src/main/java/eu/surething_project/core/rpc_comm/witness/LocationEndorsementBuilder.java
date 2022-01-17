@@ -39,7 +39,7 @@ public class LocationEndorsementBuilder {
         return SignedLocationEndorsement.newBuilder()
                 .setEndorsement(endorsement)
                 .setWitnessSignature(Signature.newBuilder()
-                        .setValue(ByteString.copyFrom(encryptedEndorsement)) // Temporary
+                        .setValue(ByteString.copyFrom(encryptedEndorsement))
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
                         .build())

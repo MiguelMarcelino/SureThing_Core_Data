@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 
-@Service
 public class CryptoHandler {
 
     private KeyStore ks;

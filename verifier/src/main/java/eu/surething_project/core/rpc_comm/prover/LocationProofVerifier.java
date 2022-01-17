@@ -9,8 +9,6 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -34,6 +32,9 @@ public class LocationProofVerifier {
     private int minEndorsementApproval;
 
     @Autowired
+    private LocationCertificateBuilder certificateBuilder;
+
+    @Autowired
     private CryptoHandler cryptoHandler;
 
     /**
@@ -46,8 +47,13 @@ public class LocationProofVerifier {
             InvalidKeyException {
         List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
         List<String> endorsementIds = new ArrayList<>();
+
         SignedLocationClaim signedClaim = locationProof.getVerification().getLocClaim();
         LocationClaim claim = signedClaim.getClaim();
+        Signature proverSignature = signedClaim.getProverSignature();
+        long nonce = proverSignature.getNonce();
+        String cryptoAlg = proverSignature.getCryptoAlgo();
+
         for (SignedLocationEndorsement endorsement : endorsementList) {
             boolean isValid = validateLocationEndorsement(endorsement, claim);
             if (isValid) {
@@ -57,8 +63,8 @@ public class LocationProofVerifier {
 
         // Verify if there are enough endorsements
         LocationCertificate certificate = endorsementList.size() >= minEndorsementApproval ?
-                buildCertificate(claim.getClaimId(), endorsementIds) :
-                buildCertificate(claim.getClaimId(), new ArrayList<>());
+                certificateBuilder.buildCertificate(claim.getClaimId(), endorsementIds, nonce, cryptoAlg) :
+                certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<>(), nonce, cryptoAlg);
 
         return certificate;
     }
@@ -141,33 +147,5 @@ public class LocationProofVerifier {
         return true;
     }
 
-    /**
-     * @param claimId
-     * @param endorsementLst
-     * @return
-     */
-    private LocationCertificate buildCertificate(String claimId, List<String> endorsementLst) {
-        LocationVerification locationVerification = LocationVerification.newBuilder()
-                .setVerifierId(verifierId)
-                .setClaimId(claimId)
-                .addAllEndorsementIds(endorsementLst)
-                .setTime(Time.newBuilder()
-                        .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
-                        .build())
-                .setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
-                .setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
-                        .setId("GHI")
-                        .addAps(WiFiNetworksEvidence.AP.newBuilder()
-                                .setSsid("ssid-C")
-                                .setRssi("-70")
-                                .build())
-                        .build()))
-                .build();
-
-        LocationCertificate locationCertificate = LocationCertificate.newBuilder()
-                .setVerification(locationVerification)
-                .build();
-        return locationCertificate;
-    }
 
 }
