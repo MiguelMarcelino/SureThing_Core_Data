@@ -66,13 +66,35 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
             @Override
             public void onCompleted() {
                 if (endorsementCount > 0) {
-                    // TODO: Use repeated field builder
-                    String endorsementIds = ""; // TODO: There are no endorsement IDs
-                    responseObserver.onNext(endorsementVerifier.buildCertificate(claimId, endorsementIds));
+                    responseObserver.onNext(endorsementVerifier.buildCertificate(claimId, endorseIds));
                 }
                 responseObserver.onCompleted();
             }
         };
     }
+
+    @Override
+    public void checkLocationEndorsement(SignedLocationProof locationProof, StreamObserver<LocationCertificate> responseObserver) {
+        try {
+            responseObserver.onNext(endorsementVerifier.verifyLocationProof(locationProof));
+        } catch (UnrecoverableKeyException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (NoSuchPaddingException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (IllegalBlockSizeException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (KeyStoreException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (BadPaddingException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (SignatureException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (InvalidKeyException e) {
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        }
+    }
+
 
 }

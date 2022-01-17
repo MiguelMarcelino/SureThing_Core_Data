@@ -1,8 +1,6 @@
 package eu.surething_project.core.rpc_comm.prover;
 
-import com.google.protobuf.Any;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.RepeatedFieldBuilder;
+import com.google.protobuf.*;
 import com.google.protobuf.Timestamp;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
@@ -27,9 +25,59 @@ public class LocationEndorsementVerifier {
     @Value("verifier.id")
     private String verifierId;
 
+    @Value("verifier.min_endorsement_approval")
+    private int minEndorsementApproval;
+
     @Autowired
     private CryptoHandler cryptoHandler;
 
+    /**
+     *
+     * @param locationProof
+     * @return
+     * @throws UnrecoverableKeyException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws KeyStoreException
+     * @throws NoSuchAlgorithmException
+     * @throws BadPaddingException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     */
+    public LocationCertificate verifyLocationProof(SignedLocationProof locationProof)
+            throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
+            KeyStoreException, NoSuchAlgorithmException, BadPaddingException, SignatureException, InvalidKeyException {
+        List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
+        List<String> endorsementIds = new ArrayList<>();
+        SignedLocationClaim signedClaim = locationProof.getVerification().getLocClaim();
+        LocationClaim claim = signedClaim.getClaim();
+        for (SignedLocationEndorsement endorsement : endorsementList) {
+            verifyLocationEndorsement(endorsement);
+            endorsementIds.add(endorsement.getEndorsement().getClaimId()); // TODO: There is no Endorsement ID
+        }
+
+        LocationCertificate certificate = null;
+        if(endorsementList.size() >= minEndorsementApproval) {
+            certificate = buildCertificate(claim.getClaimId(), endorsementIds);
+        } else {
+            // TODO
+        }
+
+        return certificate;
+    }
+
+    /**
+     *
+     * @param signedLocationEndorsement
+     * @throws UnrecoverableKeyException
+     * @throws NoSuchPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws KeyStoreException
+     * @throws NoSuchAlgorithmException
+     * @throws BadPaddingException
+     * @throws InvalidKeyException
+     * @throws SignatureException
+     */
     public void verifyLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement)
             throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
             KeyStoreException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException,
@@ -48,7 +96,44 @@ public class LocationEndorsementVerifier {
 
         // Verify signed data
         cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement, cryptoAlg);
+    }
 
+    /**
+     *
+     * @param claimId
+     * @param endorsementLst
+     * @return
+     */
+    public LocationCertificate buildCertificate(String claimId, List<String> endorsementLst) {
+        LocationVerification  locationVerification  = LocationVerification.newBuilder()
+                .setVerifierId (verifierId)
+                .setClaimId (claimId)
+                .addAllEndorsementIds(endorsementLst)
+                .setTime(Time.newBuilder()
+                        .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
+                        .build())
+                .setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
+                .setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
+                        .setId("GHI")
+                        .addAps(WiFiNetworksEvidence.AP.newBuilder()
+                                .setSsid("ssid-C")
+                                .setRssi("-70")
+                                .build())
+                        .build()))
+                .build();
+
+        LocationCertificate locationCertificate = LocationCertificate.newBuilder()
+                .setVerification(locationVerification)
+                .build();
+        return locationCertificate;
+    }
+
+    /**
+     *
+     * @param locEndorsement
+     * @param locClaim
+     */
+    private void verifyData(LocationEndorsement locEndorsement, LocationClaim locClaim) {
         /////////////////////////////////////////
         // Verify Data
         String witnessId = locEndorsement.getWitnessId();
@@ -66,7 +151,7 @@ public class LocationEndorsementVerifier {
             // case TIME_NOT_SET: break;
         }
 
-        // TODO: Check if timestamp is not old (?)
+        // TODO: Check if timestamp is not old when compared to locClaim
 
         String evidenceType = locEndorsement.getEvidenceType(); // Evidence Type - WiFi
 
@@ -87,29 +172,4 @@ public class LocationEndorsementVerifier {
 
         // TODO: Check network evidence
     }
-
-    public LocationCertificate buildCertificate(String claimId, String endorsementIds) {
-        LocationVerification  locationVerification  = LocationVerification.newBuilder()
-                .setVerifierId (verifierId)
-                .setClaimId (claimId)
-                .addEndorsementIds(endorsementIds) // Change to repeated
-                .setTime(Time.newBuilder()
-                        .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
-                        .build())
-                .setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
-                .setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
-                        .setId("GHI")
-                        .addAps(WiFiNetworksEvidence.AP.newBuilder()
-                                .setSsid("ssid-C")
-                                .setRssi("-70")
-                                .build())
-                        .build()))
-                .build();
-
-        LocationCertificate locationCertificate = LocationCertificate.newBuilder()
-                .setVerification(locationVerification)
-                .build();
-        return locationCertificate;
-    }
-
 }
