@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm.prover;
 
+import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.CertifyClaimGrpc;
@@ -19,8 +20,11 @@ import java.security.*;
  */
 public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
 
-    @Autowired
     private LocationProofVerifier endorsementVerifier;
+
+    public CertifyClaimService(CryptoHandler cryptoHandler) {
+        endorsementVerifier = new LocationProofVerifier(cryptoHandler);
+    }
 
     @Override
     public void checkLocationProof(SignedLocationProof locationProof,

@@ -24,10 +24,11 @@ public class LocationClaimBuilder {
     @Value("${prover.id}")
     private String proverID;
 
-    @Autowired
     private CryptoHandler cryptoHandler;
 
-    public LocationClaimBuilder() { }
+    public LocationClaimBuilder(CryptoHandler cryptoHandler) {
+        this.cryptoHandler = cryptoHandler;
+    }
 
     public SignedLocationClaim buildSignedLocationClaim(String claimId, String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException {

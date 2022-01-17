@@ -18,7 +18,9 @@ public class LocationProofBuilder {
     @Autowired
     private CryptoHandler cryptoHandler;
 
-    public LocationProofBuilder() {}
+    public LocationProofBuilder(CryptoHandler cryptoHandler) {
+        this.cryptoHandler = cryptoHandler;
+    }
 
     public SignedLocationProof buildSignedLocationProof(SignedLocationClaim claim,
                                                         List<SignedLocationEndorsement> endorsementList)

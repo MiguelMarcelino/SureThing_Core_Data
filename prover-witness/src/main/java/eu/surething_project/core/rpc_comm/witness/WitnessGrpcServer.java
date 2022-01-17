@@ -1,6 +1,7 @@
 package eu.surething_project.core.rpc_comm.witness;
 
 
+import eu.surething_project.core.crypto.CryptoHandler;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
@@ -11,18 +12,20 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-@Service
 public class WitnessGrpcServer {
     private static final Logger logger = LoggerFactory.getLogger(WitnessGrpcServer.class.getName());
 
     private Server server;
 
-    @Value("${server.port}")
     private int serverPort;
 
-    public void start() throws IOException {
+    public WitnessGrpcServer(int port){
+        this.serverPort = port;
+    }
+
+    public void start(CryptoHandler cryptoHandler) throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new EndorseClaimService())
+                .addService(new EndorseClaimService(cryptoHandler))
                 .build()
                 .start();
 

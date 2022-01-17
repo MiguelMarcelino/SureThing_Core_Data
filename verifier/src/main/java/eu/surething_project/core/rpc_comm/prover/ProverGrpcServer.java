@@ -1,27 +1,28 @@
 package eu.surething_project.core.rpc_comm.prover;
 
+import eu.surething_project.core.crypto.CryptoHandler;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-@Service
 public class ProverGrpcServer {
     private static final Logger logger = LoggerFactory.getLogger(ProverGrpcServer.class.getName());
 
     private Server server;
 
-    @Value("${server.port}")
     private int serverPort;
 
-    public void start() throws IOException {
+    public ProverGrpcServer(int port) {
+        this.serverPort = port;
+    }
+
+    public void start(CryptoHandler cryptoHandler) throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new CertifyClaimService())
+                .addService(new CertifyClaimService(cryptoHandler))
                 .build()
                 .start();
 

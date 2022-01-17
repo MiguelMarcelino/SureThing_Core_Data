@@ -3,15 +3,12 @@ package eu.surething_project.core.rpc_comm.prover;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
-import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,22 +17,19 @@ import java.security.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.protobuf.util.Timestamps.fromMillis;
-
-@Service
 public class LocationProofVerifier {
 
-    @Value("verifier.id")
-    private String verifierId;
+    private final CryptoHandler cryptoHandler;
 
     @Value("verifier.min_endorsement_approval")
     private int minEndorsementApproval;
 
-    @Autowired
     private LocationCertificateBuilder certificateBuilder;
 
-    @Autowired
-    private CryptoHandler cryptoHandler;
+    public LocationProofVerifier(CryptoHandler cryptoHandler) {
+       this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler);
+       this.cryptoHandler = cryptoHandler;
+    }
 
     /**
      * @param locationProof

@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm.witness;
 
+import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.EndorseClaimGrpc;
@@ -22,8 +23,11 @@ import java.security.cert.CertificateException;
  */
 public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
 
-    @Autowired
     private LocationClaimVerifier claimVerifier;
+
+    public EndorseClaimService(CryptoHandler cryptoHandler) {
+        this.claimVerifier = new LocationClaimVerifier(cryptoHandler);
+    }
 
     /**
      *

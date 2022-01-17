@@ -1,7 +1,6 @@
 package eu.surething_project.core.crypto;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -18,22 +17,26 @@ public class CryptoHandler {
 
     private KeyStore ks;
 
-    @Value("verifier.keystore.password")
+    @Value("client.keystore.password")
     private String ksPassword;
 
-    @Value("${verifier.keystore.repository}")
+    @Value("client.keystore.name")
+    private String ksName;
+
+    @Value("${client.keystore.repository}")
     private String clientKeystoreRepo;
 
-    public CryptoHandler(String keystoreName,
-                         String keystorePassword)
+    @Value("${client.certificate.repository}")
+    private String certificateRepository;
+
+    public CryptoHandler()
             throws KeyStoreException, FileNotFoundException, CertificateException,
             NoSuchAlgorithmException, IOException {
         this.ks = KeyStore.getInstance("JCEKS");
-        File keystoreFile = new File(clientKeystoreRepo, keystoreName);
+        File keystoreFile = new File(clientKeystoreRepo, ksName);
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
-                keystorePassword.toCharArray());
-        this.ksPassword = keystorePassword;
+                ksPassword.toCharArray());
     }
 
     /**

@@ -24,10 +24,11 @@ public class LocationEndorsementBuilder {
     @Value("${witness.id}")
     private String witnessId;
 
-    @Autowired
     private CryptoHandler cryptoHandler;
 
-    public LocationEndorsementBuilder() {}
+    public LocationEndorsementBuilder(CryptoHandler cryptoHandler) {
+        this.cryptoHandler = cryptoHandler;
+    }
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, FileNotFoundException,

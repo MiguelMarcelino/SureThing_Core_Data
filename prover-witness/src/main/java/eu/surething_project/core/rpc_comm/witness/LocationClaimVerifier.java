@@ -5,7 +5,6 @@ import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
@@ -17,16 +16,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 
-@Service
 public class LocationClaimVerifier {
 
     private LocationEndorsementBuilder endorsementBuilder;
 
-    @Autowired
     private CryptoHandler cryptoHandler;
 
-    public LocationClaimVerifier() {
-        this.endorsementBuilder = new LocationEndorsementBuilder();
+    public LocationClaimVerifier(CryptoHandler cryptoHandler) {
+        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler);
+        this.cryptoHandler = cryptoHandler;
     }
 
     /**

@@ -1,23 +1,39 @@
 package eu.surething_project.core;
 
+import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class VerifierApplication implements InitializingBean {
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
-	@Autowired
-	private GrpcServerHandler grpcServerHandler;
+public class VerifierApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VerifierApplication.class, args);
+		// Read args
+		int verifierPort = 0;
+
+		// Create CryptoHandler
+		CryptoHandler cryptoHandler;
+		try {
+			cryptoHandler = new CryptoHandler();
+		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
+			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+		}
+
+		// Start Verifier server
+		GrpcServerHandler grpcServerHandler = new GrpcServerHandler(cryptoHandler);
+		try {
+			grpcServerHandler.buildServer(verifierPort);
+		} catch (InterruptedException e) {
+			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+		}
+
+		// Receive user input
 	}
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		grpcServerHandler.buildServer();
-	}
 }
