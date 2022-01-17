@@ -27,7 +27,7 @@ public class LocationEndorsementBuilder {
     @Autowired
     private CryptoHandler cryptoHandler;
 
-    public LocationEndorsementBuilder() {  }
+    public LocationEndorsementBuilder() {}
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, FileNotFoundException,

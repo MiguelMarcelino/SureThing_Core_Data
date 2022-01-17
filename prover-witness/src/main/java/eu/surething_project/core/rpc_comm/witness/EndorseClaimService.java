@@ -34,22 +34,11 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
     public void checkClaim(SignedLocationClaim request, StreamObserver<SignedLocationEndorsement> responseObserver) {
         try {
             responseObserver.onNext(claimVerifier.verifyLocationClaim(request));
-        } catch (NoSuchAlgorithmException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (SignatureException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (FileNotFoundException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (NoSuchPaddingException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (IllegalBlockSizeException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (CertificateException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (BadPaddingException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
-        } catch (InvalidKeyException e) {
-            throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
+        } catch (FileNotFoundException | NoSuchPaddingException | IllegalBlockSizeException |
+                CertificateException | BadPaddingException | InvalidKeyException e) {
+            throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
         }
         responseObserver.onCompleted();
     }

@@ -19,6 +19,6 @@ service EndorseClaim {
 // Sends a location Endorsement to the Verifier
 service CertifyClaim {
   rpc CheckEndorsement(stream SignedLocationEndorsement) returns (LocationCertificate) {}
-  rpc CheckLocationEndorsement(SignedLocationProof) returns (LocationCertificate) {}
+  rpc CheckLocationProof(SignedLocationProof) returns (LocationCertificate) {}
 }
 

@@ -1,6 +1,7 @@
 package eu.surething_project.core.crypto;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 
+@Service
 public class CryptoHandler {
 
     private KeyStore ks;
@@ -51,7 +53,8 @@ public class CryptoHandler {
         return sig.sign();
     }
 
-    public boolean verifyData(byte[] data, byte[] signedData, String cryptoAlgorithm) throws NoSuchAlgorithmException, SignatureException {
+    public boolean verifyData(byte[] data, byte[] signedData, String cryptoAlgorithm)
+            throws NoSuchAlgorithmException, SignatureException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
         sig.update(data);
         return sig.verify(signedData);

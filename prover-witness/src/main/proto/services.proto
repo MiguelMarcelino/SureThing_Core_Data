@@ -9,13 +9,16 @@ option java_outer_classname = "ServicesProto";
 import "loc_claim.proto";
 import "loc_endorse.proto";
 import "loc_cert.proto";
+import "loc_proof.proto";
 
 // Sends a location claim to a witness
 service EndorseClaim {
-	rpc CheckClaim(SignedLocationClaim) returns (SignedLocationEndorsement) {}
+  rpc CheckClaim(SignedLocationClaim) returns (SignedLocationEndorsement) {}
 }
 
 // Sends a location Endorsement to the Verifier
 service CertifyClaim {
-	rpc CheckEndorsement(stream SignedLocationEndorsement) returns (LocationCertificate) {}
+  rpc CheckEndorsement(stream SignedLocationEndorsement) returns (LocationCertificate) {}
+  rpc CheckLocationProof(SignedLocationProof) returns (LocationCertificate) {}
 }
+

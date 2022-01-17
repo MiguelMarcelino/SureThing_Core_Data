@@ -1,12 +1,17 @@
 package eu.surething_project.core.rpc_comm.prover_verifier;
 
+import eu.surething_project.core.exceptions.EntityException;
+import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.LocationCertificate;
+import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,15 +38,22 @@ public class ProverVerifierCommHandler {
      * @param endorsementList
      * @throws InterruptedException
      */
-    public LocationCertificate sendDataToVerifier(List<SignedLocationEndorsement> endorsementList) throws InterruptedException {
-        LocationCertificate certificate = null;
+    public LocationCertificate sendDataToVerifier(SignedLocationClaim claim,
+                                                  List<SignedLocationEndorsement> endorsementList)
+            throws InterruptedException {
+        LocationCertificate certificate;
         try {
-            certificate = this.verifierClient.sendEndorsementsToVerifier(endorsementList);
+            // certificate = this.verifierClient.sendEndorsementsToVerifier(endorsementList);
+            certificate = this.verifierClient.sendProofToVerifier(claim, endorsementList);
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
-        // TODO: What about the nonce here?
-//        LocationCertificateVerifier.verifyCertificate();
+
+        long nonce = certificate.getVerifierSignature().getNonce();
+        LocationCertificateVerifier.verifyCertificate(nonce, certificate);
+
         return certificate;
     }
 

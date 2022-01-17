@@ -19,7 +19,7 @@ message LocationEndorsement{
 	// time of location endorsement - in one of alternative time schemas
 	Time time = 3;
 	// type of the evidence
-    string evidenceType = 4;
+	string evidenceType = 4;
 	// endorsement evidence
 	google.protobuf.Any evidence = 5;
 }

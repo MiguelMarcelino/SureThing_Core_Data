@@ -5,6 +5,7 @@ import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import eu.surething_project.core.location_simulation.Entity;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.TimeUnit;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProverWitnessCommHandler {
 
+    @Autowired
     private WitnessClient witnessClient;
 
     private ManagedChannel channel;
