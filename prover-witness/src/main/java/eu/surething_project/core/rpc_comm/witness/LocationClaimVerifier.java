@@ -11,9 +11,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 public class LocationClaimVerifier {
@@ -34,7 +32,8 @@ public class LocationClaimVerifier {
      */
     public SignedLocationEndorsement verifyLocationClaim(SignedLocationClaim signedLocationClaim)
             throws NoSuchAlgorithmException, SignatureException, FileNotFoundException, NoSuchPaddingException,
-            IllegalBlockSizeException, CertificateException, BadPaddingException, InvalidKeyException {
+            IllegalBlockSizeException, CertificateException, BadPaddingException, InvalidKeyException,
+            UnrecoverableKeyException, KeyStoreException {
         // Get signed data
         Signature signature = signedLocationClaim.getProverSignature();
         long nonce = signature.getNonce();
@@ -45,7 +44,7 @@ public class LocationClaimVerifier {
         LocationClaim locClaim = signedLocationClaim.getClaim();
 
         // Verify signed data
-        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, cryptoAlg);
+        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, locClaim.getProverId(), cryptoAlg);
 
         // Start Data content verification
         String claimId = locClaim.getClaimId();

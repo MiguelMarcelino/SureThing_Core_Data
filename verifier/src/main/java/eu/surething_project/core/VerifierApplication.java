@@ -4,7 +4,6 @@ import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
@@ -18,6 +17,7 @@ public class VerifierApplication {
 		int verifierPort = 0;
 
 		// Create CryptoHandler
+		final String CIPHER_ALGO = "AES/ECB/PKCS5Padding";
 		CryptoHandler cryptoHandler;
 		try {
 			cryptoHandler = new CryptoHandler();

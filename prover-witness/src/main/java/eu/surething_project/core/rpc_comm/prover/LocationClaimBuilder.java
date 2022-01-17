@@ -5,14 +5,14 @@ import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.google.type.LatLng;
 import eu.surething_project.core.location_simulation.LatLongPair;
 import eu.surething_project.core.location_simulation.LocationSimulator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -31,7 +31,8 @@ public class LocationClaimBuilder {
     }
 
     public SignedLocationClaim buildSignedLocationClaim(String claimId, String cryptoAlg)
-            throws NoSuchAlgorithmException, SignatureException {
+            throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
+            KeyStoreException, InvalidKeyException {
         LatLongPair latLongPair = locationSimulator
                 .generateLatitudeLongitudeCoordinates(82.3, 85.4, 3);
         LocationClaim claim = buildLocationClaim(latLongPair, claimId);

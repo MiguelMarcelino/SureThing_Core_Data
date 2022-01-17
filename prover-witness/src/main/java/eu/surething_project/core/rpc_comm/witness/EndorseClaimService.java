@@ -13,9 +13,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 /**
@@ -43,6 +41,8 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
         } catch (FileNotFoundException | NoSuchPaddingException | IllegalBlockSizeException |
                 CertificateException | BadPaddingException | InvalidKeyException e) {
             throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
+        } catch (UnrecoverableKeyException | KeyStoreException e) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_KEYSTORE_KEY, e);
         }
         responseObserver.onCompleted();
     }

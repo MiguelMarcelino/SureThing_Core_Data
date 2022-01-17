@@ -5,13 +5,13 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.grpc.SignedLocationProof;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -35,22 +35,21 @@ public class ProverVerifierCommHandler {
 
     /**
      * Sends the LocationEndorsement List to the Verifier
-     * @param endorsementList
+     * @param proof - The proof to send
+     * @return
      * @throws InterruptedException
      */
-    public LocationCertificate sendDataToVerifier(SignedLocationClaim claim,
-                                                  List<SignedLocationEndorsement> endorsementList)
+    public LocationCertificate sendDataToVerifier(SignedLocationProof proof)
             throws InterruptedException {
         LocationCertificate certificate;
         try {
-            certificate = this.verifierClient.sendProofToVerifier(claim, endorsementList);
-        } catch (NoSuchAlgorithmException | SignatureException e) {
-            throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA);
+            certificate = this.verifierClient.sendProofToVerifier(proof);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
 
-        long nonce = certificate.getVerifierSignature().getNonce();
+        // Verify Freshness
+        long nonce = proof.getProverSignature().getNonce();
         LocationCertificateVerifier.verifyCertificate(nonce, certificate);
 
         return certificate;

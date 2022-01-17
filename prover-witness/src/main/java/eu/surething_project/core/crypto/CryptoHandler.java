@@ -33,6 +33,9 @@ public class CryptoHandler {
     @Value("${client.certificate.repository}")
     private String certificateRepository;
 
+    @Value("${client.keystore.privKeyAlias}")
+    private String privKeyAlias;
+
     public CryptoHandler()
             throws KeyStoreException, FileNotFoundException, CertificateException,
                 NoSuchAlgorithmException, IOException {
@@ -63,14 +66,38 @@ public class CryptoHandler {
      * @throws InvalidKeyException
      * @throws SignatureException
      */
-    public byte[] signData(byte[] data, String cryptoAlgorithm) throws NoSuchAlgorithmException, SignatureException {
+    public byte[] signData(byte[] data, String cryptoAlgorithm)
+            throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
+            KeyStoreException, InvalidKeyException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
+        PrivateKey key = (PrivateKey) ks.getKey(privKeyAlias,
+                ksPassword.toCharArray());
+        sig.initSign(key);
         sig.update(data);
         return sig.sign();
     }
 
-    public boolean verifyData(byte[] data, byte[] signedData, String cryptoAlgorithm) throws NoSuchAlgorithmException, SignatureException {
+    /**
+     *
+     * @param data
+     * @param signedData
+     * @param certName
+     * @param cryptoAlgorithm
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws CertificateException
+     * @throws FileNotFoundException
+     */
+    public boolean verifyData(byte[] data, byte[] signedData, String certName, String cryptoAlgorithm)
+            throws NoSuchAlgorithmException, SignatureException, CertificateException,
+            FileNotFoundException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
+        CertificateFactory cf = CertificateFactory.getInstance("X509");
+        File certFile = new File(certificateRepository,
+                certName + "_certificate.cer");
+        Certificate cert = cf
+                .generateCertificate(new FileInputStream(certFile));
         sig.update(data);
         return sig.verify(signedData);
     }
@@ -78,23 +105,29 @@ public class CryptoHandler {
     /**
      * Encrypts data for sending
      * @param data
-     * @param alias
+     * @param certName
+     * @param cryptoAlg
      * @return
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
      * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws FileNotFoundException
+     * @throws CertificateException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     * @throws BadPaddingException
      */
-    public byte[] encryptDataAssym(byte[] data, String alias)
+    public byte[] encryptDataAssym(byte[] data, String certName, String cryptoAlg)
             throws NoSuchAlgorithmException, NoSuchPaddingException,
-            FileNotFoundException, CertificateException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+            FileNotFoundException, CertificateException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         File certFile = new File(certificateRepository,
-                alias + "_certificate.cer");
+                certName + "_certificate.cer");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
 
-        Cipher c = Cipher.getInstance("AES");
-        c.init(Cipher.WRAP_MODE, cert.getPublicKey());
+        Cipher c = Cipher.getInstance(cryptoAlg);
+        c.init(Cipher.ENCRYPT_MODE, cert.getPublicKey());
         return c.doFinal(data);
     }
 

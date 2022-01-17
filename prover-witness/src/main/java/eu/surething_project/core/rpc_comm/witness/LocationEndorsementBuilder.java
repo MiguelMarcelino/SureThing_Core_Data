@@ -5,6 +5,7 @@ import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.Signature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -12,9 +13,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.security.cert.CertificateException;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
@@ -23,6 +22,9 @@ public class LocationEndorsementBuilder {
 
     @Value("${witness.id}")
     private String witnessId;
+
+    @Value("${prover.name}")
+    private String proverName;
 
     private CryptoHandler cryptoHandler;
 
@@ -33,18 +35,23 @@ public class LocationEndorsementBuilder {
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, FileNotFoundException,
             NoSuchPaddingException, IllegalBlockSizeException, CertificateException, BadPaddingException,
-            InvalidKeyException {
+            InvalidKeyException, UnrecoverableKeyException, KeyStoreException {
         LocationEndorsement endorsement = buildLocationEndorsement(claimId);
         byte[] endorsementSigned = cryptoHandler.signData(endorsement.toByteArray(), cryptoAlg);
-        byte[] encryptedEndorsement = cryptoHandler.encryptDataAssym(endorsementSigned, "verifier");
-        return SignedLocationEndorsement.newBuilder()
+        SignedLocationEndorsement locationEndorsement = SignedLocationEndorsement.newBuilder()
                 .setEndorsement(endorsement)
                 .setWitnessSignature(Signature.newBuilder()
-                        .setValue(ByteString.copyFrom(encryptedEndorsement))
+                        .setValue(ByteString.copyFrom(endorsementSigned))
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
                         .build())
                 .build();
+
+        // TODO: Send encrypted endorsement
+        byte[] encryptedEndorsement = cryptoHandler.encryptDataAssym(locationEndorsement.toByteArray(),
+                proverName, cryptoAlg);
+
+        return locationEndorsement;
     }
 
     private LocationEndorsement buildLocationEndorsement(String claimId) {

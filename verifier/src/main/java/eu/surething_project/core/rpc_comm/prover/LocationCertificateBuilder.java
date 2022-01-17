@@ -4,13 +4,11 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.List;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
@@ -34,7 +32,8 @@ public class LocationCertificateBuilder {
      */
     public LocationCertificate buildCertificate(String claimId, List<String> endorsementLst,
                                                 long nonce, String cryptoAlg)
-            throws NoSuchAlgorithmException, SignatureException {
+            throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
+            KeyStoreException, InvalidKeyException {
         LocationVerification verification = buildLocVerification(claimId, endorsementLst);
         byte[] verificationSigned = cryptoHandler.signData(verification.toByteArray(), cryptoAlg);
 

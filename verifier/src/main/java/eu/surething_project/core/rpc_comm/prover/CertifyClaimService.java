@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.FileNotFoundException;
 import java.security.*;
+import java.security.cert.CertificateException;
 
 /**
  * Communicates with the Prover and sends a LocationCertificate
@@ -36,6 +38,8 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
             throw new VerifierException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new VerifierException(ErrorMessage.ERROR_SIGNING_DATA, e);
+        } catch (FileNotFoundException | CertificateException e) {
+            throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
         }
         responseObserver.onCompleted();
     }

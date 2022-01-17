@@ -5,10 +5,10 @@ import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.Signature;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.List;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
@@ -24,7 +24,8 @@ public class LocationProofBuilder {
 
     public SignedLocationProof buildSignedLocationProof(SignedLocationClaim claim,
                                                         List<SignedLocationEndorsement> endorsementList)
-            throws NoSuchAlgorithmException, SignatureException {
+            throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
+            KeyStoreException, InvalidKeyException {
         LocationProof proof = buildLocationProof(claim, endorsementList);
         long nonce = cryptoHandler.createNonce();
         String cryptoAlg = claim.getProverSignature().getCryptoAlgo();

@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.FileNotFoundException;
 import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class LocationProofVerifier {
     public LocationCertificate verifyLocationProof(SignedLocationProof locationProof)
             throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
             KeyStoreException, NoSuchAlgorithmException, BadPaddingException, SignatureException,
-            InvalidKeyException {
+            InvalidKeyException, FileNotFoundException, CertificateException {
         List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
         List<String> endorsementIds = new ArrayList<>();
 
@@ -70,11 +72,10 @@ public class LocationProofVerifier {
                                                 LocationClaim claim)
             throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
             KeyStoreException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException,
-            SignatureException {
+            SignatureException, FileNotFoundException, CertificateException {
         // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
-        long nonce = signature.getNonce();
-        byte[] encryptedEndorsement = signature.getValue().toByteArray();
+        byte[] signedEndorsement = signature.getValue().toByteArray();
         String cryptoAlg = signature.getCryptoAlgo();
 
         // Get Location Endorsement Data
@@ -82,11 +83,12 @@ public class LocationProofVerifier {
 
         boolean isValid;
 
-        // Decrypt endorsement with Verifier private Key
-        byte[] signedEndorsement = cryptoHandler.decryptDataAssym(encryptedEndorsement, "verifier");
+//        // Decrypt endorsement with Verifier private Key
+//        byte[] signedEndorsement = cryptoHandler.decryptDataAssym(encryptedEndorsement, "verifier");
 
         // Verify signed data
-        isValid = cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement, cryptoAlg);
+        isValid = cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement,
+                claim.getClaimId(), cryptoAlg);
 
         // Only check data contents after it has been verified
         if(isValid) {

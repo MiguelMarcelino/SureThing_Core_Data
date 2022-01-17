@@ -7,26 +7,18 @@ import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.List;
 
 public class VerifierClient {
     private final CertifyClaimGrpc.CertifyClaimBlockingStub blockingStub;
-
-    @Autowired
-    private LocationProofBuilder locationProofBuilder;
-
     
     public VerifierClient(ManagedChannel channel) {
         blockingStub = CertifyClaimGrpc.newBlockingStub(channel);
     }
 
 
-    public LocationCertificate sendProofToVerifier(SignedLocationClaim claim,
-                                                   List<SignedLocationEndorsement> locationEndorsements)
-            throws NoSuchAlgorithmException, SignatureException {
-        SignedLocationProof proof = locationProofBuilder.buildSignedLocationProof(claim, locationEndorsements);
+    public LocationCertificate sendProofToVerifier(SignedLocationProof proof) {
         LocationCertificate certificate;
         try {
             certificate = blockingStub.checkLocationProof(proof);

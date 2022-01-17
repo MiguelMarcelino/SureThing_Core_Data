@@ -8,8 +8,12 @@ public enum ErrorMessage {
     LOCATION_CLAIM_SEND_ERROR("There was an error when sending a LocationClaim from prover to witness"),
     LOCATION_PROOF_SEND_ERROR("There was an error when sending a LocationProof from prover to verifier"),
     INVALID_PROTOBUF_DATA("Invalid Protocol Buffer data"),
+
+    // Security errors
     ERROR_SIGNING_DATA("Error signing data"),
     ERROR_ENCRYPTING_DATA("Error encrypting data"),
+    ERROR_GETTING_KEYSTORE_KEY("Error getting keystore key"),
+    ERROR_GETTING_CERTIFICATE("Error getting requested certificate"),
 
     GRPC_SERVER_ERROR("There was an error starting the GRPC server"),
 
