@@ -23,9 +23,9 @@ public class WitnessGrpcServer {
         this.serverPort = port;
     }
 
-    public void start(CryptoHandler cryptoHandler) throws IOException {
+    public void start(CryptoHandler cryptoHandler, String witnessId) throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new EndorseClaimService(cryptoHandler))
+                .addService(new EndorseClaimService(cryptoHandler, witnessId))
                 .build()
                 .start();
 

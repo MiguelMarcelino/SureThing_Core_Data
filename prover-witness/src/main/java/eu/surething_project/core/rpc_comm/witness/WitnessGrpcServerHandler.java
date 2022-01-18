@@ -13,10 +13,10 @@ public class WitnessGrpcServerHandler {
         this.cryptoHandler = cryptoHandler;
     }
 
-    public void buildServer(int port) throws InterruptedException {
+    public void buildServer(int port, String witnessId) throws InterruptedException {
         final WitnessGrpcServer server = new WitnessGrpcServer(port);
         try {
-            server.start(this.cryptoHandler);
+            server.start(this.cryptoHandler, witnessId);
         } catch (IOException e) {
             e.printStackTrace();
         }

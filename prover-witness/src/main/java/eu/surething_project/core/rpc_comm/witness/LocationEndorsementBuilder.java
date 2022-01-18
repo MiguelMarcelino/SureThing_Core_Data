@@ -20,16 +20,13 @@ import static com.google.protobuf.util.Timestamps.fromMillis;
 
 public class LocationEndorsementBuilder {
 
-    @Value("${witness.id}")
     private String witnessId;
-
-    @Value("${prover.name}")
-    private String proverName;
 
     private CryptoHandler cryptoHandler;
 
-    public LocationEndorsementBuilder(CryptoHandler cryptoHandler) {
+    public LocationEndorsementBuilder(CryptoHandler cryptoHandler, String witnessId) {
         this.cryptoHandler = cryptoHandler;
+        this.witnessId = witnessId;
     }
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
@@ -49,7 +46,7 @@ public class LocationEndorsementBuilder {
 
         // TODO: Send encrypted endorsement
         byte[] encryptedEndorsement = cryptoHandler.encryptDataAssym(locationEndorsement.toByteArray(),
-                proverName, cryptoAlg);
+                claimId, cryptoAlg);
 
         return locationEndorsement;
     }

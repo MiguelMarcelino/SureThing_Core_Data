@@ -23,8 +23,8 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
 
     private LocationClaimVerifier claimVerifier;
 
-    public EndorseClaimService(CryptoHandler cryptoHandler) {
-        this.claimVerifier = new LocationClaimVerifier(cryptoHandler);
+    public EndorseClaimService(CryptoHandler cryptoHandler, String witnessId) {
+        this.claimVerifier = new LocationClaimVerifier(cryptoHandler, witnessId);
     }
 
     /**

@@ -14,38 +14,42 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 
 public class CryptoHandler {
 
     private KeyStore ks;
 
-    @Value("verifier.keystore.password")
     private String ksPassword;
+    private final String entityId;
 
-    @Value("verifier.keystore.name")
-    private String ksName;
+    @Value("${entity.storage}")
+    private String entityStorage;
 
-    @Value("${verifier.keystore.privKeyAlias}")
-    private String privKeyAlias;
+    @Value("${entity.storage.security}")
+    private String securityStorage;
 
-    @Value("${verifier.keystore.repository}")
-    private String clientKeystoreRepo;
-
-    @Value("${verifier.certificate.repository}")
+    @Value("${entity.storage.certificates}")
     private String certificateRepository;
 
-    public CryptoHandler()
-            throws KeyStoreException, FileNotFoundException, CertificateException,
+    @Value("${entity.keystore.privKeyAlias}")
+    private String privKeyAlias;
+
+    public CryptoHandler(String entityID, String keystoreName, String ksPassword)
+            throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
         this.ks = KeyStore.getInstance("JCEKS");
-        File keystoreFile = new File(clientKeystoreRepo, ksName);
+        this.ksPassword = ksPassword;
+        this.entityId = entityID;
+        File keystoreFile = new File(entityStorage + "/" +
+                entityID + securityStorage, keystoreName);
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
                 ksPassword.toCharArray());
     }
 
     /**
-     * Signs a nonce using the Private Key and the given cryptoAlgorithm
+     * Signs data using the Private Key and the given cryptoAlgorithm
      * @param data - The data to sign
      * @return
      * @throws NoSuchAlgorithmException
@@ -82,12 +86,31 @@ public class CryptoHandler {
             FileNotFoundException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
         CertificateFactory cf = CertificateFactory.getInstance("X509");
-        File certFile = new File(certificateRepository,
+        File certFile = new File(entityStorage + entityId + certificateRepository,
                 certName + "_certificate.cer");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
         sig.update(data);
         return sig.verify(signedData);
+    }
+
+    public void verifyCertificate(String certName) throws CertificateException, FileNotFoundException,
+            NoSuchAlgorithmException, SignatureException, InvalidKeyException, NoSuchProviderException {
+        CertificateFactory cf = CertificateFactory.getInstance("X509");
+        // Get root CA certificate
+        String rootCA = "rootCA";
+        File rootCACert = new File(certificateRepository,
+                certName + "_certificate.cer");
+        Certificate rootCert = cf
+                .generateCertificate(new FileInputStream(rootCACert));
+
+        // Get user certificate
+        File certFile = new File(certificateRepository,
+                certName + "_certificate.cer");
+        Certificate cert = cf
+                .generateCertificate(new FileInputStream(certFile));
+
+        cert.verify(rootCert.getPublicKey());
     }
 
     /**

@@ -21,13 +21,13 @@ public class LocationClaimBuilder {
     @Autowired
     private LocationSimulator locationSimulator;
 
-    @Value("${prover.id}")
-    private String proverID;
+    private String proverId;
 
     private CryptoHandler cryptoHandler;
 
-    public LocationClaimBuilder(CryptoHandler cryptoHandler) {
+    public LocationClaimBuilder(CryptoHandler cryptoHandler, String proverId) {
         this.cryptoHandler = cryptoHandler;
+        this.proverId = proverId;
     }
 
     public SignedLocationClaim buildSignedLocationClaim(String claimId, String cryptoAlg)
@@ -52,7 +52,7 @@ public class LocationClaimBuilder {
     private LocationClaim buildLocationClaim(LatLongPair latLongPair, String claimId) {
         LocationClaim locationClaim = LocationClaim.newBuilder()
                 .setClaimId(claimId)
-                .setProverId(proverID)
+                .setProverId(proverId)
                 .setLocation(Location.newBuilder()
                         .setLatLng(LatLng.newBuilder()
                                 .setLatitude(latLongPair.getLatitude())

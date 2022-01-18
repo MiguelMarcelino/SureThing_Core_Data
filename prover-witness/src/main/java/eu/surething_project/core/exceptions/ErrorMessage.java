@@ -13,10 +13,15 @@ public enum ErrorMessage {
     ERROR_SIGNING_DATA("Error signing data"),
     ERROR_ENCRYPTING_DATA("Error encrypting data"),
     ERROR_GETTING_KEYSTORE_KEY("Error getting keystore key"),
+    ERROR_GETTING_CERTIFICATE("Error getting requested certificate"),
+    NONCE_MATCH_ERROR("The returned nonce does not match"),
 
+    // gRPC errors
     GRPC_SERVER_ERROR("There was an error starting the GRPC server"),
 
-    NONCE_MATCH_ERROR("The returned nonce does not match");
+    // Parsing errors
+    INVALID_ARGS_LENGTH("Invalid number of Arguments"),
+    INVALID_ARGS_DATA("Invalid argument data was supplied");
 
     public final String message;
 

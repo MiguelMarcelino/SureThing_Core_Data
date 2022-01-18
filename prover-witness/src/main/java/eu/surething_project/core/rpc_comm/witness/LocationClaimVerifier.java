@@ -20,8 +20,8 @@ public class LocationClaimVerifier {
 
     private CryptoHandler cryptoHandler;
 
-    public LocationClaimVerifier(CryptoHandler cryptoHandler) {
-        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler);
+    public LocationClaimVerifier(CryptoHandler cryptoHandler, String witnessId) {
+        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, witnessId);
         this.cryptoHandler = cryptoHandler;
     }
 

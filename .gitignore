@@ -218,3 +218,6 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# Ignore generated Certificates
+/certificates
