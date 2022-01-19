@@ -18,6 +18,7 @@ public enum ErrorMessage {
 
     // gRPC errors
     GRPC_SERVER_ERROR("There was an error starting the GRPC server"),
+    GRPC_CONNECTION_ERROR("There was an error when trying to establish a connection"),
 
     // Parsing errors
     INVALID_ARGS_LENGTH("Invalid number of Arguments"),

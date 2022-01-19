@@ -28,8 +28,8 @@ public class LocationProofVerifier {
 
     private LocationCertificateBuilder certificateBuilder;
 
-    public LocationProofVerifier(CryptoHandler cryptoHandler) {
-       this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler);
+    public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId) {
+       this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId);
        this.cryptoHandler = cryptoHandler;
     }
 

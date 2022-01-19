@@ -2,12 +2,16 @@ package eu.surething_project.core.location_simulation;
 
 public class Entity {
 
+    private String id;
     private String address;
     private int port;
     private LatLongPair latLongPair;
 
-    public Entity(int id, LatLongPair latLongPair) {
+    public Entity(String id, String address, int port, LatLongPair latLongPair) {
+        this.id = id;
         this.latLongPair = latLongPair;
+        this.address = address;
+        this.port = port;
     }
 
     public String getAddress() {

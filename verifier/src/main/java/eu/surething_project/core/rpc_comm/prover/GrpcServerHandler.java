@@ -14,10 +14,10 @@ public class GrpcServerHandler {
         this.cryptoHandler = cryptoHandler;
     }
 
-    public void buildServer(int port) throws InterruptedException {
+    public void buildServer(int port, String verifierId) throws InterruptedException {
         final ProverGrpcServer server = new ProverGrpcServer(port);
         try {
-            server.start(this.cryptoHandler);
+            server.start(this.cryptoHandler, verifierId);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -15,13 +15,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProverWitnessCommHandler {
 
-    @Autowired
     private WitnessClient witnessClient;
 
     private ManagedChannel channel;
 
     public ProverWitnessCommHandler(Entity entity) {
         this.channel = buildChannel(entity);
+        this.witnessClient = new WitnessClient(channel);
     }
 
     public SignedLocationEndorsement sendWitnessData(SignedLocationClaim claim)

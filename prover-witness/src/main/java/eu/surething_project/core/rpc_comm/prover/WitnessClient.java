@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 /**
  *
  */
-@Service
 public class WitnessClient {
-    private static final Logger logger = LoggerFactory.getLogger(WitnessClient.class);
 
     private final EndorseClaimGrpc.EndorseClaimBlockingStub blockingStub;
 

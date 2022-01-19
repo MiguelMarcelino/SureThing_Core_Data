@@ -24,8 +24,8 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
 
     private LocationProofVerifier endorsementVerifier;
 
-    public CertifyClaimService(CryptoHandler cryptoHandler) {
-        endorsementVerifier = new LocationProofVerifier(cryptoHandler);
+    public CertifyClaimService(CryptoHandler cryptoHandler, String verifierId) {
+        endorsementVerifier = new LocationProofVerifier(cryptoHandler, verifierId);
     }
 
     @Override

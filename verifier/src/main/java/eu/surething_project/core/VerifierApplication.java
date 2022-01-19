@@ -54,7 +54,7 @@ public class VerifierApplication {
 		// Start Verifier server
 		GrpcServerHandler grpcServerHandler = new GrpcServerHandler(cryptoHandler);
 		try {
-			grpcServerHandler.buildServer(verifierGrpcPort);
+			grpcServerHandler.buildServer(verifierGrpcPort, entityId);
 		} catch (InterruptedException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}

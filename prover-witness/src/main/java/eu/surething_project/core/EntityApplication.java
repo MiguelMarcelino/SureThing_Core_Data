@@ -3,18 +3,26 @@ package eu.surething_project.core;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.grpc.SignedLocationClaim;
+import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.location_simulation.Entity;
+import eu.surething_project.core.location_simulation.EntityManager;
+import eu.surething_project.core.location_simulation.LatLongPair;
+import eu.surething_project.core.rpc_comm.prover.LocationClaimBuilder;
+import eu.surething_project.core.rpc_comm.prover.ProverWitnessCommHandler;
 import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.UUID;
 
 public class EntityApplication {
 
@@ -26,7 +34,7 @@ public class EntityApplication {
     @Value("${entity.storage.security}")
     private static String securityStorage;
 
-	private static final String CIPHER_ALGO = "AES/ECB/PKCS5Padding"; // TODO: Request as input
+	private static final String CRYPTO_ALGO = "AES/ECB/PKCS5Padding"; // TODO: Request as input
 
     // TODO:
     // - Receive and store endorsement (for later use when needed, maybe in a list or HashMap)
@@ -68,6 +76,10 @@ public class EntityApplication {
             throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         }
 
+        // Sets up entity Manager and reads entity data from a file
+        EntityManager entityManager = new EntityManager();
+        entityManager.readEntityFile("/data/entityData.txt");
+
 		// apresentar menu
 		printOptions();
 
@@ -89,9 +101,39 @@ public class EntityApplication {
 			String[] inputMsg = cmd.split("\"");
 			String[] inputs = inputMsg[0].split(" ");
 
-			if(inputs[0].equals("sendproof")) {
-				// TODO
-			}
+			if(inputs[0].equals("send_proof")) {
+                // sendproof address:port id
+                // Example: sendproof localhost8081 witness
+                validateAddress(inputs);
+                String[] ipValues = ipPort[1].split("[.]");
+                String address = ipValues[0];
+                int port = Integer.parseInt(ipValues[1]);
+                String wId = inputs[2];
+                Entity entity = new Entity(wId, address, port, new LatLongPair(82.5, 83.4));
+
+                ProverWitnessCommHandler proverWitnessComm = new ProverWitnessCommHandler(entity);
+
+                // send a location claim from this entity
+                LocationClaimBuilder builder = new LocationClaimBuilder(cryptoHandler, entityId);
+                UUID uuid = UUID.randomUUID();
+                SignedLocationEndorsement endorsement = null;
+                try {
+                    SignedLocationClaim claim = builder.buildSignedLocationClaim(uuid.toString(), CRYPTO_ALGO);
+                    endorsement = proverWitnessComm.sendWitnessData(claim);
+                } catch (NoSuchAlgorithmException | SignatureException e) {
+                    throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
+                }  catch (KeyStoreException | InvalidKeyException | UnrecoverableKeyException e) {
+                    throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
+                } catch (InterruptedException e) {
+                    throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR);
+                }
+
+                // Just testing (later requires storing)
+                System.out.println(endorsement.getEndorsement().getClaimId());
+            } else if(inputs[0].equals("broadcast_proof")) {
+                // Get entities within range of current entity
+                entityManager.getEntitiesInRange(new LatLongPair(82.5, 83.4));
+            }
 		}
     }
 
@@ -104,6 +146,19 @@ public class EntityApplication {
         if (args.length != 4)
             throw new EntityException(ErrorMessage.INVALID_ARGS_LENGTH);
 
+        validateAddress(args);
+
+        // Validate if KeyStore Exists
+        String entityId = args[0];
+        File truststoreFile = new File(entityStorage +
+                entityId + securityStorage, args[3]);
+        if (!truststoreFile.exists()) {
+            logger.error("Keystore file was not found: " + args[3]);
+            throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
+        }
+    }
+
+    private static void validateAddress(String[] args) {
         String[] ipPort = args[1].split(":");
         if (ipPort.length != 2) {
             logger.error("Invalid address");
@@ -130,15 +185,6 @@ public class EntityApplication {
         int portValue = Integer.parseInt(ipPort[1]);
         if (portValue < 1024 || portValue > 65535) {
             logger.error("Invalid Port: " + portValue);
-            throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
-        }
-
-        // Validate if KeyStore Exists
-        String entityId = args[0];
-        File truststoreFile = new File(entityStorage +
-                entityId + securityStorage, args[3]);
-        if (!truststoreFile.exists()) {
-            logger.error("Keystore file was not found: " + args[3]);
             throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
         }
     }

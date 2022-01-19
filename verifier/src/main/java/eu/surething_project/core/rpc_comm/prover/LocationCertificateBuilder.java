@@ -15,13 +15,13 @@ import static com.google.protobuf.util.Timestamps.fromMillis;
 
 public class LocationCertificateBuilder {
 
-    @Value("verifier.id")
     private String verifierId;
 
     private CryptoHandler cryptoHandler;
 
-    public LocationCertificateBuilder(CryptoHandler cryptoHandler) {
+    public LocationCertificateBuilder(CryptoHandler cryptoHandler, String verifierId) {
         this.cryptoHandler = cryptoHandler;
+        this.verifierId = verifierId;
     }
 
     /**
