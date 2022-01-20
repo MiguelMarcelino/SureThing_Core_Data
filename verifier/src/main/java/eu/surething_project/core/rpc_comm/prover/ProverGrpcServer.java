@@ -3,14 +3,13 @@ package eu.surething_project.core.rpc_comm.prover;
 import eu.surething_project.core.crypto.CryptoHandler;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class ProverGrpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(ProverGrpcServer.class.getName());
+    private static final Logger logger = Logger.getLogger(ProverGrpcServer.class.getName());
 
     private Server server;
 

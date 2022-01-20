@@ -1,6 +1,6 @@
 package eu.surething_project.core.crypto;
 
-import org.springframework.beans.factory.annotation.Value;
+import eu.surething_project.core.config.PropertiesReader;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -14,7 +14,6 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 
 public class CryptoHandler {
 
@@ -23,19 +22,12 @@ public class CryptoHandler {
     private String ksPassword;
     private final String entityId;
 
-    @Value("${entity.storage}")
     private String entityStorage;
-
-    @Value("${entity.storage.security}")
     private String securityStorage;
-
-    @Value("${entity.storage.certificates}")
     private String certificateRepository;
-
-    @Value("${entity.keystore.privKeyAlias}")
     private String privKeyAlias;
 
-    public CryptoHandler(String entityID, String keystoreName, String ksPassword)
+    public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
             throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
         this.ks = KeyStore.getInstance("JCEKS");
@@ -46,6 +38,12 @@ public class CryptoHandler {
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
                 ksPassword.toCharArray());
+
+        // Read Properties
+        entityStorage = prop.getProperty("entity.storage");
+        securityStorage = prop.getProperty("entity.storage.security");
+        certificateRepository = prop.getProperty("entity.storage.certificates");
+        privKeyAlias = prop.getProperty("entity.keystore.privKeyAlias");
     }
 
     /**

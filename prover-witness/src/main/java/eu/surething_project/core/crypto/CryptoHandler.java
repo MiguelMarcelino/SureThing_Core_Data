@@ -1,8 +1,6 @@
 package eu.surething_project.core.crypto;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Service;
+import eu.surething_project.core.config.PropertiesReader;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -22,25 +20,15 @@ public class CryptoHandler {
     private KeyStore ks;
     private String ksPassword;
     private final String entityId;
-
-    @Value("${entity.storage}")
     private String entityStorage;
-
-    @Value("${entity.storage.security}")
     private String securityStorage;
-
-    @Value("${entity.storage.certificates}")
     private String certificateRepository;
-
-    @Value("{entity.storage.external}")
     private String entityExternalStorage;
-
-    @Value("${entity.keystore.privKeyAlias}")
     private String privKeyAlias;
 
-    public CryptoHandler(String entityID, String keystoreName, String ksPassword)
+    public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
             throws KeyStoreException, CertificateException,
-                NoSuchAlgorithmException, IOException {
+            NoSuchAlgorithmException, IOException {
         this.ks = KeyStore.getInstance("JCEKS");
         this.ksPassword = ksPassword;
         this.entityId = entityID;
@@ -49,10 +37,18 @@ public class CryptoHandler {
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
                 ksPassword.toCharArray());
+
+        // Read Properties
+        entityStorage = prop.getProperty("entity.storage");
+        securityStorage = prop.getProperty("entity.storage.security");
+        certificateRepository = prop.getProperty("entity.storage.certificates");
+        entityExternalStorage = prop.getProperty("entity.storage.external");
+        privKeyAlias = prop.getProperty("entity.keystore.privKeyAlias");
     }
 
     /**
      * Creates a nonce
+     *
      * @return
      */
     public long createNonce() {
@@ -63,6 +59,7 @@ public class CryptoHandler {
 
     /**
      * Signs data using the Private Key and the given cryptoAlgorithm
+     *
      * @param data - The data to sign
      * @return
      * @throws NoSuchAlgorithmException
@@ -83,7 +80,6 @@ public class CryptoHandler {
     }
 
     /**
-     *
      * @param data
      * @param signedData
      * @param certName
@@ -113,13 +109,13 @@ public class CryptoHandler {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         // Get root CA certificate
         String rootCA = "rootCA";
-        File rootCACert = new File(entityStorage + entityExternalStorage
+        File rootCACert = new File(entityStorage + entityId + entityExternalStorage
                 + "/root" + certificateRepository, rootCA + ".cer");
         Certificate rootCert = cf
                 .generateCertificate(new FileInputStream(rootCACert));
 
         // Get user certificate
-        File certFile = new File(entityStorage + entityExternalStorage
+        File certFile = new File(entityStorage + entityId +  entityExternalStorage
                 + externalEntity + certificateRepository,
                 certName + "_certificate.cer");
         Certificate cert = cf
@@ -130,6 +126,7 @@ public class CryptoHandler {
 
     /**
      * Encrypts data for sending
+     *
      * @param data
      * @param certName
      * @param cryptoAlg

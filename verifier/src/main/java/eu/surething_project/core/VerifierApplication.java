@@ -1,31 +1,31 @@
 package eu.surething_project.core;
 
+import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.logging.Logger;
 
 public class VerifierApplication {
-	private static final Logger logger = LoggerFactory.getLogger(VerifierApplication.class);
+	private static final Logger logger = Logger.getLogger(VerifierApplication.class.getName());
 
-	@Value("{entity.storage}")
-	private static String entityStorage;
-
-	@Value("${entity.storage.security}")
-	private static String securityStorage;
+	private static final String PROPERTIES = "application.properties";
 
 	public static void main(String[] args) {
+		// Read properties
+		PropertiesReader prop = new PropertiesReader(PROPERTIES);
+		String entityStorage = prop.getProperty("entity.storage");
+		String securityStorage = prop.getProperty("entity.storage.security");
+
 		// Check the args
-		checkArgs(args);
+		checkArgs(args, entityStorage, securityStorage);
 
 		// Read args
 		final String entityId = args[0];
@@ -38,7 +38,7 @@ public class VerifierApplication {
 		// Create CryptoHandler
 		CryptoHandler cryptoHandler;
 		try {
-			cryptoHandler = new CryptoHandler(entityId, keystoreName, keystorePassword);
+			cryptoHandler = new CryptoHandler(entityId, keystoreName, keystorePassword, prop);
 		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}
@@ -64,14 +64,14 @@ public class VerifierApplication {
 	 * Verifier the application arguments
 	 * @param args
 	 */
-	private static void checkArgs(String[] args) {
+	private static void checkArgs(String[] args, String entityStorage, String securityStorage) {
 		// ID, address:port, keystore_name, keystore_password
 		if (args.length != 4)
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_LENGTH);
 
 		String[] ipPort = args[1].split(":");
 		if (ipPort.length != 2) {
-			logger.error("Invalid address");
+			logger.severe("Invalid address");
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 		}
 
@@ -79,14 +79,14 @@ public class VerifierApplication {
 			String[] ipValues = ipPort[0].split("[.]");
 			// validate address
 			if (ipValues.length != 4) {
-				logger.error("Invalid address length: " + ipValues.length);
+				logger.severe("Invalid address length: " + ipValues.length);
 				throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 			}
 
 			for (String value : ipValues) {
 				int ipValue = Integer.parseInt(value);
 				if (ipValue < 0 || ipValue > 255)
-					logger.error("Invalid IP Address Value: " + ipValue);
+					logger.severe("Invalid IP Address Value: " + ipValue);
 				throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 			}
 		}
@@ -94,7 +94,7 @@ public class VerifierApplication {
 		// Validate Port
 		int portValue = Integer.parseInt(ipPort[1]);
 		if (portValue < 1024 || portValue > 65535) {
-			logger.error("Invalid Port: " + portValue);
+			logger.severe("Invalid Port: " + portValue);
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 		}
 
@@ -103,7 +103,7 @@ public class VerifierApplication {
 		File truststoreFile = new File(entityStorage +
 				entityId + securityStorage, args[3]);
 		if (!truststoreFile.exists()) {
-			logger.error("Keystore file was not found: " + args[3]);
+			logger.severe("Keystore file was not found: " + args[3]);
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 		}
 	}

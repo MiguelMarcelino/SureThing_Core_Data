@@ -4,27 +4,24 @@ import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationProof;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Service
 public class ProverVerifierCommHandler {
 
-    @Value("{verifier.grpc.address}")
     private String verifierGrpcAddress;
 
-    @Value("{verifier.grpc.port}")
     private int verifierGrpcPort;
 
     private VerifierClient verifierClient;
 
     private ManagedChannel channel;
 
-    public ProverVerifierCommHandler() {
+    public ProverVerifierCommHandler(String verifierGrpcAddress, int verifierGrpcPort) {
         this.channel = buildChannel();
         this.verifierClient = new VerifierClient(channel);
+        this.verifierGrpcAddress = verifierGrpcAddress;
+        this.verifierGrpcPort = verifierGrpcPort;
     }
 
     /**

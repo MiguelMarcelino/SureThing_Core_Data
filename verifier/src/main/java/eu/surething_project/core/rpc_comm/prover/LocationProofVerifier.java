@@ -8,7 +8,6 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -23,8 +22,7 @@ public class LocationProofVerifier {
 
     private final CryptoHandler cryptoHandler;
 
-    @Value("verifier.min_endorsement_approval")
-    private int minEndorsementApproval;
+    private static final int minEndorsementApproval = 1;
 
     private LocationCertificateBuilder certificateBuilder;
 
@@ -60,7 +58,7 @@ public class LocationProofVerifier {
         // Verify if there are enough endorsements
         LocationCertificate certificate = endorsementList.size() >= minEndorsementApproval ?
                 certificateBuilder.buildCertificate(claim.getClaimId(), endorsementIds, nonce, cryptoAlg) :
-                certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<>(), nonce, cryptoAlg);
+                certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<String>(), nonce, cryptoAlg);
 
         return certificate;
     }

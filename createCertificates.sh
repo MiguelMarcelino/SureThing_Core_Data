@@ -1,7 +1,7 @@
 #!/bin/bash
 #  Cortesy of https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309
 
-cd certificates
+cd pki
 
 # Data
 # - Password: 12345678

@@ -7,9 +7,6 @@ import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  *

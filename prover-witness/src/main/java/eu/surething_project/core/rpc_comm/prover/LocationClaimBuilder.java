@@ -4,13 +4,11 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.Signature;
+import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.google.type.LatLng;
 import eu.surething_project.core.location_simulation.LatLongPair;
 import eu.surething_project.core.location_simulation.LocationSimulator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.security.*;
 
@@ -18,7 +16,6 @@ import static com.google.protobuf.util.Timestamps.fromMillis;
 
 public class LocationClaimBuilder {
 
-    @Autowired
     private LocationSimulator locationSimulator;
 
     private String proverId;
@@ -28,6 +25,7 @@ public class LocationClaimBuilder {
     public LocationClaimBuilder(CryptoHandler cryptoHandler, String proverId) {
         this.cryptoHandler = cryptoHandler;
         this.proverId = proverId;
+        this.locationSimulator = new LocationSimulator();
     }
 
     public SignedLocationClaim buildSignedLocationClaim(String claimId, String cryptoAlg)

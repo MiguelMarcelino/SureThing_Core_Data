@@ -4,9 +4,8 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.Signature;
-import org.springframework.beans.factory.annotation.Autowired;
+import eu.surething_project.core.grpc.*;
 
 import java.security.*;
 import java.util.List;
@@ -15,7 +14,6 @@ import static com.google.protobuf.util.Timestamps.fromMillis;
 
 public class LocationProofBuilder {
 
-    @Autowired
     private CryptoHandler cryptoHandler;
 
     public LocationProofBuilder(CryptoHandler cryptoHandler) {

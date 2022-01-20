@@ -1,11 +1,9 @@
 package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Service
 public class GrpcServerHandler {
 
     private CryptoHandler cryptoHandler;

@@ -6,7 +6,6 @@ import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.security.*;
 import java.util.List;

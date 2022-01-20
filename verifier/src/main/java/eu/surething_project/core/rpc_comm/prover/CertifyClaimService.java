@@ -7,7 +7,6 @@ import eu.surething_project.core.grpc.CertifyClaimGrpc;
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationProof;
 import io.grpc.stub.StreamObserver;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

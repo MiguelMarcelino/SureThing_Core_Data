@@ -9,6 +9,9 @@ public enum ErrorMessage {
     LOCATION_PROOF_SEND_ERROR("There was an error when sending a LocationProof from prover to verifier"),
     INVALID_PROTOBUF_DATA("Invalid Protocol Buffer data"),
 
+    // Properties errors
+    ERROR_READING_PROPERTIES("Error reading properties file"),
+
     // Key errors
     ERROR_SIGNING_DATA("Error signing data"),
     ERROR_ENCRYPTING_DATA("Error encrypting data"),
