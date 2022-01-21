@@ -5,7 +5,6 @@ import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
-import org.springframework.stereotype.Service;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;

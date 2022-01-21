@@ -1,24 +1,23 @@
 package eu.surething_project.core.exceptions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 
 public class VerifierException extends RuntimeException {
-    private static final Logger entityLogger = LoggerFactory.getLogger(VerifierException.class);
+    private static final Logger entityLogger = Logger.getLogger(VerifierException.class.getName());
 
     public VerifierException(ErrorMessage errMessage, String classType) {
         super(errMessage.message + " - TYPE: " + classType);
-        entityLogger.error(errMessage.message + " - TYPE:" + classType);
+        entityLogger.severe(errMessage.message + " - TYPE:" + classType);
     }
 
     public VerifierException(ErrorMessage errMessage) {
         super(errMessage.message);
-        entityLogger.error(errMessage.message);
+        entityLogger.severe(errMessage.message);
     }
 
     public VerifierException(ErrorMessage errMessage, Exception e) {
         super(errMessage.message, e);
-        entityLogger.error(errMessage.message, e);
+        entityLogger.severe(errMessage.message);
     }
 
 }

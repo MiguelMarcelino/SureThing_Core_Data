@@ -29,21 +29,23 @@ public class CryptoHandler {
     public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
             throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
-        this.ks = KeyStore.getInstance("JCEKS");
-        this.ksPassword = ksPassword;
-        this.entityId = entityID;
-        File keystoreFile = new File(entityStorage + "/" +
-                entityID + securityStorage, keystoreName);
-        this.ks = KeyStore.getInstance("JCEKS");
-        this.ks.load(new FileInputStream(keystoreFile),
-                ksPassword.toCharArray());
-
         // Read Properties
         entityStorage = prop.getProperty("entity.storage");
         securityStorage = prop.getProperty("entity.storage.security");
         certificateRepository = prop.getProperty("entity.storage.certificates");
         entityExternalStorage = prop.getProperty("entity.storage.external");
         privKeyAlias = prop.getProperty("entity.keystore.privKeyAlias");
+
+        // Setup keystore
+        this.ks = KeyStore.getInstance("JCEKS");
+        this.ksPassword = ksPassword;
+        this.entityId = entityID;
+        File keystoreFile = new File(entityStorage + "/" +
+                entityId + "/" + securityStorage, keystoreName + ".jks");
+        this.ks = KeyStore.getInstance("JCEKS");
+        this.ks.load(new FileInputStream(keystoreFile),
+                ksPassword.toCharArray());
+
     }
 
     /**

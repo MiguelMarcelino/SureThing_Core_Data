@@ -33,7 +33,9 @@ public class PropertiesReader {
             throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG);
         } finally {
             try {
-                fis.close();
+                if(fis != null) {
+                    fis.close();
+                }
             } catch (IOException e) {
                 throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG);
             }

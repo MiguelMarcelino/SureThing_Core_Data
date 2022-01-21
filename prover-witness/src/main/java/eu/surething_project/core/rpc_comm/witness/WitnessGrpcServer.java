@@ -4,16 +4,13 @@ package eu.surething_project.core.rpc_comm.witness;
 import eu.surething_project.core.crypto.CryptoHandler;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class WitnessGrpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(WitnessGrpcServer.class.getName());
+    private static final Logger logger = Logger.getLogger(WitnessGrpcServer.class.getName());
 
     private Server server;
 
@@ -58,7 +55,7 @@ public class WitnessGrpcServer {
         });
     }
 
-    private void stop() throws InterruptedException {
+    protected void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }

@@ -1,10 +1,7 @@
 package eu.surething_project.core.location_simulation;
 
-import org.springframework.stereotype.Service;
-
 import java.util.Random;
 
-@Service
 public class LocationSimulator {
 
     /**

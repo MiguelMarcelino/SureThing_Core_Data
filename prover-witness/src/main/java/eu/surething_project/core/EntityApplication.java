@@ -26,9 +26,9 @@ public class EntityApplication {
 
     private static final Logger logger = Logger.getLogger(EntityApplication.class.getName());
 
-	private static final String CRYPTO_ALGO = "AES/ECB/PKCS5Padding"; // TODO: Request as input
+	private static final String CRYPTO_ALGO = "SHA256withRSA"; // TODO: Request as input
 
-    private static final String PROPERTIES = "application.properties";
+    private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
 
     // TODO:
     // - Receive and store endorsement (for later use when needed, maybe in a list or HashMap)
@@ -36,6 +36,7 @@ public class EntityApplication {
     // - How to Broadcast using gRPC? (To multiple witnesses)
     public static void main(String[] args) {
         // Read properties
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         PropertiesReader prop = new PropertiesReader(PROPERTIES);
         String entityStorage = prop.getProperty("entity.storage");
         String securityStorage = prop.getProperty("entity.storage.security");
@@ -94,7 +95,7 @@ public class EntityApplication {
 				}
 				cmd = br.readLine();
 			} catch (IOException | InterruptedException e) {
-				System.out.println("ERRO ao receber input. Tente novamente.");
+				System.out.println("Error receiving message");
 			}
 
 			String[] inputMsg = cmd.split("\"");
@@ -102,9 +103,9 @@ public class EntityApplication {
 
 			if(inputs[0].equals("send_proof")) {
                 // send_proof address:port id
-                // Example: send_proof localhost8081 witness
+                // Example: send_proof localhost:8081 witness
                 validateAddress(inputs);
-                String[] ipValues = ipPort[1].split("[.]");
+                String[] ipValues = inputs[1].split(":");
                 String address = ipValues[0];
                 int port = Integer.parseInt(ipValues[1]);
                 String wId = inputs[2];
@@ -149,10 +150,11 @@ public class EntityApplication {
 
         // Validate if KeyStore Exists
         String entityId = args[0];
-        File truststoreFile = new File(entityStorage +
-                entityId + securityStorage, args[3]);
+        File truststoreFile = new File(entityStorage + "/" +
+                entityId + "/" + securityStorage, args[2] + ".jks");
+        System.out.println(truststoreFile.getAbsolutePath());
         if (!truststoreFile.exists()) {
-            logger.severe("Keystore file was not found: " + args[3]);
+            logger.severe("Keystore file was not found: " + args[2]);
             throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
         }
     }

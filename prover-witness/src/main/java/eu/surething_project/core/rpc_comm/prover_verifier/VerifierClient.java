@@ -2,13 +2,11 @@ package eu.surething_project.core.rpc_comm.prover_verifier;
 
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
-import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.CertifyClaimGrpc;
+import eu.surething_project.core.grpc.LocationCertificate;
+import eu.surething_project.core.grpc.SignedLocationProof;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.security.*;
-import java.util.List;
 
 public class VerifierClient {
     private final CertifyClaimGrpc.CertifyClaimBlockingStub blockingStub;
