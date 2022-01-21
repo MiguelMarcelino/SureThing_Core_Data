@@ -25,7 +25,11 @@ public enum ErrorMessage {
 
     // Parsing errors
     INVALID_ARGS_LENGTH("Invalid number of Arguments"),
-    INVALID_ARGS_DATA("Invalid argument data was supplied");
+    INVALID_ARGS_DATA("Invalid argument data was supplied"),
+
+    // File Reading errors
+    ERROR_READING_ENTITIES_FILE("Error Reading Entities File"),
+    ERROR_CLOSING_ENTITIES_FILE("Error closing Entities File");
 
     public final String message;
 

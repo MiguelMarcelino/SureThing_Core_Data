@@ -31,7 +31,7 @@ public class WitnessClient {
         try {
             signedLocationEndorsement = blockingStub.checkClaim(locationClaim);
         } catch (StatusRuntimeException e) {
-            throw new EntityException(ErrorMessage.LOCATION_CLAIM_SEND_ERROR);
+            throw new EntityException(ErrorMessage.LOCATION_CLAIM_SEND_ERROR, e);
         }
 
         return signedLocationEndorsement;

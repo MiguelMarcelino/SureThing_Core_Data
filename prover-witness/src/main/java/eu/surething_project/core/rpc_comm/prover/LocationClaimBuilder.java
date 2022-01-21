@@ -11,16 +11,15 @@ import eu.surething_project.core.location_simulation.LatLongPair;
 import eu.surething_project.core.location_simulation.LocationSimulator;
 
 import java.security.*;
+import java.util.UUID;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
 public class LocationClaimBuilder {
 
-    private LocationSimulator locationSimulator;
-
-    private String proverId;
-
     private CryptoHandler cryptoHandler;
+    private LocationSimulator locationSimulator;
+    private String proverId;
 
     public LocationClaimBuilder(CryptoHandler cryptoHandler, String proverId) {
         this.cryptoHandler = cryptoHandler;
@@ -28,12 +27,13 @@ public class LocationClaimBuilder {
         this.locationSimulator = new LocationSimulator();
     }
 
-    public SignedLocationClaim buildSignedLocationClaim(String claimId, String cryptoAlg)
+    public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
         LatLongPair latLongPair = locationSimulator
                 .generateLatitudeLongitudeCoordinates(82.3, 85.4, 3);
-        LocationClaim claim = buildLocationClaim(latLongPair, claimId);
+        UUID uuid = UUID.randomUUID();
+        LocationClaim claim = buildLocationClaim(latLongPair, uuid.toString());
 
         long nonce = cryptoHandler.createNonce();
         byte[] endorsementSigned = cryptoHandler.signData(claim.toByteArray(), cryptoAlg);
@@ -48,6 +48,7 @@ public class LocationClaimBuilder {
     }
 
     private LocationClaim buildLocationClaim(LatLongPair latLongPair, String claimId) {
+
         LocationClaim locationClaim = LocationClaim.newBuilder()
                 .setClaimId(claimId)
                 .setProverId(proverId)
