@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm.witness;
 
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.Signature;
@@ -19,9 +20,13 @@ public class LocationClaimVerifier {
 
     private CryptoHandler cryptoHandler;
 
-    public LocationClaimVerifier(CryptoHandler cryptoHandler, String witnessId) {
-        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, witnessId);
+    private String externalData;
+
+    public LocationClaimVerifier(CryptoHandler cryptoHandler, String witnessId, String externalData,
+                                 String certPath) {
+        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, witnessId, certPath);
         this.cryptoHandler = cryptoHandler;
+        this.externalData = externalData;
     }
 
     /**
@@ -31,16 +36,24 @@ public class LocationClaimVerifier {
      */
     public SignedLocationEndorsement verifyLocationClaim(SignedLocationClaim signedLocationClaim)
             throws NoSuchAlgorithmException, SignatureException, InvalidKeyException,
-            UnrecoverableKeyException, KeyStoreException, FileNotFoundException, CertificateException {
+            UnrecoverableKeyException, KeyStoreException, FileNotFoundException, CertificateException,
+            NoSuchProviderException {
         // Get signed data
         Signature signature = signedLocationClaim.getProverSignature();
         String externalEntityId = signedLocationClaim.getClaim().getProverId();
         long nonce = signature.getNonce();
         byte[] signedClaim = signature.getValue().toByteArray();
+        byte[] certData = signature.getCertificateData().toByteArray();
         String cryptoAlg = signature.getCryptoAlgo();
 
         // Get LocationClaim data
         LocationClaim locClaim = signedLocationClaim.getClaim();
+
+        // Create Certificate if necessary
+        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
+
+        // create Certificate and verify validity
+        cryptoHandler.verifyCertificate(externalEntityId);
 
         // Verify signed data
         cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim,  externalEntityId, cryptoAlg);

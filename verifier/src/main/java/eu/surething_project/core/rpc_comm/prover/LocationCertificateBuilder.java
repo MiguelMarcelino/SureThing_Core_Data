@@ -3,6 +3,7 @@ package eu.surething_project.core.rpc_comm.prover;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
@@ -19,9 +20,12 @@ public class LocationCertificateBuilder {
 
     private CryptoHandler cryptoHandler;
 
-    public LocationCertificateBuilder(CryptoHandler cryptoHandler, String verifierId) {
+    private String certPath;
+
+    public LocationCertificateBuilder(CryptoHandler cryptoHandler, String verifierId, String certPath) {
         this.cryptoHandler = cryptoHandler;
         this.verifierId = verifierId;
+        this.certPath = certPath;
     }
 
     /**
@@ -37,12 +41,16 @@ public class LocationCertificateBuilder {
         LocationVerification verification = buildLocVerification(claimId, endorsementLst, uuid.toString());
         byte[] verificationSigned = cryptoHandler.signData(verification.toByteArray(), cryptoAlg);
 
+        // Get certificate data
+        byte[] certificate = CertificateAccess.getCertificateContentAsBytes(certPath, verifierId);
+
         LocationCertificate locationCertificate = LocationCertificate.newBuilder()
                 .setVerification(verification)
                 .setVerifierSignature(Signature.newBuilder()
                         .setValue(ByteString.copyFrom(verificationSigned))
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
+                        .setCertificateData(ByteString.copyFrom(certificate))
                         .build())
                 .build();
         return locationCertificate;

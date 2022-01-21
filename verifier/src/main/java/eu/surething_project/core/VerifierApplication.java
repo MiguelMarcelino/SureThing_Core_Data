@@ -28,7 +28,7 @@ public class VerifierApplication {
 		checkArgs(args, entityStorage, securityStorage);
 
 		// Read args
-		final String entityId = args[0];
+		final String currentEntityId = args[0];
 		final int verifierGrpcPort = Integer.parseInt(args[1]);
 		final String keystoreName = args[2];
 		final String keystorePassword = args[3];
@@ -36,23 +36,29 @@ public class VerifierApplication {
 		// Create CryptoHandler
 		CryptoHandler cryptoHandler;
 		try {
-			cryptoHandler = new CryptoHandler(entityId, keystoreName, keystorePassword, prop);
+			cryptoHandler = new CryptoHandler(currentEntityId, keystoreName, keystorePassword, prop);
 		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}
+
+		// Get certificate Path
+		String certificatePath = entityStorage + "/" + currentEntityId + "/" + securityStorage;
+
+		// Get external Path
+		String externalData = entityStorage + "/" + currentEntityId + "/external";
 
 		/**********************************/
 		// Keystore Properties
 		System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
 		System.setProperty("javax.net.ssl.keyStore",
-				entityStorage + "/" + entityId + "/" + keystoreName);
+				entityStorage + "/" + currentEntityId + "/" + keystoreName);
 		System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
 		/**********************************/
 
 		// Start Verifier server
 		GrpcServerHandler grpcServerHandler = new GrpcServerHandler(cryptoHandler);
 		try {
-			grpcServerHandler.buildServer(verifierGrpcPort, entityId);
+			grpcServerHandler.buildServer(verifierGrpcPort, currentEntityId, externalData, certificatePath);
 		} catch (InterruptedException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}

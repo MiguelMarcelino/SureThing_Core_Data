@@ -19,9 +19,10 @@ public class ProverGrpcServer {
         this.serverPort = port;
     }
 
-    public void start(CryptoHandler cryptoHandler, String verifierId) throws IOException {
+    public void start(CryptoHandler cryptoHandler, String verifierId, String externalData,
+                      String certPath) throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new CertifyClaimService(cryptoHandler, verifierId))
+                .addService(new CertifyClaimService(cryptoHandler, verifierId, externalData, certPath))
                 .build()
                 .start();
 

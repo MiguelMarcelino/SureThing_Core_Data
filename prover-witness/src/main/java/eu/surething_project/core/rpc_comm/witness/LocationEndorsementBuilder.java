@@ -3,6 +3,7 @@ package eu.surething_project.core.rpc_comm.witness;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
@@ -23,23 +24,32 @@ public class LocationEndorsementBuilder {
 
     private CryptoHandler cryptoHandler;
 
-    public LocationEndorsementBuilder(CryptoHandler cryptoHandler, String witnessId) {
+    private String certPath;
+
+    public LocationEndorsementBuilder(CryptoHandler cryptoHandler, String witnessId, String certPath) {
         this.cryptoHandler = cryptoHandler;
         this.witnessId = witnessId;
+        this.certPath = certPath;
     }
 
-    public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
+    public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce,
+                                                                    String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException,
             InvalidKeyException, UnrecoverableKeyException, KeyStoreException {
         UUID uuid = UUID.randomUUID();
         LocationEndorsement endorsement = buildLocationEndorsement(claimId, uuid.toString());
         byte[] endorsementSigned = cryptoHandler.signData(endorsement.toByteArray(), cryptoAlg);
+
+        // Get certificate data
+        byte[] certificate = CertificateAccess.getCertificateContentAsBytes(certPath, witnessId);
+
         SignedLocationEndorsement locationEndorsement = SignedLocationEndorsement.newBuilder()
                 .setEndorsement(endorsement)
                 .setWitnessSignature(Signature.newBuilder()
                         .setValue(ByteString.copyFrom(endorsementSigned))
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
+                        .setCertificateData(ByteString.copyFrom(certificate))
                         .build())
                 .build();
 

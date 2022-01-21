@@ -42,10 +42,6 @@ public class ProverWitnessCommHandler {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
 
-        // Verify endorsement freshness
-        long nonce = claim.getProverSignature().getNonce();
-        LocationEndorsementVerifier.verifyEndorsement(cryptoHandler, nonce, endorsement);
-
         return endorsement;
     }
 

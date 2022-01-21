@@ -23,8 +23,8 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
 
     private LocationProofVerifier endorsementVerifier;
 
-    public CertifyClaimService(CryptoHandler cryptoHandler, String verifierId) {
-        endorsementVerifier = new LocationProofVerifier(cryptoHandler, verifierId);
+    public CertifyClaimService(CryptoHandler cryptoHandler, String verifierId, String externalData, String certPath) {
+        endorsementVerifier = new LocationProofVerifier(cryptoHandler, verifierId, externalData, certPath);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
             throw new VerifierException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new VerifierException(ErrorMessage.ERROR_SIGNING_DATA, e);
-        } catch (FileNotFoundException | CertificateException e) {
+        } catch (FileNotFoundException | CertificateException | NoSuchProviderException e) {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
         }
         responseObserver.onCompleted();

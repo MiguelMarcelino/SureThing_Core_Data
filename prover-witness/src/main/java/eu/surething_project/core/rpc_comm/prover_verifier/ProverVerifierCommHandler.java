@@ -9,6 +9,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.io.FileNotFoundException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
@@ -36,17 +37,14 @@ public class ProverVerifierCommHandler {
      */
     public LocationCertificate sendDataToVerifier(SignedLocationProof proof)
             throws InterruptedException, FileNotFoundException, CertificateException,
-            NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+            NoSuchAlgorithmException, SignatureException, InvalidKeyException,
+            NoSuchProviderException {
         LocationCertificate certificate;
         try {
             certificate = this.verifierClient.sendProofToVerifier(proof);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
-
-        // Verify Freshness
-        long nonce = proof.getProverSignature().getNonce();
-        LocationCertificateVerifier.verifyCertificate(cryptoHandler, nonce, certificate);
 
         return certificate;
     }

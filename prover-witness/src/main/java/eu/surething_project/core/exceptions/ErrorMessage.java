@@ -29,8 +29,10 @@ public enum ErrorMessage {
     INVALID_ARGS_DATA("Invalid argument data was supplied"),
 
     // File Reading errors
-    ERROR_READING_ENTITIES_FILE("Error Reading Entities File"),
-    ERROR_CLOSING_ENTITIES_FILE("Error closing Entities File");
+    ERROR_READING_ENTITIES_FILE("Error Reading Entities file"),
+    ERROR_CLOSING_ENTITIES_FILE("Error closing Entities file"),
+    ERROR_READING_CERTIFICATE("Error reading certificate file"),
+    ERROR_CREATING_CERTIFICATE("Error creating Certificate file");
 
     public final String message;
 

@@ -82,7 +82,6 @@ public class CryptoHandler {
     /**
      * @param data
      * @param signedData
-     * @param certName
      * @param cryptoAlgorithm
      * @return
      * @throws NoSuchAlgorithmException
@@ -104,19 +103,19 @@ public class CryptoHandler {
         return sig.verify(signedData);
     }
 
-    public void verifyCertificate(String externalEntity, String certName) throws CertificateException,
+    public void verifyCertificate(String externalEntity) throws CertificateException,
             FileNotFoundException, NoSuchAlgorithmException, SignatureException, InvalidKeyException,
             NoSuchProviderException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         // Get root CA certificate
         File rootCACert = new File(entityStorage + "/" + entityId + "/"  + entityExternalStorage
-                + "/root", "rootCA.cer");
+                + "/root", "rootCA.crt");
         Certificate rootCert = cf
                 .generateCertificate(new FileInputStream(rootCACert));
 
         // Get user certificate
         File certFile = new File(entityStorage + "/" + entityId + "/" +  entityExternalStorage + "/"
-                + externalEntity, certName + "_certificate.cer");
+                + externalEntity, externalEntity + ".crt");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
 

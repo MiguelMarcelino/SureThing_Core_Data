@@ -3,6 +3,7 @@ package eu.surething_project.core.rpc_comm.prover;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
@@ -26,9 +27,12 @@ public class LocationProofVerifier {
 
     private LocationCertificateBuilder certificateBuilder;
 
-    public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId) {
-        this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId);
+    private String externalData;
+
+    public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId, String externalData, String certPath) {
+        this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId, certPath);
         this.cryptoHandler = cryptoHandler;
+        this.externalData = externalData;
     }
 
     /**
@@ -38,7 +42,7 @@ public class LocationProofVerifier {
     public LocationCertificate verifyLocationProof(SignedLocationProof locationProof)
             throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
             KeyStoreException, NoSuchAlgorithmException, BadPaddingException, SignatureException,
-            InvalidKeyException, FileNotFoundException, CertificateException {
+            InvalidKeyException, FileNotFoundException, CertificateException, NoSuchProviderException {
         // Get list Endorsements
         List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
         List<String> endorsementIds = new ArrayList<>();
@@ -46,10 +50,20 @@ public class LocationProofVerifier {
         // Get location claim
         LocationClaim claim = locationProof.getVerification().getLocClaim();
 
+        // Prover id
+        String proverId = locationProof.getVerification().getLocClaim().getProverId();
+
         // Get Proof signature data
         Signature sig = locationProof.getProverSignature();
         String cryptoAlg = sig.getCryptoAlgo();
         long nonce = sig.getNonce();
+        byte[] certData = sig.getCertificateData().toByteArray();
+
+        // Create Certificate if necessary
+        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, proverId, certData);
+
+        // create Certificate and verify validity
+        cryptoHandler.verifyCertificate(proverId);
 
         for (SignedLocationEndorsement endorsement : endorsementList) {
             boolean isValid = validateLocationEndorsement(endorsement, claim);
@@ -72,20 +86,28 @@ public class LocationProofVerifier {
     private boolean validateLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement,
                                                 LocationClaim claim)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
-            FileNotFoundException, CertificateException {
+            FileNotFoundException, CertificateException, NoSuchProviderException {
         // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
         byte[] signedEndorsement = signature.getValue().toByteArray();
+        byte[] certData = signature.getCertificateData().toByteArray();
         String cryptoAlg = signature.getCryptoAlgo();
 
         // Get Location Endorsement Data
         LocationEndorsement locEndorsement = signedLocationEndorsement.getEndorsement();
+        String witnessId = locEndorsement.getWitnessId();
 
         boolean isValid;
 
+        // Create Certificate if necessary
+        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, witnessId, certData);
+
+        // create Certificate and verify validity
+        cryptoHandler.verifyCertificate(witnessId);
+
         // Verify signed data (With witness public key)
         isValid = cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement,
-                claim.getProverId(), cryptoAlg);
+                locEndorsement.getWitnessId(), cryptoAlg);
 
         // Only check data contents after it has been verified
         if (isValid) {

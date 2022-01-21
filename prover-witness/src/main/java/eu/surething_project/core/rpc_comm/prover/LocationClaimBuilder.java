@@ -3,6 +3,7 @@ package eu.surething_project.core.rpc_comm.prover;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
@@ -20,11 +21,13 @@ public class LocationClaimBuilder {
     private CryptoHandler cryptoHandler;
     private LocationSimulator locationSimulator;
     private String proverId;
+    private String certPath;
 
-    public LocationClaimBuilder(CryptoHandler cryptoHandler, String proverId) {
+    public LocationClaimBuilder(CryptoHandler cryptoHandler, String proverId, String certPath) {
         this.cryptoHandler = cryptoHandler;
         this.proverId = proverId;
         this.locationSimulator = new LocationSimulator();
+        this.certPath = certPath;
     }
 
     public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg)
@@ -35,6 +38,9 @@ public class LocationClaimBuilder {
         UUID uuid = UUID.randomUUID();
         LocationClaim claim = buildLocationClaim(latLongPair, uuid.toString());
 
+        // Get certificate data
+        byte[] certificate = CertificateAccess.getCertificateContentAsBytes(certPath, proverId);
+
         long nonce = cryptoHandler.createNonce();
         byte[] endorsementSigned = cryptoHandler.signData(claim.toByteArray(), cryptoAlg);
         return SignedLocationClaim.newBuilder()
@@ -43,6 +49,7 @@ public class LocationClaimBuilder {
                         .setValue(ByteString.copyFrom(endorsementSigned))
                         .setCryptoAlgo(cryptoAlg)
                         .setNonce(nonce)
+                        .setCertificateData(ByteString.copyFrom(certificate))
                         .build())
                 .build();
     }

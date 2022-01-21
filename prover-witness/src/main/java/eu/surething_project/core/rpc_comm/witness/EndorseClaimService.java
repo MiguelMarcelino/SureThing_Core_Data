@@ -22,8 +22,10 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
 
     private LocationClaimVerifier claimVerifier;
 
-    public EndorseClaimService(CryptoHandler cryptoHandler, String witnessId) {
-        this.claimVerifier = new LocationClaimVerifier(cryptoHandler, witnessId);
+    public EndorseClaimService(CryptoHandler cryptoHandler, String witnessId,
+                               String externalData, String certPath) {
+        this.claimVerifier = new LocationClaimVerifier(cryptoHandler, witnessId,
+                externalData, certPath);
     }
 
     /**
@@ -40,6 +42,8 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
             throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
         } catch (UnrecoverableKeyException | KeyStoreException e) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_KEYSTORE_KEY, e);
+        } catch (NoSuchProviderException e) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
         }
         responseObserver.onCompleted();
     }
