@@ -32,7 +32,12 @@ public enum ErrorMessage {
     ERROR_READING_ENTITIES_FILE("Error Reading Entities file"),
     ERROR_CLOSING_ENTITIES_FILE("Error closing Entities file"),
     ERROR_READING_CERTIFICATE("Error reading certificate file"),
-    ERROR_CREATING_CERTIFICATE("Error creating Certificate file");
+    ERROR_CREATING_CERTIFICATE("Error creating Certificate file"),
+
+    // Database errors
+    DATABASE_CONNECTION_EXCEPTION("Error creating Database connection"),
+    ERROR_CLOSING_DB_CONNECTION("Error closing Database connection"),
+    ERROR_ACCESSING_SQL_TABLE("Error accessing SQL table");
 
     public final String message;
 
