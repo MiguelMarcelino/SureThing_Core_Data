@@ -27,7 +27,6 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
     }
 
     /**
-     *
      * @param request
      * @param responseObserver
      */
@@ -37,15 +36,13 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
             responseObserver.onNext(claimVerifier.verifyLocationClaim(request));
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
-        } catch (FileNotFoundException | NoSuchPaddingException | IllegalBlockSizeException |
-                CertificateException | BadPaddingException | InvalidKeyException e) {
+        } catch (FileNotFoundException | CertificateException | InvalidKeyException e) {
             throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
         } catch (UnrecoverableKeyException | KeyStoreException e) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_KEYSTORE_KEY, e);
         }
         responseObserver.onCompleted();
     }
-
 
 
 }

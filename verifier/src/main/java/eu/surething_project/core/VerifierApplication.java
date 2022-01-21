@@ -29,11 +29,9 @@ public class VerifierApplication {
 
 		// Read args
 		final String entityId = args[0];
-		String[] ipPort = args[1].split(":");
-		final String verifierAddress = ipPort[0];
-		final int verifierGrpcPort = Integer.parseInt(ipPort[1]);
-		final String keystoreName = args[3];
-		final String keystorePassword = args[4];
+		final int verifierGrpcPort = Integer.parseInt(args[1]);
+		final String keystoreName = args[2];
+		final String keystorePassword = args[3];
 
 		// Create CryptoHandler
 		CryptoHandler cryptoHandler;
@@ -69,30 +67,8 @@ public class VerifierApplication {
 		if (args.length != 4)
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_LENGTH);
 
-		String[] ipPort = args[1].split(":");
-		if (ipPort.length != 2) {
-			logger.severe("Invalid address");
-			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
-		}
-
-		if (!ipPort[0].equals("localhost")) {
-			String[] ipValues = ipPort[0].split("[.]");
-			// validate address
-			if (ipValues.length != 4) {
-				logger.severe("Invalid address length: " + ipValues.length);
-				throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
-			}
-
-			for (String value : ipValues) {
-				int ipValue = Integer.parseInt(value);
-				if (ipValue < 0 || ipValue > 255)
-					logger.severe("Invalid IP Address Value: " + ipValue);
-				throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
-			}
-		}
-
 		// Validate Port
-		int portValue = Integer.parseInt(ipPort[1]);
+		int portValue = Integer.parseInt(args[1]);
 		if (portValue < 1024 || portValue > 65535) {
 			logger.severe("Invalid Port: " + portValue);
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);

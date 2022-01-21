@@ -51,14 +51,14 @@ public class LocationProofVerifier {
         for (SignedLocationEndorsement endorsement : endorsementList) {
             boolean isValid = validateLocationEndorsement(endorsement, claim);
             if (isValid) {
-                endorsementIds.add(endorsement.getEndorsement().getClaimId()); // TODO: There is no Endorsement ID
+                endorsementIds.add(endorsement.getEndorsement().getEndorsementId());
             }
         }
 
         // Verify if there are enough endorsements
         LocationCertificate certificate = endorsementList.size() >= minEndorsementApproval ?
                 certificateBuilder.buildCertificate(claim.getClaimId(), endorsementIds, nonce, cryptoAlg) :
-                certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<String>(), nonce, cryptoAlg);
+                certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<>(), nonce, cryptoAlg);
 
         return certificate;
     }
@@ -68,9 +68,8 @@ public class LocationProofVerifier {
      */
     private boolean validateLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement,
                                                 LocationClaim claim)
-            throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
-            KeyStoreException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException,
-            SignatureException, FileNotFoundException, CertificateException {
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
+            FileNotFoundException, CertificateException {
         // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
         byte[] signedEndorsement = signature.getValue().toByteArray();
@@ -80,9 +79,6 @@ public class LocationProofVerifier {
         LocationEndorsement locEndorsement = signedLocationEndorsement.getEndorsement();
 
         boolean isValid;
-
-//        // Decrypt endorsement with Verifier private Key
-//        byte[] signedEndorsement = cryptoHandler.decryptDataAssym(encryptedEndorsement, "verifier");
 
         // Verify signed data (With witness public key)
         isValid = cryptoHandler.verifyData(locEndorsement.toByteArray(), signedEndorsement,

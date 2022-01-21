@@ -24,7 +24,6 @@ public class CryptoHandler {
     private String securityStorage;
     private String certificateRepository;
     private String entityExternalStorage;
-    private String privKeyAlias;
 
     public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
             throws KeyStoreException, CertificateException,
@@ -34,7 +33,6 @@ public class CryptoHandler {
         securityStorage = prop.getProperty("entity.storage.security");
         certificateRepository = prop.getProperty("entity.storage.certificates");
         entityExternalStorage = prop.getProperty("entity.storage.external");
-        privKeyAlias = prop.getProperty("entity.keystore.privKeyAlias");
 
         // Setup keystore
         this.ks = KeyStore.getInstance("JCEKS");
@@ -74,7 +72,7 @@ public class CryptoHandler {
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
-        PrivateKey key = (PrivateKey) ks.getKey(privKeyAlias,
+        PrivateKey key = (PrivateKey) ks.getKey(entityId,
                 ksPassword.toCharArray());
         sig.initSign(key);
         sig.update(data);
@@ -92,15 +90,17 @@ public class CryptoHandler {
      * @throws CertificateException
      * @throws FileNotFoundException
      */
-    public boolean verifyData(byte[] data, byte[] signedData, String certName, String cryptoAlgorithm)
+    public boolean verifyData(byte[] data, byte[] signedData, String certName, String cryptoAlgorithm,
+                              String externalEntityId)
             throws NoSuchAlgorithmException, SignatureException, CertificateException,
-            FileNotFoundException {
+            FileNotFoundException, InvalidKeyException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
         CertificateFactory cf = CertificateFactory.getInstance("X509");
-        File certFile = new File(entityStorage + entityId + certificateRepository,
-                certName + "_certificate.cer");
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/"
+                + externalEntityId, certName + ".crt");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
+        sig.initVerify(cert.getPublicKey());
         sig.update(data);
         return sig.verify(signedData);
     }

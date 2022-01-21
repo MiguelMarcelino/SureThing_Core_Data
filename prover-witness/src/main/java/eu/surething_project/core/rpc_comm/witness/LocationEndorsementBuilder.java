@@ -13,6 +13,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.UUID;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -28,10 +29,10 @@ public class LocationEndorsementBuilder {
     }
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce, String cryptoAlg)
-            throws NoSuchAlgorithmException, SignatureException, FileNotFoundException,
-            NoSuchPaddingException, IllegalBlockSizeException, CertificateException, BadPaddingException,
+            throws NoSuchAlgorithmException, SignatureException,
             InvalidKeyException, UnrecoverableKeyException, KeyStoreException {
-        LocationEndorsement endorsement = buildLocationEndorsement(claimId);
+        UUID uuid = UUID.randomUUID();
+        LocationEndorsement endorsement = buildLocationEndorsement(claimId, uuid.toString());
         byte[] endorsementSigned = cryptoHandler.signData(endorsement.toByteArray(), cryptoAlg);
         SignedLocationEndorsement locationEndorsement = SignedLocationEndorsement.newBuilder()
                 .setEndorsement(endorsement)
@@ -42,18 +43,15 @@ public class LocationEndorsementBuilder {
                         .build())
                 .build();
 
-        // TODO: Send encrypted endorsement
-        byte[] encryptedEndorsement = cryptoHandler.encryptDataAssym(locationEndorsement.toByteArray(),
-                claimId, cryptoAlg);
-
         return locationEndorsement;
     }
 
-    private LocationEndorsement buildLocationEndorsement(String claimId) {
+    private LocationEndorsement buildLocationEndorsement(String claimId, String endorsementId) {
         //	create location endorsement
         LocationEndorsement locationEndorsement = LocationEndorsement.newBuilder()
+                .setEndorsementId(endorsementId)
                 .setWitnessId(witnessId)
-                .setClaimId (claimId)
+                .setClaimId(claimId)
                 .setTime(Time.newBuilder()
                         .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
                         .build())

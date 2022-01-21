@@ -81,13 +81,14 @@ public class CryptoHandler {
      */
     public boolean verifyData(byte[] data, byte[] signedData, String certName, String cryptoAlgorithm)
             throws NoSuchAlgorithmException, SignatureException, CertificateException,
-            FileNotFoundException {
+            FileNotFoundException, InvalidKeyException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         File certFile = new File(entityStorage + entityId + certificateRepository,
                 certName + "_certificate.cer");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
+        sig.initVerify(cert.getPublicKey());
         sig.update(data);
         return sig.verify(signedData);
     }

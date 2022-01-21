@@ -9,6 +9,7 @@ import eu.surething_project.core.grpc.*;
 
 import java.security.*;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -24,7 +25,6 @@ public class LocationCertificateBuilder {
     }
 
     /**
-     *
      * @param claimId
      * @param endorsementLst
      * @return
@@ -33,7 +33,8 @@ public class LocationCertificateBuilder {
                                                 long nonce, String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
-        LocationVerification verification = buildLocVerification(claimId, endorsementLst);
+        UUID uuid = UUID.randomUUID();
+        LocationVerification verification = buildLocVerification(claimId, endorsementLst, uuid.toString());
         byte[] verificationSigned = cryptoHandler.signData(verification.toByteArray(), cryptoAlg);
 
         LocationCertificate locationCertificate = LocationCertificate.newBuilder()
@@ -48,14 +49,14 @@ public class LocationCertificateBuilder {
     }
 
     /**
-     *
      * @param claimId
      * @param endorsementLst
      * @return
      */
-    private LocationVerification buildLocVerification(String claimId,
-                                                     List<String> endorsementLst) {
+    private LocationVerification buildLocVerification(String claimId, List<String> endorsementLst,
+                                                      String verificationId) {
         return LocationVerification.newBuilder()
+                .setVerificationId(verificationId)
                 .setVerifierId(verifierId)
                 .setClaimId(claimId)
                 .addAllEndorsementIds(endorsementLst)

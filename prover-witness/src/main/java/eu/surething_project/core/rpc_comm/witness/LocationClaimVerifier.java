@@ -30,11 +30,11 @@ public class LocationClaimVerifier {
      * @return
      */
     public SignedLocationEndorsement verifyLocationClaim(SignedLocationClaim signedLocationClaim)
-            throws NoSuchAlgorithmException, SignatureException, FileNotFoundException, NoSuchPaddingException,
-            IllegalBlockSizeException, CertificateException, BadPaddingException, InvalidKeyException,
-            UnrecoverableKeyException, KeyStoreException {
+            throws NoSuchAlgorithmException, SignatureException, InvalidKeyException,
+            UnrecoverableKeyException, KeyStoreException, FileNotFoundException, CertificateException {
         // Get signed data
         Signature signature = signedLocationClaim.getProverSignature();
+        String externalEntityId = signedLocationClaim.getClaim().getProverId();
         long nonce = signature.getNonce();
         byte[] signedClaim = signature.getValue().toByteArray();
         String cryptoAlg = signature.getCryptoAlgo();
@@ -43,7 +43,8 @@ public class LocationClaimVerifier {
         LocationClaim locClaim = signedLocationClaim.getClaim();
 
         // Verify signed data
-        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, locClaim.getProverId(), cryptoAlg);
+        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, locClaim.getProverId(), cryptoAlg,
+                externalEntityId);
 
         // Start Data content verification
         String claimId = locClaim.getClaimId();
