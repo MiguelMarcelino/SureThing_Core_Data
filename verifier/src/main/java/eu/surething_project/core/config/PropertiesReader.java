@@ -28,12 +28,14 @@ public class PropertiesReader {
             prop = new Properties();
             prop.load(fis);
         } catch (FileNotFoundException e) {
-            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG);
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         } catch (IOException e) {
-            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG);
+            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         } finally {
             try {
-                fis.close();
+                if(fis!=null) {
+                    fis.close();
+                }
             } catch (IOException e) {
                 throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG);
             }

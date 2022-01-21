@@ -43,8 +43,7 @@ public class LocationClaimVerifier {
         LocationClaim locClaim = signedLocationClaim.getClaim();
 
         // Verify signed data
-        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, locClaim.getProverId(), cryptoAlg,
-                externalEntityId);
+        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim,  externalEntityId, cryptoAlg);
 
         // Start Data content verification
         String claimId = locClaim.getClaimId();

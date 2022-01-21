@@ -12,12 +12,13 @@ public enum ErrorMessage {
     // Properties errors
     ERROR_READING_PROPERTIES("Error reading properties file"),
 
-    // Key errors
+    // Security errors
     ERROR_SIGNING_DATA("Error signing data"),
     ERROR_ENCRYPTING_DATA("Error encrypting data"),
     ERROR_GETTING_KEYSTORE_KEY("Error getting keystore key"),
     ERROR_GETTING_CERTIFICATE("Error getting requested certificate"),
     NONCE_MATCH_ERROR("The returned nonce does not match"),
+    ERROR_VERIFYING_DATA("Error verifying data"),
 
     // gRPC errors
     GRPC_SERVER_ERROR("There was an error starting the GRPC server"),

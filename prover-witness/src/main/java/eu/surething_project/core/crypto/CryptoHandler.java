@@ -90,14 +90,13 @@ public class CryptoHandler {
      * @throws CertificateException
      * @throws FileNotFoundException
      */
-    public boolean verifyData(byte[] data, byte[] signedData, String certName, String cryptoAlgorithm,
-                              String externalEntityId)
+    public boolean verifyData(byte[] data, byte[] signedData, String externalEntityId, String cryptoAlgorithm)
             throws NoSuchAlgorithmException, SignatureException, CertificateException,
             FileNotFoundException, InvalidKeyException {
         Signature sig = Signature.getInstance(cryptoAlgorithm);
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/"
-                + externalEntityId, certName + ".crt");
+                + externalEntityId, externalEntityId + ".crt");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
         sig.initVerify(cert.getPublicKey());
@@ -110,16 +109,14 @@ public class CryptoHandler {
             NoSuchProviderException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         // Get root CA certificate
-        String rootCA = "rootCA";
-        File rootCACert = new File(entityStorage + entityId + entityExternalStorage
-                + "/root" + certificateRepository, rootCA + ".cer");
+        File rootCACert = new File(entityStorage + "/" + entityId + "/"  + entityExternalStorage
+                + "/root", "rootCA.cer");
         Certificate rootCert = cf
                 .generateCertificate(new FileInputStream(rootCACert));
 
         // Get user certificate
-        File certFile = new File(entityStorage + entityId +  entityExternalStorage
-                + externalEntity + certificateRepository,
-                certName + "_certificate.cer");
+        File certFile = new File(entityStorage + "/" + entityId + "/" +  entityExternalStorage + "/"
+                + externalEntity, certName + "_certificate.cer");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
 

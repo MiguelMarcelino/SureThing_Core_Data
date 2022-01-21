@@ -20,7 +20,7 @@ public class PropertiesReader {
     }
 
     private void getProperties(String fileName) {
-        Properties prop = null;
+        Properties prop;
         FileInputStream fis = null;
 
         try {

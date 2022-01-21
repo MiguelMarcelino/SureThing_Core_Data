@@ -20,13 +20,13 @@ public class LocationProofBuilder {
         this.cryptoHandler = cryptoHandler;
     }
 
-    public SignedLocationProof buildSignedLocationProof(SignedLocationClaim claim,
-                                                        List<SignedLocationEndorsement> endorsementList)
+    public SignedLocationProof buildSignedLocationProof(LocationClaim claim,
+                                                        List<SignedLocationEndorsement> endorsementList,
+                                                        String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
         LocationProof proof = buildLocationProof(claim, endorsementList);
         long nonce = cryptoHandler.createNonce();
-        String cryptoAlg = claim.getProverSignature().getCryptoAlgo();
         byte[] proofSigned = cryptoHandler.signData(proof.toByteArray(), cryptoAlg);
 
         return SignedLocationProof.newBuilder()
@@ -39,7 +39,8 @@ public class LocationProofBuilder {
                 .build();
     }
 
-    private LocationProof buildLocationProof(SignedLocationClaim claim, List<SignedLocationEndorsement> endorsementList) {
+    private LocationProof buildLocationProof(LocationClaim claim,
+                                             List<SignedLocationEndorsement> endorsementList) {
         return LocationProof.newBuilder()
                 .setLocClaim(claim)
                 .addAllLocationEndorsements(endorsementList)

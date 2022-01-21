@@ -5,10 +5,7 @@ import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
-import eu.surething_project.core.grpc.LocationCertificate;
-import eu.surething_project.core.grpc.SignedLocationClaim;
-import eu.surething_project.core.grpc.SignedLocationEndorsement;
-import eu.surething_project.core.grpc.SignedLocationProof;
+import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.location_simulation.*;
 import eu.surething_project.core.rpc_comm.prover.LocationClaimBuilder;
 import eu.surething_project.core.rpc_comm.prover.ProverWitnessCommHandler;
@@ -16,13 +13,9 @@ import eu.surething_project.core.rpc_comm.prover_verifier.LocationProofBuilder;
 import eu.surething_project.core.rpc_comm.prover_verifier.ProverVerifierCommHandler;
 import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServerHandler;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -66,8 +59,7 @@ public class EntityApplication {
         /**********************************/
         // Keystore Properties
         System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
-        System.setProperty("javax.net.ssl.keyStore",
-                entityStorage + "/" + currentEntityId + "/" + keystoreName);
+        System.setProperty("javax.net.ssl.keyStore", entityStorage + "/" + currentEntityId + "/" + keystoreName);
         System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
         /**********************************/
 
@@ -116,21 +108,21 @@ public class EntityApplication {
                 String[] ipValues = inputs[1].split(":");
                 String address = ipValues[0];
                 int port = Integer.parseInt(ipValues[1]);
-                String wId = inputs[2];
+                String witnessId = inputs[2];
 
                 // create witness entity
-                Entity entity = new Entity(wId, address, port, new LatLongPair(82.5, 83.4));
+                Entity entity = new Entity(witnessId, address, port, new LatLongPair(82.5, 83.4));
 
                 // communicate with witness
                 SignedLocationClaim claim = buildLocationClaim(currentEntityId);
                 SignedLocationEndorsement endorsement = sendWitnessData(entity, claim);
 
                 // Add endorsement to received endorsements list
-                locationDataHandler.addLocationEndorsement(claim, endorsement);
+                locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
 
                 // Just testing
                 System.out.println(endorsement.getEndorsement().getClaimId());
-            } else if (inputs[0].equals("broadcast_proof")) {
+            } else if (inputs[0].equals("broadcast_claim")) {
                 // Get entities within range of current entity
                 // entityManager.getEntitiesInRange(new LatLongPair(82.5, 83.4));
                 List<Entity> entities = entityManager.getEntities(); // testing
@@ -141,12 +133,12 @@ public class EntityApplication {
                     SignedLocationEndorsement endorsement = sendWitnessData(entity, claim);
 
                     // Add endorsement to received endorsements list
-                    locationDataHandler.addLocationEndorsement(claim, endorsement);
+                    locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
 
                     // Just testing
                     System.out.println(endorsement.getEndorsement().getClaimId());
                 }
-            } else if(inputs[0].equals("send_proof_verifier")) {
+            } else if (inputs[0].equals("send_proof_verifier")) {
                 // send_proof_verifier address:port id
                 // Example: send_proof_verifier localhost:8082 verifier
                 // Receive and validate input
@@ -154,16 +146,19 @@ public class EntityApplication {
                 String[] ipValues = inputs[1].split(":");
                 String address = ipValues[0];
                 int port = Integer.parseInt(ipValues[1]);
-                String pId = inputs[2];
+                String proverId = inputs[2];
 
-                for (String claimId : locationDataHandler.getClaims().keySet()) {
-                    List<SignedLocationEndorsement> endorsementList = locationDataHandler.getEndorsementList(claimId);
+                for (String claimId : locationDataHandler.getCurrentClaims().keySet()) {
+                    List<SignedLocationEndorsement> endorsementList =
+                            locationDataHandler.getEndorsementList(claimId);
                     SignedLocationProof proof = buildLocationProof(
                             locationDataHandler.getClaim(claimId), endorsementList);
                     LocationCertificate certificate = sendLocationProof(address, port, proof);
                     locationDataHandler.addLocationCertificate(claimId, certificate);
-                }
 
+                    // Add sent data to history
+                    locationDataHandler.sendToHistory(claimId);
+                }
             }
         }
     }
@@ -183,33 +178,35 @@ public class EntityApplication {
     }
 
     /**
-     *
      * @param entity - The witness entity to send the data
-     * @param claim - The claim to send
+     * @param claim  - The claim to send
      * @return
      */
-    private static SignedLocationEndorsement sendWitnessData(
-            Entity entity, SignedLocationClaim claim) {
+    private static SignedLocationEndorsement sendWitnessData(Entity entity, SignedLocationClaim claim) {
         // communicate with witness
-        ProverWitnessCommHandler proverWitnessComm = new ProverWitnessCommHandler(entity);
+        ProverWitnessCommHandler proverWitnessComm = new ProverWitnessCommHandler(cryptoHandler, entity);
 
         SignedLocationEndorsement endorsement;
         try {
             endorsement = proverWitnessComm.sendWitnessData(claim);
         } catch (InterruptedException e) {
             throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR);
+        } catch (FileNotFoundException | CertificateException e) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new EntityException(ErrorMessage.ERROR_VERIFYING_DATA, e);
         }
 
         return endorsement;
     }
 
-    private static SignedLocationProof buildLocationProof(SignedLocationClaim claim,
-                                                          List<SignedLocationEndorsement> endorsementList) {
+    private static SignedLocationProof buildLocationProof(
+            LocationClaim claim, List<SignedLocationEndorsement> endorsementList) {
         LocationProofBuilder builder = new LocationProofBuilder(cryptoHandler);
 
         SignedLocationProof proof;
         try {
-            proof = builder.buildSignedLocationProof(claim, endorsementList);
+            proof = builder.buildSignedLocationProof(claim, endorsementList, CRYPTO_ALGO);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
         } catch (KeyStoreException | InvalidKeyException | UnrecoverableKeyException e) {
@@ -219,20 +216,24 @@ public class EntityApplication {
     }
 
     /**
-     *
      * @param verifierAddress
      * @param verifierPort
      * @return
      */
     private static LocationCertificate sendLocationProof(String verifierAddress, int verifierPort,
                                                          SignedLocationProof proof) {
-        ProverVerifierCommHandler commHandler = new ProverVerifierCommHandler(verifierAddress, verifierPort);
+        ProverVerifierCommHandler commHandler = new ProverVerifierCommHandler(cryptoHandler,
+                verifierAddress, verifierPort);
 
         LocationCertificate certificate;
         try {
             certificate = commHandler.sendDataToVerifier(proof);
         } catch (InterruptedException e) {
-            throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR);
+            throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR, e);
+        } catch (FileNotFoundException | CertificateException e) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
+        } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
+            throw new EntityException(ErrorMessage.ERROR_VERIFYING_DATA, e);
         }
         return certificate;
     }
@@ -244,16 +245,14 @@ public class EntityApplication {
      */
     private static void checkArgs(String[] args, String securityStorage, String entityStorage) {
         // ID, address:port, keystore_name, keystore_password
-        if (args.length != 4)
-            throw new EntityException(ErrorMessage.INVALID_ARGS_LENGTH);
+        if (args.length != 4) throw new EntityException(ErrorMessage.INVALID_ARGS_LENGTH);
 
         AddressValidator.validatePort(args[1]);
 
         // Validate if KeyStore Exists
         String entityId = args[0];
-        File truststoreFile = new File(entityStorage + "/" +
-                entityId + "/" + securityStorage, args[2] + ".jks");
-        System.out.println(truststoreFile.getAbsolutePath());
+        File truststoreFile = new File(entityStorage + "/" + entityId + "/" +
+                securityStorage, args[2] + ".jks");
         if (!truststoreFile.exists()) {
             logger.severe("Keystore file was not found: " + args[2]);
             throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);

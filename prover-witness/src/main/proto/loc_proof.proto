@@ -17,7 +17,7 @@ message LocationProof {
 	// verifier unique id
 	string proofId = 1;
 	// The LocationClaim of the prover
-	SignedLocationClaim locClaim = 2;
+	LocationClaim locClaim = 2;
 	// The List of LocationEndorsements that the prover wants to send
 	repeated SignedLocationEndorsement locationEndorsements = 3;
 	// time of verification - in one of alternative time schemas

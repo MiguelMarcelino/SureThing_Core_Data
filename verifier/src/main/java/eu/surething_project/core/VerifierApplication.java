@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class VerifierApplication {
 	private static final Logger logger = Logger.getLogger(VerifierApplication.class.getName());
 
-	private static final String PROPERTIES = "application.properties";
+	private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
 
 	public static void main(String[] args) {
 		// Read properties
@@ -76,10 +76,10 @@ public class VerifierApplication {
 
 		// Validate if KeyStore Exists
 		String entityId = args[0];
-		File truststoreFile = new File(entityStorage +
-				entityId + securityStorage, args[3]);
+		File truststoreFile = new File(entityStorage + "/" + entityId + "/" +
+				securityStorage, args[2] + ".jks");
 		if (!truststoreFile.exists()) {
-			logger.severe("Keystore file was not found: " + args[3]);
+			logger.severe("Keystore file was not found: " + args[2]);
 			throw new VerifierException(ErrorMessage.INVALID_ARGS_DATA);
 		}
 	}

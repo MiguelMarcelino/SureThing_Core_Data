@@ -48,7 +48,6 @@ public class LocationClaimBuilder {
     }
 
     private LocationClaim buildLocationClaim(LatLongPair latLongPair, String claimId) {
-
         LocationClaim locationClaim = LocationClaim.newBuilder()
                 .setClaimId(claimId)
                 .setProverId(proverId)
