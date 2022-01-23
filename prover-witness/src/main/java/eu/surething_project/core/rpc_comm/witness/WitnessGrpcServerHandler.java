@@ -14,10 +14,10 @@ public class WitnessGrpcServerHandler {
         this.cryptoHandler = cryptoHandler;
     }
 
-    public void buildServer(int port, String witnessId, String externalData, String certPath) throws InterruptedException {
+    public void buildServer(int port, EndorseClaimService endorseClaimService) throws InterruptedException {
         server = new WitnessGrpcServer(port);
         try {
-            server.start(this.cryptoHandler, witnessId, externalData, certPath);
+            server.start(endorseClaimService);
         } catch (IOException e) {
             e.printStackTrace();
         }

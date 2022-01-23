@@ -17,14 +17,19 @@ public class LocationProofBuilder {
 
     private CryptoHandler cryptoHandler;
 
-    public LocationProofBuilder(CryptoHandler cryptoHandler) {
+    private String certPath;
+
+    private String currentEntityId;
+
+    public LocationProofBuilder(CryptoHandler cryptoHandler, String currentEntityId, String certPath) {
         this.cryptoHandler = cryptoHandler;
+        this.currentEntityId = currentEntityId;
+        this.certPath = certPath;
     }
 
     public SignedLocationProof buildSignedLocationProof(LocationClaim claim,
                                                         List<SignedLocationEndorsement> endorsementList,
-                                                        String cryptoAlg, String certPath,
-                                                        String currentEntityId)
+                                                        String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
         LocationProof proof = buildLocationProof(claim, endorsementList);

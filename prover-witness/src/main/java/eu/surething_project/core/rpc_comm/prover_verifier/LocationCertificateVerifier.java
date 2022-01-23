@@ -7,7 +7,6 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.LocationVerification;
 import eu.surething_project.core.grpc.Signature;
-import eu.surething_project.core.grpc.SignedLocationEndorsement;
 
 import java.io.FileNotFoundException;
 import java.security.InvalidKeyException;
@@ -18,8 +17,16 @@ import java.security.cert.CertificateException;
 
 public class LocationCertificateVerifier {
 
-    public static void verifyCertificate(CryptoHandler cryptoHandler, long sentNonce, String externalData,
-                                         LocationCertificate locationCertificate)
+    private CryptoHandler cryptoHandler;
+
+    private String externalData;
+
+    public LocationCertificateVerifier(CryptoHandler cryptoHandler, String externalData) {
+        this.cryptoHandler = cryptoHandler;
+        this.externalData = externalData;
+    }
+
+    public void verifyCertificate(long sentNonce, LocationCertificate locationCertificate)
             throws FileNotFoundException, CertificateException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException, NoSuchProviderException {
         // Get signed data

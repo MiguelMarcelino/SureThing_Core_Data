@@ -37,7 +37,12 @@ public enum ErrorMessage {
     // Database errors
     DATABASE_CONNECTION_EXCEPTION("Error creating Database connection"),
     ERROR_CLOSING_DB_CONNECTION("Error closing Database connection"),
-    ERROR_ACCESSING_SQL_TABLE("Error accessing SQL table");
+    ERROR_ACCESSING_SQL_TABLE("Error accessing SQL table"),
+    ERROR_CREATING_PROOFS_TABLE("Error creating Proofs table"),
+    ERROR_CREATING_ENDORSEMENTS_TABLE("Error creating Endorsements table"),
+    ERROR_CREATING_CLAIMS_TABLE("Error creating Claims table"),
+    ERROR_CLOSING_DB_STATEMENT("Error closing Database statement"),
+    ERROR_CLOSING_RESULTSET("Error closing ResultSet");
 
     public final String message;
 

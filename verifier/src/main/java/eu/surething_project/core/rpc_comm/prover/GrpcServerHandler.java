@@ -6,16 +6,14 @@ import java.io.IOException;
 
 public class GrpcServerHandler {
 
-    private CryptoHandler cryptoHandler;
 
-    public GrpcServerHandler(CryptoHandler cryptoHandler) {
-        this.cryptoHandler = cryptoHandler;
-    }
+    public GrpcServerHandler() { }
 
-    public void buildServer(int port, String verifierId, String externalData, String certPath) throws InterruptedException {
+    public void buildServer(int port, CertifyClaimService certifyClaimService)
+            throws InterruptedException {
         final ProverGrpcServer server = new ProverGrpcServer(port);
         try {
-            server.start(this.cryptoHandler, verifierId, externalData, certPath);
+            server.start(certifyClaimService);
         } catch (IOException e) {
             e.printStackTrace();
         }

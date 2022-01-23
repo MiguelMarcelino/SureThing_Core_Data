@@ -2,8 +2,10 @@ package eu.surething_project.core;
 
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
+import eu.surething_project.core.rpc_comm.prover.CertifyClaimService;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
 
 import java.io.File;
@@ -55,10 +57,17 @@ public class VerifierApplication {
 		System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
 		/**********************************/
 
+		// Prepare Database
+		DatabaseAccessManagement dbManagement = new DatabaseAccessManagement();
+
 		// Start Verifier server
-		GrpcServerHandler grpcServerHandler = new GrpcServerHandler(cryptoHandler);
+		GrpcServerHandler grpcServerHandler = new GrpcServerHandler();
+
+		// Create Certify Claim Service
+		CertifyClaimService certifyClaimService = new CertifyClaimService(cryptoHandler,
+				currentEntityId, externalData, certificatePath);
 		try {
-			grpcServerHandler.buildServer(verifierGrpcPort, currentEntityId, externalData, certificatePath);
+			grpcServerHandler.buildServer(verifierGrpcPort, certifyClaimService);
 		} catch (InterruptedException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}

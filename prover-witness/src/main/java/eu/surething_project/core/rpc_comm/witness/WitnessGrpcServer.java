@@ -1,7 +1,6 @@
 package eu.surething_project.core.rpc_comm.witness;
 
 
-import eu.surething_project.core.crypto.CryptoHandler;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
@@ -20,9 +19,9 @@ public class WitnessGrpcServer {
         this.serverPort = port;
     }
 
-    public void start(CryptoHandler cryptoHandler, String witnessId, String externalData, String certPath) throws IOException {
+    public void start(EndorseClaimService endorseClaimService) throws IOException {
         this.server = ServerBuilder.forPort(serverPort)
-                .addService(new EndorseClaimService(cryptoHandler, witnessId, externalData, certPath))
+                .addService(endorseClaimService)
                 .build()
                 .start();
 

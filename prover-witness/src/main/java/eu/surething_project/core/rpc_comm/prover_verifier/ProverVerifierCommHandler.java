@@ -16,15 +16,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ProverVerifierCommHandler {
 
-    private VerifierClient verifierClient;
-
-    private ManagedChannel channel;
-
     private CryptoHandler cryptoHandler;
 
-    public ProverVerifierCommHandler(CryptoHandler cryptoHandler, String address, int port) {
-        this.channel = buildChannel(address, port);
-        this.verifierClient = new VerifierClient(channel);
+    public ProverVerifierCommHandler(CryptoHandler cryptoHandler) {
         this.cryptoHandler = cryptoHandler;
     }
 
@@ -35,13 +29,16 @@ public class ProverVerifierCommHandler {
      * @return
      * @throws InterruptedException
      */
-    public LocationCertificate sendDataToVerifier(SignedLocationProof proof)
+    public LocationCertificate sendDataToVerifier(SignedLocationProof proof,
+                                                  String address, int port)
             throws InterruptedException, FileNotFoundException, CertificateException,
             NoSuchAlgorithmException, SignatureException, InvalidKeyException,
             NoSuchProviderException {
+        ManagedChannel channel = buildChannel(address, port);
+        VerifierClient verifierClient = new VerifierClient(channel);
         LocationCertificate certificate;
         try {
-            certificate = this.verifierClient.sendProofToVerifier(proof);
+            certificate = verifierClient.sendProofToVerifier(proof);
         } finally {
             channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }

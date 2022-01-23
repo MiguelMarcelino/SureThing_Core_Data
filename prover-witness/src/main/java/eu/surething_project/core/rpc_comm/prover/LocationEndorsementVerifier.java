@@ -17,28 +17,36 @@ import java.security.cert.CertificateException;
 
 public class LocationEndorsementVerifier {
 
-    public static void verifyEndorsement(CryptoHandler cryptoHandler, long sentNonce, String externalData,
-                                         SignedLocationEndorsement signedLocationEndorsement)
+    private CryptoHandler cryptoHandler;
+
+    private String externalData;
+
+    public LocationEndorsementVerifier(CryptoHandler cryptoHandler, String externalData) {
+        this.cryptoHandler = cryptoHandler;
+        this.externalData = externalData;
+    }
+
+    public void verifyEndorsement(long sentNonce, SignedLocationEndorsement signedLocationEndorsement)
             throws FileNotFoundException, CertificateException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException, NoSuchProviderException {
-        // Get signed data
+//        // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
-        String externalEntityId = signedLocationEndorsement.getEndorsement().getWitnessId();
-        byte[] signedEndorsement = signature.getValue().toByteArray();
-        byte[] certData = signature.getCertificateData().toByteArray();
-        String cryptoAlg = signature.getCryptoAlgo();
-
-        // Get LocationEndorsement data
-        LocationEndorsement endorsement = signedLocationEndorsement.getEndorsement();
-
-        // Create Certificate if necessary
-        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
-
-        // create Certificate and verify validity
-        cryptoHandler.verifyCertificate(externalEntityId);
-
-        // Verify signed data
-        cryptoHandler.verifyData(endorsement.toByteArray(), signedEndorsement, externalEntityId, cryptoAlg);
+//        String externalEntityId = signedLocationEndorsement.getEndorsement().getWitnessId();
+//        byte[] signedEndorsement = signature.getValue().toByteArray();
+//        byte[] certData = signature.getCertificateData().toByteArray();
+//        String cryptoAlg = signature.getCryptoAlgo();
+//
+//        // Get LocationEndorsement data
+//        LocationEndorsement endorsement = signedLocationEndorsement.getEndorsement();
+//
+//        // Create Certificate if necessary
+//        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
+//
+//        // create Certificate and verify validity
+//        cryptoHandler.verifyCertificate(externalEntityId);
+//
+//        // Verify signed data
+//        cryptoHandler.verifyData(endorsement.toByteArray(), signedEndorsement, externalEntityId, cryptoAlg);
 
         // Verify Nonce
         long nonce = signature.getNonce();
