@@ -6,7 +6,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AsyncDatabaseWriter implements Runnable {
     private LinkedBlockingQueue<LocationProofData> queue = new LinkedBlockingQueue<>();
-    private volatile boolean terminate = false;
 
     private DatabaseAccessManagement dbAccessMgmt;
 
@@ -15,13 +14,14 @@ public class AsyncDatabaseWriter implements Runnable {
     }
 
     public void run() {
-        while(!terminate) {
-            try {
-                LocationProofData locationProof = queue.take();
-                dbAccessMgmt.addProofToDB(locationProof);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            LocationProofData locationProof;
+            while (!queue.isEmpty()) {
+                locationProof = queue.take();
+                dbAccessMgmt.addProofData(locationProof);
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

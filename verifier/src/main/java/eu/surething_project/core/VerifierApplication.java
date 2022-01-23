@@ -8,6 +8,7 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.CertifyClaimService;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
+import eu.surething_project.core.scheduling.TaskScheduler;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,14 +53,18 @@ public class VerifierApplication {
 
 		/**********************************/
 		// Keystore Properties
-		System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
-		System.setProperty("javax.net.ssl.keyStore",
-				entityStorage + "/" + currentEntityId + "/" + keystoreName);
-		System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
+//		System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
+//		System.setProperty("javax.net.ssl.keyStore",
+//				entityStorage + "/" + currentEntityId + "/" + securityStorage + "/" + keystoreName + ".jks");
+//		System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
 		/**********************************/
 
 		// Prepare Database
 		AsyncDatabaseWriter databaseWriter = new AsyncDatabaseWriter();
+
+		// Schedule services
+		TaskScheduler scheduler = new TaskScheduler(databaseWriter);
+		scheduler.scheduleTasks();
 
 		// Start Verifier server
 		GrpcServerHandler grpcServerHandler = new GrpcServerHandler();

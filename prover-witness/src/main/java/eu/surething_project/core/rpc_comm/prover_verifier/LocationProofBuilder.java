@@ -10,6 +10,7 @@ import eu.surething_project.core.grpc.*;
 
 import java.security.*;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -32,7 +33,9 @@ public class LocationProofBuilder {
                                                         String cryptoAlg)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
-        LocationProof proof = buildLocationProof(claim, endorsementList);
+        String uuid = UUID.randomUUID().toString();
+
+        LocationProof proof = buildLocationProof(claim, endorsementList, uuid);
         long nonce = cryptoHandler.createNonce();
         byte[] proofSigned = cryptoHandler.signData(proof.toByteArray(), cryptoAlg);
 
@@ -51,8 +54,9 @@ public class LocationProofBuilder {
     }
 
     private LocationProof buildLocationProof(LocationClaim claim,
-                                             List<SignedLocationEndorsement> endorsementList) {
+                                             List<SignedLocationEndorsement> endorsementList, String proofId) {
         return LocationProof.newBuilder()
+                .setProofId(proofId)
                 .setLocClaim(claim)
                 .addAllLocationEndorsements(endorsementList)
                 .setTime(Time.newBuilder()

@@ -15,17 +15,18 @@ public class DatabaseAccessManagement {
 
     /**** Table names ****/
     private static final String PROOFS_TABLE_NAME = "Proofs";
-    private static final String ENDORSEMENTS_TABLE_NAME = "Proofs";
-    private static final String CLAIMS_TABLE_NAME = "Proofs";
+    private static final String ENDORSEMENTS_TABLE_NAME = "Endorsements";
+    private static final String CLAIMS_TABLE_NAME = "Claims";
 
     /****************+** Database Queries ****************+**/
     /**** Create Tables ****/
-    private static final String CREATE_PROOFS_TABLE_SQL = "CREATE TABLE" + PROOFS_TABLE_NAME + " (" +
+    private static final String CREATE_PROOFS_TABLE_SQL = "CREATE TABLE " + PROOFS_TABLE_NAME + " (" +
             "id INT(64) NOT NULL AUTO_INCREMENT," +
             "proofId VARCHAR(36) NOT NULL," +
             "timeInMillis LONG NOT NULL," +
-            "PRIMARY KEY(id))";
-    private static final String CREATE_ENDORSEMENT_TABLE_SQL = "CREATE TABLE" + ENDORSEMENTS_TABLE_NAME + "(" +
+            "PRIMARY KEY(id)," +
+            "UNIQUE (proofId))";
+    private static final String CREATE_ENDORSEMENT_TABLE_SQL = "CREATE TABLE " + ENDORSEMENTS_TABLE_NAME + "(" +
             "id INT(64) NOT NULL AUTO_INCREMENT," +
             "endorsementId VARCHAR(36) NOT NULL," +
             "witnessId VARCHAR(8) NOT NULL," +
@@ -35,8 +36,8 @@ public class DatabaseAccessManagement {
             "timeInMillis LONG NOT NULL," +
             "proofId VARCHAR(36) NOT NULL," +
             "PRIMARY KEY(id)," +
-            "FOREIGN KEY(proofId) REFERENCES Proofs)";
-    private static final String CREATE_CLAIMS_TABLE_SQL = "CREATE TABLE" + CLAIMS_TABLE_NAME + "(" +
+            "FOREIGN KEY (proofId) REFERENCES Proofs(proofId))";
+    private static final String CREATE_CLAIMS_TABLE_SQL = "CREATE TABLE " + CLAIMS_TABLE_NAME + "(" +
             "id INT(64) NOT NULL AUTO_INCREMENT," +
             "claimId VARCHAR(36) NOT NULL," +
             "proverId VARCHAR(36) NOT NULL," +
@@ -45,10 +46,10 @@ public class DatabaseAccessManagement {
             "timeInMillis LONG NOT NULL," +
             "proofId VARCHAR(36) NOT NULL," +
             "PRIMARY KEY(id)," +
-            "FOREIGN KEY(proofId) REFERENCES Proofs)";
+            "FOREIGN KEY (proofId) REFERENCES Proofs(proofId))";
 
     /**** Update Tables ****/
-    private static final String INSERT_PROOF_SQL = "INSERT INTO Proofs (proofId, timeInMillis) VALUES (?, ?, ?, ?)";
+    private static final String INSERT_PROOF_SQL = "INSERT INTO Proofs (proofId, timeInMillis) VALUES (?, ?)";
     private static final String INSERT_ENDORSE_SQL = "INSERT INTO Endorsements (endorsementId, witnessId, claimId, " +
             "latitude, longitude, timeInMillis, proofId) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_CLAIM_SQL = "INSERT INTO Claims (claimId, proverId, latitude, " +
@@ -94,18 +95,19 @@ public class DatabaseAccessManagement {
             createProofTable = connection.createStatement();
             createProofTable.executeUpdate(sqlStatement);
         } catch (SQLException e) {
-            throw new VerifierException(errorMessage);
+            throw new VerifierException(errorMessage, e);
         } finally {
             closeConnection(connection);
             closeStatement(createProofTable);
         }
     }
 
-    public void addProofToDB(LocationProofData proof) {
+    public void addProofData(LocationProofData proof) {
         PreparedStatement updateProof = null;
         PreparedStatement updateEndorsements = null;
         PreparedStatement updateClaims = null;
         Connection connection = dbConnection.connectToDatabase();
+
         try {
             updateProof = connection.prepareStatement(INSERT_PROOF_SQL);
             updateProof.setString(1, proof.getProofId());
@@ -119,13 +121,14 @@ public class DatabaseAccessManagement {
                 updateEndorsements.setString(1, locEndorse.getEndorsementId());
                 updateEndorsements.setString(2, locEndorse.getWitnessId());
                 updateEndorsements.setString(3, locEndorse.getClaimId());
+                System.out.println(locEndorse.getClaimId());
                 updateEndorsements.setDouble(4, locEndorse.getLatitude());
                 updateEndorsements.setDouble(5, locEndorse.getLongitude());
                 updateEndorsements.setLong(6, locEndorse.getTimeInMillis());
                 updateEndorsements.setString(7, proof.getProofId()); // Foreign key
                 updateEndorsements.addBatch();
             }
-            updateEndorsements.executeBatch();
+            int[] res = updateEndorsements.executeBatch();
 
             // Add Location Claim
             LocationClaimData claim = proof.getClaim();
@@ -133,11 +136,13 @@ public class DatabaseAccessManagement {
             updateClaims.setString(1, claim.getClaimId());
             updateClaims.setString(2, claim.getProverId());
             updateClaims.setDouble(3, claim.getLatitude());
+            System.out.println(claim.getLatitude());
             updateClaims.setDouble(4, claim.getLongitude());
             updateClaims.setLong(5, claim.getTimeInMillis());
             updateClaims.setString(6, proof.getProofId()); // Foreign key
             updateClaims.executeUpdate();
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
         } finally {
             closeConnection(connection);
@@ -189,7 +194,7 @@ public class DatabaseAccessManagement {
         ResultSet rs = null;
         try {
             DatabaseMetaData meta = connection.getMetaData();
-            rs = meta.getTables(null, null, "My_Table_Name",
+            rs = meta.getTables(null, null, tableName,
                     new String[]{"TABLE"});
             return rs.next();
         } catch (SQLException e) {

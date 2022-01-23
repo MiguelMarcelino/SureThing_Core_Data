@@ -67,14 +67,6 @@ public class LocationClaimBuilder {
                 .setTime(Time.newBuilder()
                         .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
                         .build())
-                .setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
-                .setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder()
-                        .setId("ABC")
-                        .addAps(WiFiNetworksEvidence.AP.newBuilder()
-                                .setSsid("ssid-A")
-                                .setRssi("-89")
-                                .build())
-                        .build()))
                 .build();
 
 

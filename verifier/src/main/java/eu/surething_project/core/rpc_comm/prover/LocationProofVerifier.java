@@ -9,7 +9,6 @@ import eu.surething_project.core.database.AsyncDatabaseWriter;
 import eu.surething_project.core.database.data.LocationClaimData;
 import eu.surething_project.core.database.data.LocationEndorsementData;
 import eu.surething_project.core.database.data.LocationProofData;
-import eu.surething_project.core.database.data.Pair;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.Signature;
@@ -118,6 +117,9 @@ public class LocationProofVerifier {
 
         // Create Certificate if necessary
         boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, witnessId, certData);
+        if (!certFileCreate) {
+            throw new VerifierException(ErrorMessage.ERROR_CREATING_CERTIFICATE);
+        }
 
         // create Certificate and verify validity
         cryptoHandler.verifyCertificate(witnessId);
@@ -139,43 +141,39 @@ public class LocationProofVerifier {
      * @param locClaim
      */
     private boolean checkData(LocationEndorsement locEndorsement, LocationClaim locClaim) {
-        String witnessId = locEndorsement.getWitnessId();
-        String claimId = locEndorsement.getClaimId();
-
-        // Time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
-        Time time = locEndorsement.getTime();
-        Time.TimeCase timeCase = time.getTimeCase();
-        Timestamp timestamp = null;
-        switch (timeCase) {
-            case TIMESTAMP -> timestamp = time.getTimestamp();
-            case INTERVAL -> time.getInterval();
-            case RELATIVETOEPOCH -> time.getRelativeToEpoch();
-            case EMPTY -> time.getEmpty();  // check if TIME_NOT_SET will be enough instead of this case
-            // case TIME_NOT_SET: break;
+        // Check if timestamp is not old when compared to locClaim
+        Time timeClaim = locClaim.getTime();
+        Time timeEndorse = locEndorsement.getTime();
+        Timestamp t1 = getTimestamp(timeClaim);
+        Timestamp t2 = getTimestamp(timeEndorse);
+        // Assuming endorse happens after claim
+        if ((t2.getNanos() - t1.getNanos()) > 10000) {
+            return false;
         }
 
-        // TODO: Check if timestamp is not old when compared to locClaim
-
-        String evidenceType = locEndorsement.getEvidenceType(); // Evidence Type - WiFi
-
-        // WiFi Networks Evidence details - Any - unpack evidence content
-        Any evidence = locEndorsement.getEvidence();
-        WiFiNetworksEvidence wifiNetworksEvidence = null;
-        try {
-            wifiNetworksEvidence = evidence.unpack(WiFiNetworksEvidence.class);
-        } catch (InvalidProtocolBufferException e) {
-            throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
+        // Check location
+        Location locationClaim = locClaim.getLocation();
+        double latitudeClaim = 0;
+        double longitudeClaim = 0;
+        switch (locClaim.getLocation().getLocationCase()) {
+            case LATLNG:
+                LatLng latLngClaim = locationClaim.getLatLng();
+                latitudeClaim = latLngClaim.getLatitude();
+                longitudeClaim = latLngClaim.getLongitude();
+            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
+                break;
         }
 
-        List<WiFiNetworksEvidence.AP> aps = new ArrayList<>();
-        String evidenceId = wifiNetworksEvidence.getId();  // evidenceId
-        aps = wifiNetworksEvidence.getApsList();  // list of APs in WiFi evidence
-        WiFiNetworksEvidence.AP ap = aps.get(0);  // First AP
-        final Timestamp t = timestamp; // timestamp of location endorsement
+        LatLng latLngEvidence = getLatLng(locEndorsement.getEvidenceType(), locEndorsement.getEvidence());
+        double latitudeEvidence = latLngEvidence.getLatitude();
+        double longitudeEvidence = latLngEvidence.getLongitude();
 
-        // TODO: Check network evidence
+        double distance = haversineFormula(latitudeClaim, longitudeClaim,
+                latitudeEvidence, longitudeEvidence);
+        if (distance > 5) { // difference of 5 km. Is it too much?
+            return false;
+        }
 
-        // TODO: What about Location Verification
         return true;
     }
 
@@ -184,18 +182,28 @@ public class LocationProofVerifier {
         // get endorsements
         List<LocationEndorsementData> endorsementData = new ArrayList<>();
         for (LocationEndorsement e : verifiedEndorsements) {
-            Pair<Double, Double> latLngPair = getLatitudeLongitude(e.getEvidence());
+            LatLng latLng = getLatLng(e.getEvidenceType(), e.getEvidence());
             endorsementData.add(new LocationEndorsementData(e.getEndorsementId(),
-                    e.getWitnessId(), e.getClaimId(), latLngPair.getFirst(), latLngPair.getSecond(),
+                    e.getWitnessId(), e.getClaimId(), latLng.getLatitude(), latLng.getLongitude(),
                     e.getTime().getRelativeToEpoch().getTimeValue(), proof.getProofId()));
         }
 
         // get claim
         LocationClaim claim = proof.getLocClaim();
-        Pair<Double, Double> latLngPair = getLatitudeLongitude(claim.getEvidence());
+        Location loc = claim.getLocation();
+        double latitudeClaim = 0;
+        double longitudeClaim = 0;
+        switch (claim.getLocation().getLocationCase()) {
+            case LATLNG:
+                LatLng latLngClaim = loc.getLatLng();
+                latitudeClaim = latLngClaim.getLatitude();
+                longitudeClaim = latLngClaim.getLongitude();
+            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
+                break;
+        }
         LocationClaimData claimData = new LocationClaimData(claim.getClaimId(), claim.getProverId(),
-                latLngPair.getFirst(), latLngPair.getSecond(),
-                claim.getTime().getRelativeToEpoch().getTimeValue(), proof.getProofId());
+                latitudeClaim, longitudeClaim, claim.getTime().getRelativeToEpoch().getTimeValue(),
+                proof.getProofId());
 
         // Build data
         LocationProofData data = new LocationProofData(proof.getProofId(),
@@ -205,20 +213,64 @@ public class LocationProofVerifier {
         databaseWriter.scheduleDBWrite(data);
     }
 
-    private Pair<Double, Double> getLatitudeLongitude(Any e) {
-        double latitude;
-        double longitude;
-        LatLng latLng;
-        Pair<Double, Double> latLngPair = null;
-        try {
-            latLng = e.unpack(LatLng.class);
-            latitude = latLng.getLatitude();
-            longitude = latLng.getLongitude();
-        } catch (InvalidProtocolBufferException ex) {
-            latitude = -1.0;
-            longitude = -1.0;
+    /**
+     * @param time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
+     * @return
+     */
+    private Timestamp getTimestamp(Time time) {
+        Time.TimeCase timeCase = time.getTimeCase();
+        Timestamp timestamp = null;
+        switch (timeCase) {
+            case TIMESTAMP:
+                timestamp = time.getTimestamp();
+            case INTERVAL:
+                time.getInterval();
+            case RELATIVETOEPOCH:
+                time.getRelativeToEpoch();
+            case TIME_NOT_SET, EMPTY:
+                break;
         }
+        return timestamp;
+    }
 
-        return new Pair<>(latitude, longitude);
+    private LatLng getLatLng(String evidenceType, Any evidence) {
+        LatLng latLng = null;
+        String expectedType = "eu.surething_project.core.grpc.google.type.LatLng";
+        try {
+            if (evidenceType == expectedType) {
+                System.err.println("Expected evidence of type LatLng, " +
+                        "but provided was: " + evidenceType);
+            }
+            latLng = evidence.unpack(LatLng.class);
+
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return latLng;
+    }
+
+    /**
+     * Calculates distance in kilometers between latitude and longitude
+     * of two entities using haversine formula
+     *
+     * @param lat1
+     * @param lng1
+     * @param lat2
+     * @param lng2
+     * @return - distance in kilometers between two entities
+     */
+    private double haversineFormula(double lat1, double lng1,
+                                    double lat2, double lng2) {
+        // Earth radius
+        double r = 6373.0;
+
+        double dLat = lat1 - lat2;
+        double dLng = lng1 - lng2;
+        double a = Math.pow(Math.sin(dLat) / 2, 2) + Math.cos(lat1) * Math.cos(lat2)
+                * Math.pow(Math.sin(dLng) / 2, 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double distance = r * c;
+
+        return distance;
     }
 }

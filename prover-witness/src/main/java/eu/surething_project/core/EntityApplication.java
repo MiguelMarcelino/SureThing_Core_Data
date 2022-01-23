@@ -22,6 +22,7 @@ import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServerHandler;
 import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -70,7 +71,8 @@ public class EntityApplication {
         /**********************************/
         // Keystore Properties
         System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
-        System.setProperty("javax.net.ssl.keyStore", entityStorage + "/" + currentEntityId + "/" + keystoreName);
+        System.setProperty("javax.net.ssl.keyStore",
+                entityStorage + "/" + currentEntityId + "/" + securityStorage + "/" + keystoreName + ".jks");
         System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
         /**********************************/
 
@@ -181,6 +183,8 @@ public class EntityApplication {
                 int port = Integer.parseInt(ipValues[1]);
                 String proverId = inputs[2];
 
+                List<String> historyIds = new ArrayList<>();
+
                 for (String claimId : locationDataHandler.getCurrentClaims().keySet()) {
                     List<SignedLocationEndorsement> endorsementList =
                             locationDataHandler.getEndorsementList(claimId);
@@ -191,9 +195,11 @@ public class EntityApplication {
                             verifierCommHandler, certificateVerifier);
                     locationDataHandler.addLocationCertificate(claimId, certificate);
 
-                    // Add sent data to history
-                    locationDataHandler.sendToHistory(claimId);
+                    historyIds.add(claimId);
                 }
+
+                // Add sent data to history
+                historyIds.forEach(id -> locationDataHandler.sendToHistory(id));
             }
         }
     }

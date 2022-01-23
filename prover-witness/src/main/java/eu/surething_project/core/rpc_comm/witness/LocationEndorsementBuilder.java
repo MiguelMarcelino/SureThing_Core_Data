@@ -7,6 +7,7 @@ import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.google.type.LatLng;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -65,13 +66,10 @@ public class LocationEndorsementBuilder {
                 .setTime(Time.newBuilder()
                         .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
                         .build())
-                .setEvidenceType("eu.surething_project.core.wi_fi.WiFiNetworksEvidence")
-                .setEvidence(Any.pack(WiFiNetworksEvidence.newBuilder() // TODO: Check Evidence
-                        .setId("DEF")
-                        .addAps(WiFiNetworksEvidence.AP.newBuilder()
-                                .setSsid("ssid-B")
-                                .setRssi("-90")
-                                .build())
+                .setEvidenceType("eu.surething_project.core.grpc.google.type.LatLng")
+                .setEvidence(Any.pack(LatLng.newBuilder()
+                        .setLatitude(82.5)
+                        .setLongitude(83.4)
                         .build()))
                 .build();
 
