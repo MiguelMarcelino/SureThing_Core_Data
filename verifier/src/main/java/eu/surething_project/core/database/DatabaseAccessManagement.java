@@ -1,13 +1,10 @@
 package eu.surething_project.core.database;
 
-import com.google.protobuf.InvalidProtocolBufferException;
+import eu.surething_project.core.database.data.LocationClaimData;
+import eu.surething_project.core.database.data.LocationEndorsementData;
+import eu.surething_project.core.database.data.LocationProofData;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
-import eu.surething_project.core.grpc.LocationClaim;
-import eu.surething_project.core.grpc.LocationEndorsement;
-import eu.surething_project.core.grpc.LocationProof;
-import eu.surething_project.core.grpc.SignedLocationEndorsement;
-import eu.surething_project.core.grpc.google.type.LatLng;
 
 import java.sql.*;
 import java.util.List;
@@ -104,7 +101,7 @@ public class DatabaseAccessManagement {
         }
     }
 
-    public void addProofToDB(LocationProof proof) {
+    public void addProofToDB(LocationProofData proof) {
         PreparedStatement updateProof = null;
         PreparedStatement updateEndorsements = null;
         PreparedStatement updateClaims = null;
@@ -112,41 +109,36 @@ public class DatabaseAccessManagement {
         try {
             updateProof = connection.prepareStatement(INSERT_PROOF_SQL);
             updateProof.setString(1, proof.getProofId());
-            updateProof.setString(2, proof.getTime().toString());
+            updateProof.setLong(2, proof.getTimeInMillis());
             updateProof.executeUpdate();
 
             // Add locationEndorsements
-            List<SignedLocationEndorsement> endorsementList = proof.getLocationEndorsementsList();
-            for (SignedLocationEndorsement endorsement : endorsementList) {
-                LocationEndorsement locEndorse = endorsement.getEndorsement();
-                LatLng latLng = locEndorse.getEvidence().unpack(LatLng.class);
+            List<LocationEndorsementData> endorsementList = proof.getEndorsements();
+            for (LocationEndorsementData locEndorse : endorsementList) {
                 updateEndorsements = connection.prepareStatement(INSERT_ENDORSE_SQL);
                 updateEndorsements.setString(1, locEndorse.getEndorsementId());
                 updateEndorsements.setString(2, locEndorse.getWitnessId());
                 updateEndorsements.setString(3, locEndorse.getClaimId());
-                updateEndorsements.setDouble(4, latLng.getLatitude());
-                updateEndorsements.setDouble(5, latLng.getLongitude());
-                updateEndorsements.setLong(6, locEndorse.getTime().getRelativeToEpoch().getTimeValue());
+                updateEndorsements.setDouble(4, locEndorse.getLatitude());
+                updateEndorsements.setDouble(5, locEndorse.getLongitude());
+                updateEndorsements.setLong(6, locEndorse.getTimeInMillis());
                 updateEndorsements.setString(7, proof.getProofId()); // Foreign key
                 updateEndorsements.addBatch();
             }
             updateEndorsements.executeBatch();
 
             // Add Location Claim
-            LocationClaim claim = proof.getLocClaim();
-            LatLng latLng = claim.getEvidence().unpack(LatLng.class);
+            LocationClaimData claim = proof.getClaim();
             updateClaims = connection.prepareStatement(INSERT_CLAIM_SQL);
             updateClaims.setString(1, claim.getClaimId());
             updateClaims.setString(2, claim.getProverId());
-            updateClaims.setDouble(3, latLng.getLatitude());
-            updateClaims.setDouble(4, latLng.getLongitude());
-            updateClaims.setLong(5, claim.getTime().getRelativeToEpoch().getTimeValue());
+            updateClaims.setDouble(3, claim.getLatitude());
+            updateClaims.setDouble(4, claim.getLongitude());
+            updateClaims.setLong(5, claim.getTimeInMillis());
             updateClaims.setString(6, proof.getProofId()); // Foreign key
             updateClaims.executeUpdate();
         } catch (SQLException e) {
             throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
         } finally {
             closeConnection(connection);
             closeStatement(updateProof);

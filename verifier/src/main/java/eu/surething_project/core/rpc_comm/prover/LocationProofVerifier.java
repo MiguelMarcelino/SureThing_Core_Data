@@ -5,10 +5,16 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.database.AsyncDatabaseWriter;
+import eu.surething_project.core.database.data.LocationClaimData;
+import eu.surething_project.core.database.data.LocationEndorsementData;
+import eu.surething_project.core.database.data.LocationProofData;
+import eu.surething_project.core.database.data.Pair;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.google.type.LatLng;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -29,10 +35,14 @@ public class LocationProofVerifier {
 
     private String externalData;
 
-    public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId, String externalData, String certPath) {
+    private AsyncDatabaseWriter databaseWriter;
+
+    public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId, String externalData,
+                                 String certPath, AsyncDatabaseWriter databaseWriter) {
         this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId, certPath);
         this.cryptoHandler = cryptoHandler;
         this.externalData = externalData;
+        this.databaseWriter = databaseWriter;
     }
 
     /**
@@ -46,6 +56,9 @@ public class LocationProofVerifier {
         // Get list Endorsements
         List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
         List<String> endorsementIds = new ArrayList<>();
+
+        // Validated endorsement Data
+        List<LocationEndorsement> approvedEndorsements = new ArrayList<>();
 
         // Get location claim
         LocationClaim claim = locationProof.getVerification().getLocClaim();
@@ -68,7 +81,9 @@ public class LocationProofVerifier {
         for (SignedLocationEndorsement endorsement : endorsementList) {
             boolean isValid = validateLocationEndorsement(endorsement, claim);
             if (isValid) {
-                endorsementIds.add(endorsement.getEndorsement().getEndorsementId());
+                LocationEndorsement locEndorse = endorsement.getEndorsement();
+                approvedEndorsements.add(locEndorse);
+                endorsementIds.add(locEndorse.getEndorsementId());
             }
         }
 
@@ -76,6 +91,8 @@ public class LocationProofVerifier {
         LocationCertificate certificate = endorsementList.size() >= minEndorsementApproval ?
                 certificateBuilder.buildCertificate(claim.getClaimId(), endorsementIds, nonce, cryptoAlg) :
                 certificateBuilder.buildCertificate(claim.getClaimId(), new ArrayList<>(), nonce, cryptoAlg);
+
+        addVerifierDataToDB(locationProof.getVerification(), approvedEndorsements);
 
         return certificate;
     }
@@ -162,5 +179,46 @@ public class LocationProofVerifier {
         return true;
     }
 
+    private void addVerifierDataToDB(LocationProof proof,
+                                     List<LocationEndorsement> verifiedEndorsements) {
+        // get endorsements
+        List<LocationEndorsementData> endorsementData = new ArrayList<>();
+        for (LocationEndorsement e : verifiedEndorsements) {
+            Pair<Double, Double> latLngPair = getLatitudeLongitude(e.getEvidence());
+            endorsementData.add(new LocationEndorsementData(e.getEndorsementId(),
+                    e.getWitnessId(), e.getClaimId(), latLngPair.getFirst(), latLngPair.getSecond(),
+                    e.getTime().getRelativeToEpoch().getTimeValue(), proof.getProofId()));
+        }
 
+        // get claim
+        LocationClaim claim = proof.getLocClaim();
+        Pair<Double, Double> latLngPair = getLatitudeLongitude(claim.getEvidence());
+        LocationClaimData claimData = new LocationClaimData(claim.getClaimId(), claim.getProverId(),
+                latLngPair.getFirst(), latLngPair.getSecond(),
+                claim.getTime().getRelativeToEpoch().getTimeValue(), proof.getProofId());
+
+        // Build data
+        LocationProofData data = new LocationProofData(proof.getProofId(),
+                proof.getTime().getRelativeToEpoch().getTimeValue(), claimData, endorsementData);
+
+        // Schedule database write
+        databaseWriter.scheduleDBWrite(data);
+    }
+
+    private Pair<Double, Double> getLatitudeLongitude(Any e) {
+        double latitude;
+        double longitude;
+        LatLng latLng;
+        Pair<Double, Double> latLngPair = null;
+        try {
+            latLng = e.unpack(LatLng.class);
+            latitude = latLng.getLatitude();
+            longitude = latLng.getLongitude();
+        } catch (InvalidProtocolBufferException ex) {
+            latitude = -1.0;
+            longitude = -1.0;
+        }
+
+        return new Pair<>(latitude, longitude);
+    }
 }

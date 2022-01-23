@@ -1,4 +1,4 @@
-package eu.surething_project.core.database;
+package eu.surething_project.core.database.data;
 
 public class LocationClaimData {
     private String claimId;
@@ -18,5 +18,27 @@ public class LocationClaimData {
         this.proofId = proofId;
     }
 
+    public String getClaimId() {
+        return claimId;
+    }
 
+    public String getProverId() {
+        return proverId;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public long getTimeInMillis() {
+        return timeInMillis;
+    }
+
+    public String getProofId() {
+        return proofId;
+    }
 }

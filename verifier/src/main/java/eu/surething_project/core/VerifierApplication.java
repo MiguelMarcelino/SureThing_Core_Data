@@ -2,6 +2,7 @@ package eu.surething_project.core;
 
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.database.AsyncDatabaseWriter;
 import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
@@ -58,14 +59,14 @@ public class VerifierApplication {
 		/**********************************/
 
 		// Prepare Database
-		DatabaseAccessManagement dbManagement = new DatabaseAccessManagement();
+		AsyncDatabaseWriter databaseWriter = new AsyncDatabaseWriter();
 
 		// Start Verifier server
 		GrpcServerHandler grpcServerHandler = new GrpcServerHandler();
 
 		// Create Certify Claim Service
 		CertifyClaimService certifyClaimService = new CertifyClaimService(cryptoHandler,
-				currentEntityId, externalData, certificatePath);
+				currentEntityId, externalData, certificatePath, databaseWriter);
 		try {
 			grpcServerHandler.buildServer(verifierGrpcPort, certifyClaimService);
 		} catch (InterruptedException e) {

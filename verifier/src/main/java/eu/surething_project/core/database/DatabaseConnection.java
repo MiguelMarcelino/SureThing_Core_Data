@@ -8,9 +8,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    public DatabaseConnection() { }
+    protected DatabaseConnection() { }
 
-    public Connection connectToDatabase() {
+    protected Connection connectToDatabase() {
         Connection connection = null;
         String timezone = "?serverTimezone=UTC";
         try {
