@@ -5,9 +5,9 @@ public class Entity {
     private String id;
     private String address;
     private int port;
-    private LatLongPair latLongPair;
+    private LatLngPair latLongPair;
 
-    public Entity(String id, String address, int port, LatLongPair latLongPair) {
+    public Entity(String id, String address, int port, LatLngPair latLongPair) {
         this.id = id;
         this.latLongPair = latLongPair;
         this.address = address;
@@ -30,11 +30,11 @@ public class Entity {
         this.port = port;
     }
 
-    public LatLongPair getLatLongPair() {
+    public LatLngPair getLatLngPair() {
         return latLongPair;
     }
 
-    public void setLatLongPair(LatLongPair latLongPair) {
+    public void setLatLongPair(LatLngPair latLongPair) {
         this.latLongPair = latLongPair;
     }
 

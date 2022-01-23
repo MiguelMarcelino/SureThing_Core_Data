@@ -11,6 +11,7 @@ import java.util.List;
 public class EntityManager {
 
     private List<Entity> entities;
+    private Entity currentEntity;
 
     public EntityManager() {
         this.entities = new ArrayList<>();
@@ -24,7 +25,7 @@ public class EntityManager {
         BufferedReader buf = null;
         try {
             File file = new File(filePath, fileName);
-            if(!file.exists() || !file.isFile()) {
+            if (!file.exists() || !file.isFile()) {
                 file.createNewFile();
                 System.out.println("No entity File found. Continuing setup.");
                 return;
@@ -33,17 +34,13 @@ public class EntityManager {
             buf = new BufferedReader(new InputStreamReader(fis));
 
             // read file contents
-            String line = null;
+            String line = buf.readLine();
+            if (line != null) {
+                // Get current entity
+                currentEntity = createEntityFromStr(line);
+            }
             while ((line = buf.readLine()) != null) {
-                String[] splitInfo = line.split(" ");
-                String entityId = splitInfo[0];
-                String address = splitInfo[1];
-                AddressValidator.validateAddress(address);
-                String[] splitAddr = address.split(":");
-                double latitude = Double.parseDouble(splitInfo[2]);
-                double longitude = Double.parseDouble(splitInfo[3]);
-                Entity entity = new Entity(entityId, splitAddr[0], Integer.parseInt(splitAddr[1]),
-                        new LatLongPair(latitude, longitude));
+                Entity entity = createEntityFromStr(line);
                 entities.add(entity);
             }
 
@@ -57,7 +54,7 @@ public class EntityManager {
                 if (buf != null) {
                     buf.close();
                 }
-                if(fis != null) {
+                if (fis != null) {
                     fis.close();
                 }
             } catch (IOException e) {
@@ -66,23 +63,66 @@ public class EntityManager {
         }
     }
 
+    private Entity createEntityFromStr(String entityStr) {
+        String[] splitInfo = entityStr.split(" ");
+        String entityId = splitInfo[0];
+        String address = splitInfo[1];
+        AddressValidator.validateAddress(address);
+        String[] splitAddr = address.split(":");
+        double latitude = Double.parseDouble(splitInfo[2]);
+        double longitude = Double.parseDouble(splitInfo[3]);
+        Entity entity = new Entity(entityId, splitAddr[0], Integer.parseInt(splitAddr[1]),
+                new LatLngPair(latitude, longitude));
+        return entity;
+    }
+
+    /**
+     * Gets all entities
+     * @return
+     */
     public List<Entity> getEntities() {
         return entities;
+    }
+
+    /**
+     * Gets current entity. It is always the first in the list
+     *
+     * @return
+     */
+    public Entity getCurrentEntity() {
+        return currentEntity;
     }
 
 
     /**
      * Gets all entities in range of a given entity
-     * @param latLon
+     *
+     * @param latLngCurr - Latitude and Longitude of a given entity
      * @return
      */
-    public List<Entity> getEntitiesInRange(LatLongPair latLon) {
-        // TODO: Simulate entity Location
+    public List<Entity> getEntitiesInRange(LatLngPair latLngCurr) {
         List<Entity> entitiesInRange = new ArrayList<>();
-        return  entitiesInRange;
+        for (Entity entity : entities) {
+            LatLngPair latLngEntity = entity.getLatLngPair();
+            double distance = DistanceCalculator.haversineFormula(latLngCurr.getLatitude(),
+                    latLngCurr.getLongitude(), latLngEntity.getLatitude(),
+                    latLngEntity.getLongitude());
+            if (distance < 5) { // 5km is too much (decrease later)
+                entitiesInRange.add(entity);
+            }
+        }
+        return entitiesInRange;
     }
 
+    /**
+     * Simulates entity location updates
+     */
     public void updateEntityLocation() {
-        // TODO: Randomly update the location of entities
+        for (Entity entity : entities) {
+            LatLngPair latLngPair = entity.getLatLngPair();
+            LocationSimulator.genLatLngCoordinates(latLngPair.getLatitude(),
+                    latLngPair.getLongitude(), 0.00005);
+            entity.setLatLongPair(latLngPair);
+        }
     }
 }

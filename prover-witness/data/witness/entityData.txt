@@ -1,0 +1,2 @@
+witness localhost:8081 82.33333 85.44444
+prover localhost:8080 82.33333 85.44444

@@ -1,9 +1,10 @@
-package eu.surething_project.core.location_simulation;
+package eu.surething_project.core.data;
 
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.location_simulation.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;

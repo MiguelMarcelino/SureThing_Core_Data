@@ -3,13 +3,13 @@ package eu.surething_project.core;
 import eu.surething_project.core.config.AddressValidator;
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.data.LocationDataHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.location_simulation.Entity;
 import eu.surething_project.core.location_simulation.EntityManager;
-import eu.surething_project.core.location_simulation.LatLongPair;
-import eu.surething_project.core.location_simulation.LocationDataHandler;
+import eu.surething_project.core.location_simulation.LatLngPair;
 import eu.surething_project.core.rpc_comm.prover.LocationClaimBuilder;
 import eu.surething_project.core.rpc_comm.prover.LocationEndorsementVerifier;
 import eu.surething_project.core.rpc_comm.prover.ProverWitnessCommHandler;
@@ -18,6 +18,7 @@ import eu.surething_project.core.rpc_comm.prover_verifier.LocationProofBuilder;
 import eu.surething_project.core.rpc_comm.prover_verifier.ProverVerifierCommHandler;
 import eu.surething_project.core.rpc_comm.witness.EndorseClaimService;
 import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServerHandler;
+import eu.surething_project.core.scheduling.TaskScheduler;
 
 import java.io.*;
 import java.security.*;
@@ -53,6 +54,15 @@ public class EntityApplication {
         final int witnessGrpcPort = Integer.parseInt(args[1]);
         final String keystoreName = args[2];
         final String keystorePassword = args[3];
+
+        // Sets up entity Manager and reads entity data from a file
+        EntityManager entityManager = new EntityManager();
+        entityManager.readEntityFile("data/" + currentEntityId, "/entityData.txt");
+        Entity currentEntity = entityManager.getCurrentEntity();
+
+        // Schedule location updates (Simulation)
+        TaskScheduler taskScheduler = new TaskScheduler(entityManager);
+        taskScheduler.scheduleTasks();
 
         // Create CryptoHandler
         CryptoHandler cryptoHandler;
@@ -104,10 +114,6 @@ public class EntityApplication {
         LocationCertificateVerifier certificateVerifier = new LocationCertificateVerifier(
                 cryptoHandler, externalData);
 
-        // Sets up entity Manager and reads entity data from a file
-        EntityManager entityManager = new EntityManager();
-        entityManager.readEntityFile("data/" + currentEntityId, "/entityData.txt");
-
         // Sets up Endorsement Handler to store endorsements
         LocationDataHandler locationDataHandler = new LocationDataHandler();
 
@@ -117,7 +123,7 @@ public class EntityApplication {
         // Receive user input
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
-            System.out.print(">> ");
+            System.out.print("\n>> ");
             String cmd = "";
 
             try {
@@ -133,6 +139,7 @@ public class EntityApplication {
             String[] inputs = inputMsg[0].split(" ");
 
             if (inputs[0].equals("send_claim")) {
+                // FOR TESTING ONLY
                 // send_claim address:port id
                 // Example: send_claim localhost:8081 witness
 
@@ -144,34 +151,42 @@ public class EntityApplication {
                 String witnessId = inputs[2];
 
                 // create witness entity
-                Entity entity = new Entity(witnessId, address, port, new LatLongPair(82.5, 83.4));
+                Entity entity = new Entity(witnessId, address, port,
+                        null);
 
                 // communicate with witness
-                SignedLocationClaim claim = buildLocationClaim(claimBuilder);
+                SignedLocationClaim claim = buildLocationClaim(claimBuilder, currentEntity.getLatLngPair());
                 SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
                         witnessCommHandler, endorsementVerifier);
 
-                // Add endorsement to received endorsements list
-                locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                if(endorsement == null) {
+                    logger.warning(ErrorMessage.LOCATION_CLAIM_SEND_ERROR.message);
+                } else {
+                    // Add endorsement to received endorsements list
+                    locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                }
 
                 // Just testing
-                System.out.println(endorsement.getEndorsement().getClaimId());
+                System.out.println("Received endorsement with ID:" +
+                        endorsement.getEndorsement().getEndorsementId());
             } else if (inputs[0].equals("broadcast_claim")) {
                 // Get entities within range of current entity
-                // entityManager.getEntitiesInRange(new LatLongPair(82.5, 83.4));
-                List<Entity> entities = entityManager.getEntities(); // testing
+                List<Entity> entities = entityManager.getEntitiesInRange(currentEntity.getLatLngPair());
 
                 // build location claim to send to multiple witnesses
-                SignedLocationClaim claim = buildLocationClaim(claimBuilder);
+                SignedLocationClaim claim = buildLocationClaim(claimBuilder, currentEntity.getLatLngPair());
                 for (Entity entity : entities) {
                     SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
                             witnessCommHandler, endorsementVerifier);
 
-                    // Add endorsement to received endorsements list
-                    locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                    if(endorsement != null) {
+                        // Add endorsement to received endorsements list
+                        locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
 
-                    // Just testing
-                    System.out.println(endorsement.getEndorsement().getClaimId());
+                        // Just testing
+                        System.out.println("Received endorsement with ID:" +
+                                endorsement.getEndorsement().getEndorsementId());
+                    }
                 }
             } else if (inputs[0].equals("send_proof_verifier")) {
                 // send_proof_verifier address:port id
@@ -193,9 +208,10 @@ public class EntityApplication {
                             proofBuilder);
                     LocationCertificate certificate = sendLocationProof(address, port, proof,
                             verifierCommHandler, certificateVerifier);
-                    locationDataHandler.addLocationCertificate(claimId, certificate);
-
-                    historyIds.add(claimId);
+                    if(certificate != null) {
+                        locationDataHandler.addLocationCertificate(claimId, certificate);
+                        historyIds.add(claimId);
+                    }
                 }
 
                 // Add sent data to history
@@ -204,11 +220,11 @@ public class EntityApplication {
         }
     }
 
-    private static SignedLocationClaim buildLocationClaim(LocationClaimBuilder builder) {
+    private static SignedLocationClaim buildLocationClaim(LocationClaimBuilder builder, LatLngPair latLngPair) {
         // send a location claim from this entity
         SignedLocationClaim claim;
         try {
-            claim = builder.buildSignedLocationClaim(CRYPTO_ALGO);
+            claim = builder.buildSignedLocationClaim(CRYPTO_ALGO, latLngPair);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
         } catch (KeyStoreException | InvalidKeyException | UnrecoverableKeyException e) {
@@ -225,15 +241,17 @@ public class EntityApplication {
     private static SignedLocationEndorsement sendWitnessData(Entity entity, SignedLocationClaim claim,
                                                              ProverWitnessCommHandler proverWitnessComm,
                                                              LocationEndorsementVerifier verifier) {
-        SignedLocationEndorsement endorsement;
+        SignedLocationEndorsement endorsement = null;
         try {
             endorsement = proverWitnessComm.sendWitnessData(claim, entity);
 
             // Verify endorsement freshness
-            long nonce = claim.getProverSignature().getNonce();
-            verifier.verifyEndorsement(nonce, endorsement);
+            if (endorsement != null) {
+                long nonce = claim.getProverSignature().getNonce();
+                verifier.verifyEndorsement(nonce, endorsement);
+            }
         } catch (InterruptedException e) {
-            throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR);
+            logger.warning(ErrorMessage.GRPC_CONNECTION_ERROR.message + ": " + e.getMessage());
         } catch (FileNotFoundException | CertificateException e) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
         } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException |
@@ -267,14 +285,16 @@ public class EntityApplication {
                                                          SignedLocationProof proof,
                                                          ProverVerifierCommHandler commHandler,
                                                          LocationCertificateVerifier verifier) {
-        LocationCertificate certificate;
+        LocationCertificate certificate = null;
         try {
             certificate = commHandler.sendDataToVerifier(proof, verifierAddress, verifierPort);
             // Verify Data
-            long nonce = proof.getProverSignature().getNonce();
-            verifier.verifyCertificate(nonce, certificate);
+            if (certificate != null) {
+                long nonce = proof.getProverSignature().getNonce();
+                verifier.verifyCertificate(nonce, certificate);
+            }
         } catch (InterruptedException e) {
-            throw new EntityException(ErrorMessage.GRPC_CONNECTION_ERROR, e);
+            logger.warning(ErrorMessage.GRPC_CONNECTION_ERROR.message + ": " + e.getMessage());
         } catch (FileNotFoundException | CertificateException e) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE, e);
         } catch (NoSuchAlgorithmException | SignatureException | InvalidKeyException |
@@ -311,5 +331,8 @@ public class EntityApplication {
      */
     private static void printOptions() {
         System.out.println("Please enter one of the following commands:");
+        System.out.println("1. broadcast_claim - Broadcasts a claim to all witnesses in Range");
+        System.out.println("2. send_proof_verifier - To send all the proof to the verifier.");
+        System.out.println("   --> Example: send_proof_verifier localhost:8082 endorsementVerifier");
     }
 }

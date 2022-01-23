@@ -1,6 +1,5 @@
 package eu.surething_project.core.rpc_comm.prover;
 
-import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CertificateAccess;
@@ -8,7 +7,7 @@ import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.google.type.LatLng;
-import eu.surething_project.core.location_simulation.LatLongPair;
+import eu.surething_project.core.location_simulation.LatLngPair;
 import eu.surething_project.core.location_simulation.LocationSimulator;
 
 import java.security.*;
@@ -30,13 +29,11 @@ public class LocationClaimBuilder {
         this.certPath = certPath;
     }
 
-    public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg)
+    public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg, LatLngPair latLngPair)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
-        LatLongPair latLongPair = locationSimulator
-                .generateLatitudeLongitudeCoordinates(82.3, 85.4, 3);
         UUID uuid = UUID.randomUUID();
-        LocationClaim claim = buildLocationClaim(latLongPair, uuid.toString());
+        LocationClaim claim = buildLocationClaim(latLngPair, uuid.toString());
 
         // Get certificate data
         byte[] certificate = CertificateAccess.getCertificateContentAsBytes(certPath, proverId);
@@ -54,7 +51,7 @@ public class LocationClaimBuilder {
                 .build();
     }
 
-    private LocationClaim buildLocationClaim(LatLongPair latLongPair, String claimId) {
+    private LocationClaim buildLocationClaim(LatLngPair latLongPair, String claimId) {
         LocationClaim locationClaim = LocationClaim.newBuilder()
                 .setClaimId(claimId)
                 .setProverId(proverId)
