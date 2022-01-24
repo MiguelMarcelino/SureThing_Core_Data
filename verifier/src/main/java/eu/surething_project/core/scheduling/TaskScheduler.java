@@ -1,10 +1,9 @@
 package eu.surething_project.core.scheduling;
 
-import eu.surething_project.core.database.AsyncDatabaseWriter;
+import eu.surething_project.core.database.AsyncDatabaseAccess;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class TaskScheduler {
 
@@ -13,20 +12,21 @@ public class TaskScheduler {
     private static final ScheduledExecutorService scheduler = Executors
             .newScheduledThreadPool(poolSize);
 
-    private AsyncDatabaseWriter asyncDBWriter;
+    private AsyncDatabaseAccess asyncDBWriter;
 
-    public TaskScheduler(AsyncDatabaseWriter asyncDBWriter) {
+    public TaskScheduler(AsyncDatabaseAccess asyncDBWriter) {
         this.asyncDBWriter = asyncDBWriter;
     }
 
     public void scheduleTasks() {
-        scheduler.scheduleWithFixedDelay(runScalingPolicy, 5, 5,
-                TimeUnit.SECONDS);
+//        scheduler.scheduleWithFixedDelay(runUpdateLocation, 0, 3,
+//                TimeUnit.SECONDS);
     }
 
-    final Runnable runScalingPolicy = new Runnable() {
+    // TODO
+    final Runnable runUpdateLocation = new Runnable() {
         public void run() {
-            asyncDBWriter.run();
+
         }
     };
 

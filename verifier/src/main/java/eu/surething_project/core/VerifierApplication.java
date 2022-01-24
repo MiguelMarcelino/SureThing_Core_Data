@@ -2,13 +2,12 @@ package eu.surething_project.core;
 
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.database.AsyncDatabaseWriter;
+import eu.surething_project.core.database.AsyncDatabaseAccess;
 import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.CertifyClaimService;
 import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
-import eu.surething_project.core.scheduling.TaskScheduler;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,18 +59,19 @@ public class VerifierApplication {
 		/**********************************/
 
 		// Prepare Database
-		AsyncDatabaseWriter databaseWriter = new AsyncDatabaseWriter();
+		DatabaseAccessManagement dbAccessMgmt = new DatabaseAccessManagement();
+//		AsyncDatabaseAccess databaseWriter = new AsyncDatabaseAccess(dbAccessMgmt);
 
 		// Schedule services
-		TaskScheduler scheduler = new TaskScheduler(databaseWriter);
-		scheduler.scheduleTasks();
+//		TaskScheduler scheduler = new TaskScheduler(databaseWriter);
+//		scheduler.scheduleTasks();
 
 		// Start Verifier server
 		GrpcServerHandler grpcServerHandler = new GrpcServerHandler();
 
 		// Create Certify Claim Service
 		CertifyClaimService certifyClaimService = new CertifyClaimService(cryptoHandler,
-				currentEntityId, externalData, certificatePath, databaseWriter);
+				currentEntityId, externalData, certificatePath, dbAccessMgmt);
 		try {
 			grpcServerHandler.buildServer(verifierGrpcPort, certifyClaimService);
 		} catch (InterruptedException e) {

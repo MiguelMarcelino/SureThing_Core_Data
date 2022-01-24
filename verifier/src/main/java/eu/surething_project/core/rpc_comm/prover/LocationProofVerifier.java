@@ -5,7 +5,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.database.AsyncDatabaseWriter;
+import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.database.data.LocationClaimData;
 import eu.surething_project.core.database.data.LocationEndorsementData;
 import eu.surething_project.core.database.data.LocationProofData;
@@ -35,14 +35,14 @@ public class LocationProofVerifier {
 
     private String externalData;
 
-    private AsyncDatabaseWriter databaseWriter;
+    private DatabaseAccessManagement dbAccessMgmt;
 
     public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId, String externalData,
-                                 String certPath, AsyncDatabaseWriter databaseWriter) {
+                                 String certPath, DatabaseAccessManagement dbAccessMgmt) {
         this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId, certPath);
         this.cryptoHandler = cryptoHandler;
         this.externalData = externalData;
-        this.databaseWriter = databaseWriter;
+        this.dbAccessMgmt = dbAccessMgmt;
     }
 
     /**
@@ -81,12 +81,30 @@ public class LocationProofVerifier {
         // create Certificate and verify validity
         cryptoHandler.verifyCertificate(proverId);
 
-        for (SignedLocationEndorsement endorsement : endorsementList) {
-            boolean isValid = validateLocationEndorsement(endorsement, claim);
-            if (isValid) {
-                LocationEndorsement locEndorse = endorsement.getEndorsement();
-                approvedEndorsements.add(locEndorse);
-                endorsementIds.add(locEndorse.getEndorsementId());
+        // verify proof with last received proof
+        boolean verifyEndorsements = true;
+        LocationClaimData lastReceivedClaim = dbAccessMgmt.getGetClaimByProverId(proverId);
+        if (lastReceivedClaim != null) {
+            LatLng latLngClaim = getLatLngFromLocation(claim.getLocation());
+            double latitudeClaim = latLngClaim.getLatitude();
+            double longitudeClaim = latLngClaim.getLongitude();
+            double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
+                    lastReceivedClaim.getLatitude(), lastReceivedClaim.getLongitude());
+            // Only verify endorsements if prover is in range of last location
+//            System.out.println("Distance from last claim: " + distance);
+            if (distance > 5) { // 5km is too much
+                verifyEndorsements = false;
+            }
+        }
+
+        if (verifyEndorsements) {
+            for (SignedLocationEndorsement endorsement : endorsementList) {
+                boolean isValid = validateLocationEndorsement(endorsement, claim);
+                if (isValid) {
+                    LocationEndorsement locEndorse = endorsement.getEndorsement();
+                    approvedEndorsements.add(locEndorse);
+                    endorsementIds.add(locEndorse.getEndorsementId());
+                }
             }
         }
 
@@ -101,6 +119,7 @@ public class LocationProofVerifier {
     }
 
     /**
+     * Validates the location endorsement
      * @param signedLocationEndorsement
      */
     private boolean validateLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement,
@@ -110,7 +129,6 @@ public class LocationProofVerifier {
         // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
         byte[] signedEndorsement = signature.getValue().toByteArray();
-        byte[] certData = signature.getCertificateData().toByteArray();
         String cryptoAlg = signature.getCryptoAlgo();
 
         // Get Location Endorsement Data
@@ -125,7 +143,7 @@ public class LocationProofVerifier {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
 
-        // create Certificate and verify validity
+        // Verify validity (We assume that the verifier already has witness certificates)
         cryptoHandler.verifyCertificate(witnessId);
 
         // Verify signed data (With witness public key)
@@ -146,47 +164,43 @@ public class LocationProofVerifier {
      */
     private boolean checkData(LocationEndorsement locEndorsement, LocationClaim locClaim) {
         // Check if timestamp is not old when compared to locClaim
-        Time timeClaim = locClaim.getTime();
-        Time timeEndorse = locEndorsement.getTime();
-        Timestamp t1 = getTimestamp(timeClaim);
-        Timestamp t2 = getTimestamp(timeEndorse);
+        double t1 = getSeconds(locClaim.getTime());
+        double t2 = getSeconds(locEndorsement.getTime());
         // Assuming endorse happens after claim
-        if ((t2.getNanos() - t1.getNanos()) > 10000) {
+        if ((t2 - t1) > 20) {
             return false;
         }
 
         // Check location
-        Location locationClaim = locClaim.getLocation();
-        double latitudeClaim = 0;
-        double longitudeClaim = 0;
-        switch (locClaim.getLocation().getLocationCase()) {
-            case LATLNG:
-                LatLng latLngClaim = locationClaim.getLatLng();
-                latitudeClaim = latLngClaim.getLatitude();
-                longitudeClaim = latLngClaim.getLongitude();
-            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
-                break;
-        }
+        LatLng latLngClaim = getLatLngFromLocation(locClaim.getLocation());
+        double latitudeClaim = latLngClaim.getLatitude();
+        double longitudeClaim = latLngClaim.getLongitude();
 
-        LatLng latLngEvidence = getLatLng(locEndorsement.getEvidenceType(), locEndorsement.getEvidence());
+        LatLng latLngEvidence = getLatLngFromEvidence(locEndorsement.getEvidenceType(), locEndorsement.getEvidence());
         double latitudeEvidence = latLngEvidence.getLatitude();
         double longitudeEvidence = latLngEvidence.getLongitude();
 
         double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
                 latitudeEvidence, longitudeEvidence);
-        if (distance > 5) { // difference of 5 km. Is it too much?
+        // difference of more than 200 meters results in proof rejection
+        if (distance > 0.2) {
             return false;
         }
 
         return true;
     }
 
+    /**
+     * Adds verified data to database
+     * @param proof
+     * @param verifiedEndorsements
+     */
     private void addVerifierDataToDB(LocationProof proof,
                                      List<LocationEndorsement> verifiedEndorsements) {
         // get endorsements
         List<LocationEndorsementData> endorsementData = new ArrayList<>();
         for (LocationEndorsement e : verifiedEndorsements) {
-            LatLng latLng = getLatLng(e.getEvidenceType(), e.getEvidence());
+            LatLng latLng = getLatLngFromEvidence(e.getEvidenceType(), e.getEvidence());
             endorsementData.add(new LocationEndorsementData(e.getEndorsementId(),
                     e.getWitnessId(), e.getClaimId(), latLng.getLatitude(), latLng.getLongitude(),
                     e.getTime().getRelativeToEpoch().getTimeValue(), proof.getProofId()));
@@ -194,17 +208,9 @@ public class LocationProofVerifier {
 
         // get claim
         LocationClaim claim = proof.getLocClaim();
-        Location loc = claim.getLocation();
-        double latitudeClaim = 0;
-        double longitudeClaim = 0;
-        switch (claim.getLocation().getLocationCase()) {
-            case LATLNG:
-                LatLng latLngClaim = loc.getLatLng();
-                latitudeClaim = latLngClaim.getLatitude();
-                longitudeClaim = latLngClaim.getLongitude();
-            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
-                break;
-        }
+        LatLng latLngClaim = getLatLngFromLocation(claim.getLocation());
+        double latitudeClaim = latLngClaim.getLatitude();
+        double longitudeClaim = latLngClaim.getLongitude();
         LocationClaimData claimData = new LocationClaimData(claim.getClaimId(), claim.getProverId(),
                 latitudeClaim, longitudeClaim, claim.getTime().getRelativeToEpoch().getTimeValue(),
                 proof.getProofId());
@@ -214,30 +220,42 @@ public class LocationProofVerifier {
                 proof.getTime().getRelativeToEpoch().getTimeValue(), claimData, endorsementData);
 
         // Schedule database write
-        databaseWriter.scheduleDBWrite(data);
+        dbAccessMgmt.addProofData(data);
     }
 
     /**
      * @param time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
      * @return
      */
-    private Timestamp getTimestamp(Time time) {
+    private double getSeconds(Time time) {
         Time.TimeCase timeCase = time.getTimeCase();
+        double seconds = 0.0;
         Timestamp timestamp = null;
         switch (timeCase) {
             case TIMESTAMP:
-                timestamp = time.getTimestamp();
+                seconds = time.getTimestamp().getSeconds();
+                break;
             case INTERVAL:
-                time.getInterval();
+                seconds = time.getInterval().getEnd().getSeconds() -
+                        time.getInterval().getBegin().getSeconds();
+                break;
             case RELATIVETOEPOCH:
-                time.getRelativeToEpoch();
+                // seconds relative to epoch, which is January 1, 1970
+                seconds = time.getRelativeToEpoch().getTimeValue();
+                break;
             case TIME_NOT_SET, EMPTY:
                 break;
         }
-        return timestamp;
+        return seconds;
     }
 
-    private LatLng getLatLng(String evidenceType, Any evidence) {
+    /**
+     * Gets LatLng from evidence
+     * @param evidenceType
+     * @param evidence
+     * @return
+     */
+    private LatLng getLatLngFromEvidence(String evidenceType, Any evidence) {
         LatLng latLng = null;
         String expectedType = "eu.surething_project.core.grpc.google.type.LatLng";
         try {
@@ -249,6 +267,23 @@ public class LocationProofVerifier {
 
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
+        }
+        return latLng;
+    }
+
+    /**
+     * Gets LatLng from Location object
+     * @param location
+     * @return
+     */
+    private LatLng getLatLngFromLocation(Location location) {
+        LatLng latLng = null;
+        switch (location.getLocationCase()) {
+            case LATLNG:
+                latLng = location.getLatLng();
+                break;
+            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
+                break;
         }
         return latLng;
     }

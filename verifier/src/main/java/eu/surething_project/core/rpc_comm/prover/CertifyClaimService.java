@@ -1,7 +1,8 @@
 package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.database.AsyncDatabaseWriter;
+import eu.surething_project.core.database.AsyncDatabaseAccess;
+import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.grpc.CertifyClaimGrpc;
@@ -25,9 +26,9 @@ public class CertifyClaimService extends CertifyClaimGrpc.CertifyClaimImplBase {
     private LocationProofVerifier endorsementVerifier;
 
     public CertifyClaimService(CryptoHandler cryptoHandler, String verifierId,
-                               String externalData, String certPath, AsyncDatabaseWriter databaseWriter) {
+                               String externalData, String certPath, DatabaseAccessManagement accessManagement) {
         endorsementVerifier = new LocationProofVerifier(cryptoHandler, verifierId, externalData,
-                certPath, databaseWriter);
+                certPath, accessManagement);
     }
 
     @Override

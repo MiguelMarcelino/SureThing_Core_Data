@@ -6,6 +6,7 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.EndorseClaimGrpc;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.location_simulation.Entity;
 import io.grpc.stub.StreamObserver;
 
 import javax.crypto.BadPaddingException;
@@ -22,10 +23,10 @@ public class EndorseClaimService extends EndorseClaimGrpc.EndorseClaimImplBase {
 
     private LocationClaimVerifier claimVerifier;
 
-    public EndorseClaimService(CryptoHandler cryptoHandler, String witnessId,
-                               String externalData, String certPath) {
-        this.claimVerifier = new LocationClaimVerifier(cryptoHandler, witnessId,
-                externalData, certPath);
+    public EndorseClaimService(CryptoHandler cryptoHandler, String certPath, String externalData,
+                               String witnessId, Entity entity) {
+        this.claimVerifier = new LocationClaimVerifier(cryptoHandler, certPath, externalData,
+                witnessId, entity);
     }
 
     /**

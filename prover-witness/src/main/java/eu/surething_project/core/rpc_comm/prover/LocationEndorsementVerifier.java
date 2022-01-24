@@ -29,7 +29,7 @@ public class LocationEndorsementVerifier {
     public void verifyEndorsement(long sentNonce, SignedLocationEndorsement signedLocationEndorsement)
             throws FileNotFoundException, CertificateException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException, NoSuchProviderException {
-//        // Get signed data
+        // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
 //        String externalEntityId = signedLocationEndorsement.getEndorsement().getWitnessId();
 //        byte[] signedEndorsement = signature.getValue().toByteArray();

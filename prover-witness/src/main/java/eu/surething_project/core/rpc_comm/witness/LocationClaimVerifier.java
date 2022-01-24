@@ -6,10 +6,8 @@ import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.location_simulation.Entity;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -22,15 +20,16 @@ public class LocationClaimVerifier {
 
     private String externalData;
 
-    public LocationClaimVerifier(CryptoHandler cryptoHandler, String witnessId, String externalData,
-                                 String certPath) {
-        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, witnessId, certPath);
+    public LocationClaimVerifier(CryptoHandler cryptoHandler, String certPath, String externalData,
+                                 String witnessId, Entity currEntity) {
+        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, certPath, witnessId, currEntity);
         this.cryptoHandler = cryptoHandler;
         this.externalData = externalData;
     }
 
     /**
      * Verifies if a location claim is sent from the entity claiming to be the prover
+     *
      * @param signedLocationClaim
      * @return
      */
@@ -56,7 +55,7 @@ public class LocationClaimVerifier {
         cryptoHandler.verifyCertificate(externalEntityId);
 
         // Verify signed data
-        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim,  externalEntityId, cryptoAlg);
+        cryptoHandler.verifyData(locClaim.toByteArray(), signedClaim, externalEntityId, cryptoAlg);
 
         // Start Data content verification
         String claimId = locClaim.getClaimId();

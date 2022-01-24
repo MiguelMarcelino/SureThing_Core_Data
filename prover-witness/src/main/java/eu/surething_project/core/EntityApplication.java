@@ -91,7 +91,7 @@ public class EntityApplication {
 
         // Create Service
         EndorseClaimService endorseClaimService = new EndorseClaimService(cryptoHandler,
-                currentEntityId, externalData, certificatePath);
+                certificatePath, externalData, currentEntityId, currentEntity);
         try {
             serverHandler.buildServer(witnessGrpcPort, endorseClaimService);
         } catch (InterruptedException e) {
@@ -167,7 +167,7 @@ public class EntityApplication {
                 }
 
                 // Just testing
-                System.out.println("Received endorsement with ID:" +
+                System.out.println("Received endorsement with ID: " +
                         endorsement.getEndorsement().getEndorsementId());
             } else if (inputs[0].equals("broadcast_claim")) {
                 // Get entities within range of current entity
@@ -184,7 +184,7 @@ public class EntityApplication {
                         locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
 
                         // Just testing
-                        System.out.println("Received endorsement with ID:" +
+                        System.out.println("Received endorsement with ID: " +
                                 endorsement.getEndorsement().getEndorsementId());
                     }
                 }

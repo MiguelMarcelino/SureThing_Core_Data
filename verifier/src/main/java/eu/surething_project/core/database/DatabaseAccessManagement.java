@@ -57,8 +57,12 @@ public class DatabaseAccessManagement {
     private static final String GET_PROOF_BY_ID_SQL = "SELECT * FROM Proofs WHERE (proofId = ?);";
     private static final String GET_ENDORSEMENT_BY_ID_SQL = "SELECT * FROM Endorsements WHERE (endorsementId = ?);";
     private static final String GET_CLAIM_BY_ID_SQL = "SELECT * FROM Claims WHERE (claimId = ?);";
-    private static final String GET_CLAIM_BY_PROVER_ID_SQL = "SELECT * FROM Claims WHERE (proverId = ?) AND " +
-            "timeInMillis = (SELECT MAX(timeInMillis) FROM Claims);";
+    private static final String GET_CLAIM_BY_PROVER_ID_SQL = "SELECT claimId, proverId, latitude, " +
+            "longitude, timeInMillis, proofId FROM Claims c1 " +
+            "NATURAL JOIN" +
+            " (SELECT proverId, MAX(timeInMillis) AS max_time FROM Claims c2" +
+            " GROUP BY c2.proverId) maxval " +
+            "WHERE (proverId = ?)";
 
     public DatabaseAccessManagement() {
         this.dbConnection = new DatabaseConnection();
@@ -116,8 +120,8 @@ public class DatabaseAccessManagement {
 
             // Add locationEndorsements
             List<LocationEndorsementData> endorsementList = proof.getEndorsements();
+            updateEndorsements = connection.prepareStatement(INSERT_ENDORSE_SQL);
             for (LocationEndorsementData locEndorse : endorsementList) {
-                updateEndorsements = connection.prepareStatement(INSERT_ENDORSE_SQL);
                 updateEndorsements.setString(1, locEndorse.getEndorsementId());
                 updateEndorsements.setString(2, locEndorse.getWitnessId());
                 updateEndorsements.setString(3, locEndorse.getClaimId());
@@ -141,6 +145,7 @@ public class DatabaseAccessManagement {
             updateClaims.setLong(5, claim.getTimeInMillis());
             updateClaims.setString(6, proof.getProofId()); // Foreign key
             updateClaims.executeUpdate();
+            System.out.println("REACHED");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
@@ -162,16 +167,17 @@ public class DatabaseAccessManagement {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         Connection connection = dbConnection.connectToDatabase();
-        LocationClaimData claimData;
+        LocationClaimData claimData = null;
         try {
             stmt = connection.prepareStatement(GET_CLAIM_BY_PROVER_ID_SQL);
             stmt.setString(1, proverId);
             rs = stmt.executeQuery();
 
-            rs.next();
-            claimData = new LocationClaimData(rs.getString(1), rs.getString(2),
-                    rs.getDouble(3), rs.getDouble(4), rs.getLong(5),
-                    rs.getString(6));
+            if(rs.next()) {
+                claimData = new LocationClaimData(rs.getString(1), rs.getString(2),
+                        rs.getDouble(3), rs.getDouble(4), rs.getLong(5),
+                        rs.getString(6));
+            }
         } catch (SQLException e) {
             throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
         } finally {

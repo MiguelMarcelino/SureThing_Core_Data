@@ -8,6 +8,7 @@ import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.google.type.LatLng;
+import eu.surething_project.core.location_simulation.Entity;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -27,10 +28,14 @@ public class LocationEndorsementBuilder {
 
     private String certPath;
 
-    public LocationEndorsementBuilder(CryptoHandler cryptoHandler, String witnessId, String certPath) {
+    private Entity currEntity;
+
+    public LocationEndorsementBuilder(CryptoHandler cryptoHandler, String certPath,
+                                      String witnessId, Entity currEntity) {
         this.cryptoHandler = cryptoHandler;
         this.witnessId = witnessId;
         this.certPath = certPath;
+        this.currEntity = currEntity;
     }
 
     public SignedLocationEndorsement buildSignedLocationEndorsement(String claimId, long nonce,
@@ -68,8 +73,8 @@ public class LocationEndorsementBuilder {
                         .build())
                 .setEvidenceType("eu.surething_project.core.grpc.google.type.LatLng")
                 .setEvidence(Any.pack(LatLng.newBuilder()
-                        .setLatitude(82.5)
-                        .setLongitude(83.4)
+                        .setLatitude(currEntity.getLatLngPair().getLatitude())
+                        .setLongitude(currEntity.getLatLngPair().getLongitude())
                         .build()))
                 .build();
 
