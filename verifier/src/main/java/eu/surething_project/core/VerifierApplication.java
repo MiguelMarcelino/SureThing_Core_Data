@@ -2,12 +2,11 @@ package eu.surething_project.core;
 
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.database.AsyncDatabaseAccess;
 import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
 import eu.surething_project.core.rpc_comm.prover.CertifyClaimService;
-import eu.surething_project.core.rpc_comm.prover.GrpcServerHandler;
+import eu.surething_project.core.rpc_comm.prover.ProverGrpcServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,13 +66,13 @@ public class VerifierApplication {
 //		scheduler.scheduleTasks();
 
 		// Start Verifier server
-		GrpcServerHandler grpcServerHandler = new GrpcServerHandler();
+		ProverGrpcServer grpcServer = new ProverGrpcServer(verifierGrpcPort, cryptoHandler);
 
 		// Create Certify Claim Service
 		CertifyClaimService certifyClaimService = new CertifyClaimService(cryptoHandler,
 				currentEntityId, externalData, certificatePath, dbAccessMgmt);
 		try {
-			grpcServerHandler.buildServer(verifierGrpcPort, certifyClaimService);
+			grpcServer.buildServer(cryptoHandler, verifierGrpcPort, certifyClaimService);
 		} catch (InterruptedException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}

@@ -90,9 +90,9 @@ public class LocationProofVerifier {
             double longitudeClaim = latLngClaim.getLongitude();
             double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
                     lastReceivedClaim.getLatitude(), lastReceivedClaim.getLongitude());
+
             // Only verify endorsements if prover is in range of last location
-//            System.out.println("Distance from last claim: " + distance);
-            if (distance > 5) { // 5km is too much
+            if (distance > 5) { // TODO: Consider time
                 verifyEndorsements = false;
             }
         }

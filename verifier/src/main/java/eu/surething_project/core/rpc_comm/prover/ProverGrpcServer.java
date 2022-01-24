@@ -1,9 +1,9 @@
 package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -15,12 +15,32 @@ public class ProverGrpcServer {
 
     private int serverPort;
 
-    public ProverGrpcServer(int port) {
+    private CryptoHandler cryptoHandler;
+
+    public ProverGrpcServer(int port, CryptoHandler cryptoHandler) {
         this.serverPort = port;
+        this.cryptoHandler = cryptoHandler;
     }
 
-    public void start(CertifyClaimService certifyClaimService) throws IOException {
-        this.server = ServerBuilder.forPort(serverPort)
+    public void buildServer(CryptoHandler cryptoHandler, int port, CertifyClaimService certifyClaimService)
+            throws InterruptedException {
+        try {
+            start(certifyClaimService);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        blockUntilShutdown();
+    }
+
+    private void start(CertifyClaimService certifyClaimService) throws IOException {
+        File certChainFile = cryptoHandler.getCertFile();
+        File privateKeyFile = cryptoHandler.getPrivateKeyFile();
+//        ServerCredentials creds = TlsServerCredentials.create(certChainFile, privateKeyFile);
+        // "12345678"
+        ServerCredentials creds = TlsServerCredentials.newBuilder()
+                .keyManager(certChainFile, privateKeyFile)
+                .build();
+        this.server = Grpc.newServerBuilderForPort(serverPort, creds)
                 .addService(certifyClaimService)
                 .build()
                 .start();
@@ -32,7 +52,7 @@ public class ProverGrpcServer {
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
      */
-    public void blockUntilShutdown() throws InterruptedException {
+    private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }

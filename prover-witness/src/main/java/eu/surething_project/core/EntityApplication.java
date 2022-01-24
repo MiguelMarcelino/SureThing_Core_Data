@@ -17,7 +17,7 @@ import eu.surething_project.core.rpc_comm.prover_verifier.LocationCertificateVer
 import eu.surething_project.core.rpc_comm.prover_verifier.LocationProofBuilder;
 import eu.surething_project.core.rpc_comm.prover_verifier.ProverVerifierCommHandler;
 import eu.surething_project.core.rpc_comm.witness.EndorseClaimService;
-import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServerHandler;
+import eu.surething_project.core.rpc_comm.witness.WitnessGrpcServer;
 import eu.surething_project.core.scheduling.TaskScheduler;
 
 import java.io.*;
@@ -59,6 +59,7 @@ public class EntityApplication {
         EntityManager entityManager = new EntityManager();
         entityManager.readEntityFile("data/" + currentEntityId, "/entityData.txt");
         Entity currentEntity = entityManager.getCurrentEntity();
+        currentEntity.setId(currentEntityId);
 
         // Schedule location updates (Simulation)
         TaskScheduler taskScheduler = new TaskScheduler(entityManager);
@@ -87,13 +88,14 @@ public class EntityApplication {
         /**********************************/
 
         // Create Witness server
-        WitnessGrpcServerHandler serverHandler = new WitnessGrpcServerHandler(cryptoHandler);
+        WitnessGrpcServer witnessGrpcServer = new WitnessGrpcServer(witnessGrpcPort,
+                cryptoHandler);
 
         // Create Service
         EndorseClaimService endorseClaimService = new EndorseClaimService(cryptoHandler,
                 certificatePath, externalData, currentEntityId, currentEntity);
         try {
-            serverHandler.buildServer(witnessGrpcPort, endorseClaimService);
+            witnessGrpcServer.buildServer(endorseClaimService);
         } catch (InterruptedException e) {
             throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         }

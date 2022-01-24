@@ -33,6 +33,7 @@ public enum ErrorMessage {
     ERROR_CLOSING_ENTITIES_FILE("Error closing Entities file"),
     ERROR_READING_CERTIFICATE("Error reading certificate file"),
     ERROR_CREATING_CERTIFICATE("Error creating Certificate file"),
+    ERROR_GETTING_KEY_FILE("Error getting key file"),
 
     // Database errors
     DATABASE_CONNECTION_EXCEPTION("Error creating Database connection"),

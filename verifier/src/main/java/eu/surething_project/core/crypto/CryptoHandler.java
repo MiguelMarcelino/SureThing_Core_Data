@@ -1,6 +1,9 @@
 package eu.surething_project.core.crypto;
 
 import eu.surething_project.core.config.PropertiesReader;
+import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.exceptions.VerifierException;
+import eu.surething_project.core.grpc.EndorseClaimGrpc;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -132,5 +135,24 @@ public class CryptoHandler {
         Cipher c = Cipher.getInstance(cryptoAlg);
         c.init(Cipher.DECRYPT_MODE, key);
         return c.doFinal(encryptedData);
+    }
+
+    public File getCertFile() {
+        File certFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
+                entityId + ".crt");
+        if(!certFile.exists()) {
+            throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+        }
+        return certFile;
+    }
+
+    public File getPrivateKeyFile() {
+        File privKeyFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
+                "key_" + entityId + ".pem");
+        if(!privKeyFile.exists()) {
+            throw new VerifierException(ErrorMessage.ERROR_GETTING_KEY_FILE);
+        }
+
+        return privKeyFile;
     }
 }

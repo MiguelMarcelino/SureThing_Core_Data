@@ -1,6 +1,8 @@
 package eu.surething_project.core.crypto;
 
 import eu.surething_project.core.config.PropertiesReader;
+import eu.surething_project.core.exceptions.EntityException;
+import eu.surething_project.core.exceptions.ErrorMessage;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -152,4 +154,42 @@ public class CryptoHandler {
         return c.doFinal(data);
     }
 
+    public File getCertFile() {
+        File certFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
+                entityId + ".crt");
+        if(!certFile.exists()) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+        }
+        return certFile;
+    }
+
+    public File getRootCertificate() {
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage +
+                "/root", "rootCA.crt");
+        if(!certFile.exists()) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+        }
+        return certFile;
+    }
+
+    public File getPrivateKeyFile() {
+        File privKeyFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
+                "key_" + entityId + ".pem");
+        if(!privKeyFile.exists()) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_KEY_FILE);
+        }
+
+        return privKeyFile;
+    }
+
+    public File getExternalCertificate(String witnessId) {
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/" +
+                witnessId, witnessId + ".crt");
+        System.out.println(certFile.getAbsolutePath());
+        if(!certFile.exists()) {
+            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+        }
+
+        return certFile;
+    }
 }

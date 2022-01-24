@@ -6,11 +6,11 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import eu.surething_project.core.location_simulation.Entity;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
+import io.grpc.*;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -45,10 +45,20 @@ public class ProverWitnessCommHandler {
     }
 
     private ManagedChannel buildChannel(Entity entity) {
-        String target = entity.getAddress() + ":" + entity.getPort();
-
-        return ManagedChannelBuilder.forTarget(target)
-                .usePlaintext()
+        File certFile = cryptoHandler.getCertFile();
+//        File certFile = cryptoHandler.getExternalCertificate("witness");
+        File keyFile = cryptoHandler.getPrivateKeyFile();
+        File rootCACert = cryptoHandler.getRootCertificate();
+        TlsChannelCredentials.Builder tlsBuilder = TlsChannelCredentials.newBuilder();
+        try {
+//            tlsBuilder.keyManager(certFile, keyFile);
+            tlsBuilder.trustManager(rootCACert);
+        } catch (IOException e) {
+            throw new EntityException(ErrorMessage.ERROR_CREATING_CHANNEL);
+        }
+        return Grpc.newChannelBuilderForAddress(
+                        entity.getAddress(), entity.getPort(), tlsBuilder.build())
                 .build();
     }
 }
+

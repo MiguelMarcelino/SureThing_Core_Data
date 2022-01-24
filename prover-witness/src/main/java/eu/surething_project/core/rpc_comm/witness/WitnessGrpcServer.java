@@ -1,9 +1,10 @@
 package eu.surething_project.core.rpc_comm.witness;
 
 
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import eu.surething_project.core.crypto.CryptoHandler;
+import io.grpc.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -15,12 +16,31 @@ public class WitnessGrpcServer {
 
     private int serverPort;
 
-    public WitnessGrpcServer(int port){
+    private CryptoHandler cryptoHandler;
+
+    public WitnessGrpcServer(int port, CryptoHandler cryptoHandler){
         this.serverPort = port;
+        this.cryptoHandler = cryptoHandler;
+    }
+
+    public void buildServer(EndorseClaimService endorseClaimService) throws InterruptedException {
+        try {
+            start(endorseClaimService);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start(EndorseClaimService endorseClaimService) throws IOException {
-        this.server = ServerBuilder.forPort(serverPort)
+        File certChainFile = cryptoHandler.getCertFile();
+        File privateKeyFile = cryptoHandler.getPrivateKeyFile();
+//        TlsServerCredentials.Builder tlsBuilder = TlsServerCredentials.newBuilder()
+//                .keyManager(certChainFile, privateKeyFile);
+        ServerCredentials credentials = TlsServerCredentials.create(certChainFile, privateKeyFile);
+//        tlsBuilder.trustManager(cryptoHandler.getRootCertificate());
+//        tlsBuilder.clientAuth(TlsServerCredentials.ClientAuth.REQUIRE);
+
+        this.server = Grpc.newServerBuilderForPort(serverPort, credentials)
                 .addService(endorseClaimService)
                 .build()
                 .start();

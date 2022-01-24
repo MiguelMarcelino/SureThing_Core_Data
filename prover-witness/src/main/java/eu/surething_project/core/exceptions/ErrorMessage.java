@@ -8,6 +8,7 @@ public enum ErrorMessage {
     LOCATION_CLAIM_SEND_ERROR("There was an error when sending a LocationClaim from prover to witness"),
     LOCATION_PROOF_SEND_ERROR("There was an error when sending a LocationProof from prover to verifier"),
     INVALID_PROTOBUF_DATA("Invalid Protocol Buffer data"),
+    ERROR_CREATING_CHANNEL("Error creating gRPC channel"),
 
     // Properties errors
     ERROR_READING_PROPERTIES("Error reading properties file"),
@@ -32,7 +33,8 @@ public enum ErrorMessage {
     ERROR_READING_ENTITIES_FILE("Error Reading Entities file"),
     ERROR_CLOSING_ENTITIES_FILE("Error closing Entities file"),
     ERROR_READING_CERTIFICATE("Error reading certificate file"),
-    ERROR_CREATING_CERTIFICATE("Error creating Certificate file");
+    ERROR_CREATING_CERTIFICATE("Error creating Certificate file"),
+    ERROR_GETTING_KEY_FILE("Error getting key file");
 
     public final String message;
 

@@ -41,4 +41,12 @@ public class Entity {
     public String getCompleteAddress() {
         return address + ":" + port;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String currentEntityId) {
+        this.id = currentEntityId;
+    }
 }
