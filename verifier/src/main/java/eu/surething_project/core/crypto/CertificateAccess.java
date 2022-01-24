@@ -71,4 +71,13 @@ public class CertificateAccess {
         }
         return true;
     }
+
+    public static boolean checkCertificateExists(String path, String filename) {
+        File file;
+        file = new File(path + "/" + filename, filename + ".crt");
+        if (file.exists()) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -74,6 +74,9 @@ public class LocationProofVerifier {
 
         // Create Certificate if necessary
         boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, proverId, certData);
+        if (!certFileCreate) {
+            throw new VerifierException(ErrorMessage.ERROR_CREATING_CERTIFICATE);
+        }
 
         // create Certificate and verify validity
         cryptoHandler.verifyCertificate(proverId);
@@ -116,10 +119,10 @@ public class LocationProofVerifier {
 
         boolean isValid;
 
-        // Create Certificate if necessary
-        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, witnessId, certData);
-        if (!certFileCreate) {
-            throw new VerifierException(ErrorMessage.ERROR_CREATING_CERTIFICATE);
+        // Get Witness Certificate (we assume that the verifier already has witness certificates)
+        boolean certFileExists = CertificateAccess.checkCertificateExists(externalData, witnessId);
+        if (!certFileExists) {
+            throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
 
         // create Certificate and verify validity
