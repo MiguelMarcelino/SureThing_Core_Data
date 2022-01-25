@@ -26,6 +26,17 @@ public class LocationCertificateVerifier {
         this.externalData = externalData;
     }
 
+    /**
+     * Verifies Certificate Validity
+     * @param sentNonce
+     * @param locationCertificate
+     * @throws FileNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     * @throws NoSuchProviderException
+     */
     public void verifyCertificate(long sentNonce, LocationCertificate locationCertificate)
             throws FileNotFoundException, CertificateException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException, NoSuchProviderException {

@@ -1,10 +1,8 @@
 package eu.surething_project.core.rpc_comm.prover;
 
-import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
-import eu.surething_project.core.grpc.LocationEndorsement;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 
@@ -26,6 +24,18 @@ public class LocationEndorsementVerifier {
         this.externalData = externalData;
     }
 
+    /**
+     * Verifier sent nonce
+     *
+     * @param sentNonce
+     * @param signedLocationEndorsement
+     * @throws FileNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     * @throws NoSuchProviderException
+     */
     public void verifyEndorsement(long sentNonce, SignedLocationEndorsement signedLocationEndorsement)
             throws FileNotFoundException, CertificateException, NoSuchAlgorithmException,
             SignatureException, InvalidKeyException, NoSuchProviderException {

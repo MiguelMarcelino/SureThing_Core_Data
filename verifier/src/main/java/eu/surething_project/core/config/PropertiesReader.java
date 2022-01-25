@@ -8,23 +8,24 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * Courtesy of: https://www.baeldung.com/java-accessing-maven-properties
- */
 public class PropertiesReader {
+
+    private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
+
+    private static final String DEBUG_PROPERTY = System.getProperty("detailedDebugMode");
 
     private static Properties properties;
 
-    public PropertiesReader(String filename) {
-        loadProperties(filename);
+    static {
+        properties = loadProperties();
     }
 
-    private void loadProperties(String fileName) {
-        Properties prop = null;
+    private static Properties loadProperties() {
+        Properties prop;
         FileInputStream fis = null;
 
         try {
-            fis = new FileInputStream(fileName);
+            fis = new FileInputStream(PROPERTIES);
             prop = new Properties();
             prop.load(fis);
         } catch (FileNotFoundException e) {
@@ -41,10 +42,16 @@ public class PropertiesReader {
             }
         }
 
-        properties = prop;
+        return prop;
     }
 
-    public String getProperty(String propertyName) {
+    public static String getProperty(String propertyName) {
         return properties.getProperty(propertyName);
+    }
+
+    public static boolean getDebugProperty() {
+        // Use with -DdetailedDebugMode=true
+        return DEBUG_PROPERTY != null &&
+                "true".equalsIgnoreCase(DEBUG_PROPERTY);
     }
 }

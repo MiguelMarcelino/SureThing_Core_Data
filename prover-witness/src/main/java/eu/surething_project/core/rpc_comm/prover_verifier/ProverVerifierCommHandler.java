@@ -7,7 +7,6 @@ import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationProof;
 import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.TlsChannelCredentials;
 
 import java.io.File;
@@ -20,6 +19,9 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Handles communication between prover and verifier
+ */
 public class ProverVerifierCommHandler {
 
     private CryptoHandler cryptoHandler;
@@ -29,10 +31,10 @@ public class ProverVerifierCommHandler {
     }
 
     /**
-     * Sends the LocationEndorsement List to the Verifier
+     * Sends the LocationProof to the Verifier and receives a certificate
      *
      * @param proof - The proof to send
-     * @return
+     * @return - returned data from verifier
      * @throws InterruptedException
      */
     public LocationCertificate sendDataToVerifier(SignedLocationProof proof,
@@ -53,9 +55,11 @@ public class ProverVerifierCommHandler {
     }
 
     /**
-     * Builds a channel to communicate with the verifier
+     * Builds gRPC channel with mTLS to communicate with Verifier
      *
-     * @return - a new Channel
+     * @param address - channel address
+     * @param port    - channel port
+     * @return
      */
     private ManagedChannel buildChannel(String address, int port) {
         File certFile = cryptoHandler.getCertFile();
@@ -70,7 +74,7 @@ public class ProverVerifierCommHandler {
         }
 
         return Grpc.newChannelBuilderForAddress(
-                address, port, tlsBuilder.build())
+                        address, port, tlsBuilder.build())
                 .build();
     }
 }

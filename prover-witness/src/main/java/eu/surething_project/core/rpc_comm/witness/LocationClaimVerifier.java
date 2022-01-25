@@ -2,6 +2,8 @@ package eu.surething_project.core.rpc_comm.witness;
 
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.exceptions.EntityException;
+import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.LocationClaim;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationClaim;
@@ -22,13 +24,14 @@ public class LocationClaimVerifier {
 
     public LocationClaimVerifier(CryptoHandler cryptoHandler, String certPath, String externalData,
                                  String witnessId, Entity currEntity) {
-        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, certPath, witnessId, currEntity);
+        this.endorsementBuilder = new LocationEndorsementBuilder(cryptoHandler, certPath,
+                witnessId, currEntity);
         this.cryptoHandler = cryptoHandler;
         this.externalData = externalData;
     }
 
     /**
-     * Verifies if a location claim is sent from the entity claiming to be the prover
+     * Verifies the location claim data sent by the prover
      *
      * @param signedLocationClaim
      * @return
@@ -49,7 +52,11 @@ public class LocationClaimVerifier {
         LocationClaim locClaim = signedLocationClaim.getClaim();
 
         // Create Certificate if necessary
-        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
+        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData,
+                externalEntityId, certData);
+        if (!certFileCreate) {
+            throw new EntityException(ErrorMessage.ERROR_CREATING_CERTIFICATE);
+        }
 
         // create Certificate and verify validity
         cryptoHandler.verifyCertificate(externalEntityId);

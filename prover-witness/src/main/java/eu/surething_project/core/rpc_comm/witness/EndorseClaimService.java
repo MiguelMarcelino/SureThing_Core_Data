@@ -9,9 +9,6 @@ import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import eu.surething_project.core.location_simulation.Entity;
 import io.grpc.stub.StreamObserver;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
 import java.security.*;
 import java.security.cert.CertificateException;

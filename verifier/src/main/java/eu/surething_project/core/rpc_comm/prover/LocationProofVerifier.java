@@ -3,6 +3,7 @@ package eu.surething_project.core.rpc_comm.prover;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
+import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.database.DatabaseAccessManagement;
@@ -24,12 +25,13 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LocationProofVerifier {
 
     private final CryptoHandler cryptoHandler;
 
-    private static final int minEndorsementApproval = 1;
+    private static int minEndorsementApproval;
 
     private LocationCertificateBuilder certificateBuilder;
 
@@ -43,9 +45,14 @@ public class LocationProofVerifier {
         this.cryptoHandler = cryptoHandler;
         this.externalData = externalData;
         this.dbAccessMgmt = dbAccessMgmt;
+        this.minEndorsementApproval = Integer.parseInt(
+                PropertiesReader.getProperty("entity.min_endorsement_approval"));
     }
 
     /**
+     * Verifies the received Location Proof. It verifies signature validity,
+     * both of LocationProof and the endorsements. It also verifies data validity.
+     *
      * @param locationProof
      * @return
      */
@@ -55,9 +62,16 @@ public class LocationProofVerifier {
             InvalidKeyException, FileNotFoundException, CertificateException, NoSuchProviderException {
         LocationProof proof = locationProof.getVerification();
 
-        // Debugging
-        System.out.println("Received proof with id: " + proof.getProofId());
-        System.out.println("ID of attached Location claim: " + proof.getLocClaim().getClaimId());
+        // DEBUG
+        if (PropertiesReader.getDebugProperty()) {
+            System.out.println("------------------");
+            System.out.println("ID of Location Proof: " + proof.getProofId());
+            System.out.println("ID of attached Location claim: " + proof.getLocClaim().getClaimId());
+            System.out.println("IDs of attached Location Endorsements: " +
+                    proof.getLocationEndorsementsList().stream()
+                            .map(x -> x.getEndorsement().getEndorsementId())
+                            .collect(Collectors.toList()));
+        }
 
         // Get list Endorsements
         List<SignedLocationEndorsement> endorsementList = proof.getLocationEndorsementsList();
@@ -89,29 +103,49 @@ public class LocationProofVerifier {
 
         // verify proof with last received proof
         boolean verifyEndorsements = true;
-        LocationClaimData lastReceivedClaim = dbAccessMgmt.getGetClaimByProverId(proverId);
+        LocationClaimData lastReceivedClaim = dbAccessMgmt.getLastClaimByProverId(proverId);
+        LocationProofData lastReceivedProof = dbAccessMgmt.getProofById(lastReceivedClaim.getProofId());
         if (lastReceivedClaim != null) {
+            // Get latitude and longitude
             LatLng latLngClaim = getLatLngFromLocation(claim.getLocation());
             double latitudeClaim = latLngClaim.getLatitude();
             double longitudeClaim = latLngClaim.getLongitude();
             double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
                     lastReceivedClaim.getLatitude(), lastReceivedClaim.getLongitude());
 
+            // get time
+            double lastProofTime = lastReceivedProof.getTimeInSeconds();
+            double currentTime = System.currentTimeMillis();
+            double timeDiff = currentTime - lastProofTime;
+
+            // DEBUG
+            if (PropertiesReader.getDebugProperty()) {
+                System.out.println("Distance between current Proof and last proof: "
+                        + distance);
+                System.out.println("Time difference between current Proof and last proof: "
+                        + timeDiff);
+            }
+
             // Only verify endorsements if prover is in range of last location
-            if (distance > 5) { // TODO: Consider time
+            if (timeDiff < 30000 && distance > 4) {
                 verifyEndorsements = false;
             }
         }
 
         if (verifyEndorsements) {
             for (SignedLocationEndorsement endorsement : endorsementList) {
-                boolean isValid = validateLocationEndorsement(endorsement, claim);
+                boolean isValid = validateLocationData(endorsement, claim);
                 if (isValid) {
                     LocationEndorsement locEndorse = endorsement.getEndorsement();
                     approvedEndorsements.add(locEndorse);
                     endorsementIds.add(locEndorse.getEndorsementId());
                 }
             }
+        }
+
+        // DEBUG
+        if (PropertiesReader.getDebugProperty()) {
+            System.out.println("IDs of approved Endorsements: " + endorsementIds);
         }
 
         // Verify if there are enough endorsements
@@ -129,8 +163,8 @@ public class LocationProofVerifier {
      *
      * @param signedLocationEndorsement
      */
-    private boolean validateLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement,
-                                                LocationClaim claim)
+    private boolean validateLocationData(SignedLocationEndorsement signedLocationEndorsement,
+                                         LocationClaim claim)
             throws NoSuchAlgorithmException, InvalidKeyException, SignatureException,
             FileNotFoundException, CertificateException, NoSuchProviderException {
         // Get signed data
@@ -145,7 +179,7 @@ public class LocationProofVerifier {
         boolean isValid;
 
         // Get Witness Certificate (we assume that the verifier already has witness certificates)
-        boolean certFileExists = CertificateAccess.checkCertificateExists(externalData, witnessId);
+        boolean certFileExists = CertificateAccess.checkFileExists(externalData, witnessId);
         if (!certFileExists) {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
@@ -166,6 +200,8 @@ public class LocationProofVerifier {
     }
 
     /**
+     * Checks the validity of the provided Location data
+     *
      * @param locEndorsement
      * @param locClaim
      */
@@ -173,9 +209,17 @@ public class LocationProofVerifier {
         // Check if timestamp is not old when compared to locClaim
         double t1 = getSeconds(locClaim.getTime());
         double t2 = getSeconds(locEndorsement.getTime());
+
         // Assuming endorse happens after claim
-        if ((t2 - t1) > 20) {
+        if ((t2 - t1) > 20000) {
             return false;
+        }
+
+        // DEBUG
+        if (PropertiesReader.getDebugProperty()) {
+            System.out.println("CHECK DATA t1: " + t1);
+            System.out.println("CHECK DATA t2: " + t2);
+            System.out.println("CHECK DATA diff: " + (t2-t1));
         }
 
         // Check location
@@ -189,6 +233,13 @@ public class LocationProofVerifier {
 
         double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
                 latitudeEvidence, longitudeEvidence);
+
+        // DEBUG
+        if (PropertiesReader.getDebugProperty()) {
+            System.out.println("Distance between Proof and Endorsement: "
+                    + distance);
+        }
+
         // difference of more than 200 meters results in proof rejection
         if (distance > 0.2) {
             return false;
@@ -220,24 +271,26 @@ public class LocationProofVerifier {
         double latitudeClaim = latLngClaim.getLatitude();
         double longitudeClaim = latLngClaim.getLongitude();
         LocationClaimData claimData = new LocationClaimData(claim.getClaimId(), claim.getProverId(),
-                latitudeClaim, longitudeClaim, claim.getTime().getRelativeToEpoch().getTimeValue(),
+                latitudeClaim, longitudeClaim, getSeconds(claim.getTime()),
                 proof.getProofId());
 
         // Build data
         LocationProofData data = new LocationProofData(proof.getProofId(),
-                proof.getTime().getRelativeToEpoch().getTimeValue(), claimData, endorsementData);
+                System.currentTimeMillis(), claimData, endorsementData);
 
         // Schedule database write
         dbAccessMgmt.addProofData(data);
     }
 
     /**
+     * Get time in seconds
+     *
      * @param time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
      * @return
      */
-    private double getSeconds(Time time) {
+    private long getSeconds(Time time) {
         Time.TimeCase timeCase = time.getTimeCase();
-        double seconds = 0.0;
+        long seconds = 0;
         Timestamp timestamp = null;
         switch (timeCase) {
             case TIMESTAMP:

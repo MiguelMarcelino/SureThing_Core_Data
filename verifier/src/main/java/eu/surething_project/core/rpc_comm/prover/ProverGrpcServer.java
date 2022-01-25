@@ -1,7 +1,9 @@
 package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import io.grpc.*;
+import io.grpc.Grpc;
+import io.grpc.Server;
+import io.grpc.TlsServerCredentials;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +24,12 @@ public class ProverGrpcServer {
         this.cryptoHandler = cryptoHandler;
     }
 
+    /**
+     * Build gRPC server
+     *
+     * @param certifyClaimService
+     * @throws InterruptedException
+     */
     public void buildServer(CertifyClaimService certifyClaimService)
             throws InterruptedException {
         try {
@@ -32,6 +40,12 @@ public class ProverGrpcServer {
         blockUntilShutdown();
     }
 
+    /**
+     * Starts gRPC server
+     *
+     * @param certifyClaimService
+     * @throws IOException
+     */
     private void start(CertifyClaimService certifyClaimService) throws IOException {
         File certChainFile = cryptoHandler.getCertFile();
         File privateKeyFile = cryptoHandler.getPrivateKeyFile();
@@ -58,6 +72,9 @@ public class ProverGrpcServer {
         }
     }
 
+    /**
+     * Adds shutdown hook for graceful shutdown
+     */
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -74,6 +91,11 @@ public class ProverGrpcServer {
         });
     }
 
+    /**
+     * Stops gRPC server
+     *
+     * @throws InterruptedException
+     */
     private void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);

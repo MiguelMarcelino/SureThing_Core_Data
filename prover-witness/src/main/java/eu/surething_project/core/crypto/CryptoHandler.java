@@ -4,10 +4,6 @@ import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,14 +23,14 @@ public class CryptoHandler {
     private String certificateRepository;
     private String entityExternalStorage;
 
-    public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
+    public CryptoHandler(String entityID, String keystoreName, String ksPassword)
             throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
         // Read Properties
-        entityStorage = prop.getProperty("entity.storage");
-        securityStorage = prop.getProperty("entity.storage.security");
-        certificateRepository = prop.getProperty("entity.storage.certificates");
-        entityExternalStorage = prop.getProperty("entity.storage.external");
+        entityStorage = PropertiesReader.getProperty("entity.storage");
+        securityStorage = PropertiesReader.getProperty("entity.storage.security");
+        certificateRepository = PropertiesReader.getProperty("entity.storage.certificates");
+        entityExternalStorage = PropertiesReader.getProperty("entity.storage.external");
 
         // Setup keystore
         this.ks = KeyStore.getInstance("JCEKS");
@@ -45,7 +41,6 @@ public class CryptoHandler {
         this.ks = KeyStore.getInstance("JCEKS");
         this.ks.load(new FileInputStream(keystoreFile),
                 ksPassword.toCharArray());
-
     }
 
     /**
@@ -105,18 +100,29 @@ public class CryptoHandler {
         return sig.verify(signedData);
     }
 
+    /**
+     * Verifies Certificate Validity
+     *
+     * @param externalEntity
+     * @throws CertificateException
+     * @throws FileNotFoundException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     * @throws NoSuchProviderException
+     */
     public void verifyCertificate(String externalEntity) throws CertificateException,
             FileNotFoundException, NoSuchAlgorithmException, SignatureException, InvalidKeyException,
             NoSuchProviderException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         // Get root CA certificate
-        File rootCACert = new File(entityStorage + "/" + entityId + "/"  + entityExternalStorage
+        File rootCACert = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage
                 + "/root", "rootCA.crt");
         Certificate rootCert = cf
                 .generateCertificate(new FileInputStream(rootCACert));
 
         // Get user certificate
-        File certFile = new File(entityStorage + "/" + entityId + "/" +  entityExternalStorage + "/"
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/"
                 + externalEntity, externalEntity + ".crt");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
@@ -125,71 +131,46 @@ public class CryptoHandler {
     }
 
     /**
-     * Encrypts data for sending
+     * Gets certificate file of current entity
      *
-     * @param data
-     * @param certName
-     * @param cryptoAlg
      * @return
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws FileNotFoundException
-     * @throws CertificateException
-     * @throws InvalidKeyException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
      */
-    public byte[] encryptDataAssym(byte[] data, String certName, String cryptoAlg)
-            throws NoSuchAlgorithmException, NoSuchPaddingException,
-            FileNotFoundException, CertificateException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException {
-        CertificateFactory cf = CertificateFactory.getInstance("X509");
-        File certFile = new File(entityStorage + entityId + certificateRepository,
-                certName + "_certificate.cer");
-        Certificate cert = cf
-                .generateCertificate(new FileInputStream(certFile));
-
-        Cipher c = Cipher.getInstance(cryptoAlg);
-        c.init(Cipher.ENCRYPT_MODE, cert.getPublicKey());
-        return c.doFinal(data);
-    }
-
     public File getCertFile() {
         File certFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
                 entityId + ".crt");
-        if(!certFile.exists()) {
+        if (!certFile.exists()) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
         return certFile;
     }
 
+    /**
+     * Gets certificate of root CA
+     *
+     * @return
+     */
     public File getRootCertificate() {
         File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage +
                 "/root", "rootCA.crt");
-        if(!certFile.exists()) {
+        if (!certFile.exists()) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
         return certFile;
     }
 
+    /**
+     * gets Private key file of current entity
+     *
+     * @return
+     */
     public File getPrivateKeyFile() {
         File privKeyFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
                 "key_" + entityId + ".pem");
-        if(!privKeyFile.exists()) {
+        if (!privKeyFile.exists()) {
             throw new EntityException(ErrorMessage.ERROR_GETTING_KEY_FILE);
         }
 
         return privKeyFile;
     }
 
-//    public File getExternalCertificate(String witnessId) {
-//        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/" +
-//                witnessId, witnessId + ".crt");
-//        System.out.println(certFile.getAbsolutePath());
-//        if(!certFile.exists()) {
-//            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
-//        }
-//
-//        return certFile;
-//    }
 }

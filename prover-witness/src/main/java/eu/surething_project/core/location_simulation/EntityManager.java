@@ -1,14 +1,22 @@
 package eu.surething_project.core.location_simulation;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.InvalidProtocolBufferException;
 import eu.surething_project.core.config.AddressValidator;
+import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.grpc.LocationEndorsement;
+import eu.surething_project.core.grpc.google.type.LatLng;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class EntityManager {
+
+    private static final Logger logger = Logger.getLogger(EntityManager.class.getName());
 
     private List<Entity> entities;
     private Entity currentEntity;
@@ -44,7 +52,8 @@ public class EntityManager {
                 entities.add(entity);
             }
 
-            System.out.println("Successfully finished reading entity data.");
+
+            logger.info("Successfully finished reading entity data.");
         } catch (FileNotFoundException e) {
             throw new EntityException(ErrorMessage.ERROR_READING_ENTITIES_FILE, e);
         } catch (IOException e) {
@@ -63,6 +72,11 @@ public class EntityManager {
         }
     }
 
+    /**
+     * Creates an entity from its string representation
+     * @param entityStr - String representation of entity
+     * @return
+     */
     private Entity createEntityFromStr(String entityStr) {
         String[] splitInfo = entityStr.split(" ");
         String entityId = splitInfo[0];
@@ -107,7 +121,13 @@ public class EntityManager {
             double distance = DistanceCalculator.haversineFormula(latLngCurr.getLatitude(),
                     latLngCurr.getLongitude(), latLngEntity.getLatitude(),
                     latLngEntity.getLongitude());
-            if (distance < 5) { // 5km is too much (decrease later)
+
+            // DEBUG
+            if(PropertiesReader.getDebugProperty()) {
+                System.out.println("Distance to witness: " + distance);
+            }
+
+            if (distance < 0.2) {
                 entitiesInRange.add(entity);
             }
         }
@@ -117,12 +137,48 @@ public class EntityManager {
     /**
      * Simulates entity location updates
      */
-    public void updateEntityLocation() {
+    public void updateEntityLocation(LocationEndorsement endorsement) {
+        String receivedId = endorsement.getWitnessId();
+        LatLng latLng = getLatLngFromEvidence(endorsement.getEvidenceType(), endorsement.getEvidence());
         for (Entity entity : entities) {
-            LatLngPair latLngPair = entity.getLatLngPair();
-            LocationSimulator.genLatLngCoordinates(latLngPair.getLatitude(),
-                    latLngPair.getLongitude(), 0.00005);
-            entity.setLatLongPair(latLngPair);
+            if(entity.getId().equals(receivedId)) {
+                LatLngPair latLngPair = new LatLngPair(latLng.getLatitude(), latLng.getLongitude());
+                entity.setLatLongPair(latLngPair);
+                break;
+            }
         }
+    }
+
+    /**
+     * Simulates updating current entity Location
+     */
+    public void simulateCurrentEntityLocation() {
+        LatLngPair latLngPair = currentEntity.getLatLngPair();
+        LatLngPair pair = LocationSimulator.genLatLngCoordinates(latLngPair.getLatitude(),
+                latLngPair.getLongitude(), 0.000005);
+        currentEntity.setLatLongPair(pair);
+    }
+
+    /**
+     * Gets LatLng from evidence
+     *
+     * @param evidenceType
+     * @param evidence
+     * @return
+     */
+    private LatLng getLatLngFromEvidence(String evidenceType, Any evidence) {
+        LatLng latLng = null;
+        String expectedType = "eu.surething_project.core.grpc.google.type.LatLng";
+        try {
+            if (evidenceType == expectedType) {
+                System.err.println("Expected evidence of type LatLng, " +
+                        "but provided was: " + evidenceType);
+            }
+            latLng = evidence.unpack(LatLng.class);
+
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        }
+        return latLng;
     }
 }

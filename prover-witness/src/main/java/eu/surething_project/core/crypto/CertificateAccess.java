@@ -7,6 +7,13 @@ import java.io.*;
 
 public class CertificateAccess {
 
+    /**
+     * Gets certificate content as bytes for sending
+     *
+     * @param path     - path of certificate file
+     * @param filename - name of certificate file
+     * @return - certificate content in bytes
+     */
     public static byte[] getCertificateContentAsBytes(String path, String filename) {
         FileInputStream fis = null;
         File file;
@@ -35,22 +42,23 @@ public class CertificateAccess {
     }
 
     /**
+     * Creates certificate file
      *
-     * @param path
-     * @param filename
-     * @param content
+     * @param path     - path to file
+     * @param filename - name of certificate file
+     * @param content  - contents of certificate
      * @return - true if the certificate was created
      */
     public static boolean createCertificateFile(String path, String filename, byte[] content) {
         FileOutputStream fos = null;
         File file;
-        try{
+        try {
             file = new File(path + "/" + filename, filename + ".crt");
             if (file.exists()) {
                 return true;
             }
 
-            // Create directories leading up to file
+            // Create directories leading up to file if necessary
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
@@ -70,5 +78,21 @@ public class CertificateAccess {
             }
         }
         return true;
+    }
+
+    /**
+     * Checks if a file exists
+     *
+     * @param path
+     * @param filename
+     * @return
+     */
+    public static boolean checkFileExists(String path, String filename) {
+        File file;
+        file = new File(path + "/" + filename, filename + ".crt");
+        if (file.exists()) {
+            return true;
+        }
+        return false;
     }
 }

@@ -47,7 +47,7 @@ public class AsyncDatabaseAccess {
 
     public LocationClaimData getLocationProofAsync(String proverId) {
         LocationClaimData claimData = null;
-        Future future = executor.submit(() -> dbAccessMgmt.getGetClaimByProverId(proverId));
+        Future future = executor.submit(() -> dbAccessMgmt.getLastClaimByProverId(proverId));
         while (!future.isDone()) {
             try {
                 Thread.sleep(500);

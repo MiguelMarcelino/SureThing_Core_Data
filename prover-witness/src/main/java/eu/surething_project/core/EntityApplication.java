@@ -31,20 +31,13 @@ public class EntityApplication {
 
     private static final Logger logger = Logger.getLogger(EntityApplication.class.getName());
 
-    private static final String CRYPTO_ALGO = "SHA256withRSA"; // TODO: Request as input
+    private static final String CRYPTO_ALGO = "SHA256withRSA";
 
-    private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
-
-    // TODO:
-    // - Receive and store endorsement (for later use when needed, maybe in a list or HashMap)
-    // - Using nonce for freshness verification (probably before RPC begins)
-    // - How to Broadcast using gRPC? (To multiple witnesses)
     public static void main(String[] args) {
         // Read properties
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        PropertiesReader prop = new PropertiesReader(PROPERTIES);
-        String entityStorage = prop.getProperty("entity.storage");
-        String securityStorage = prop.getProperty("entity.storage.security");
+        logger.info("Working Directory = " + System.getProperty("user.dir"));
+        String entityStorage = PropertiesReader.getProperty("entity.storage");
+        String securityStorage = PropertiesReader.getProperty("entity.storage.security");
 
         // Check the args
         checkArgs(args, securityStorage, entityStorage);
@@ -68,7 +61,7 @@ public class EntityApplication {
         // Create CryptoHandler
         CryptoHandler cryptoHandler;
         try {
-            cryptoHandler = new CryptoHandler(currentEntityId, keystoreName, keystorePassword, prop);
+            cryptoHandler = new CryptoHandler(currentEntityId, keystoreName, keystorePassword);
         } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
             throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         }
@@ -78,14 +71,6 @@ public class EntityApplication {
 
         // Get external Path
         String externalData = entityStorage + "/" + currentEntityId + "/external";
-
-        /**********************************/
-        // Keystore Properties
-        System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
-        System.setProperty("javax.net.ssl.keyStore",
-                entityStorage + "/" + currentEntityId + "/" + securityStorage + "/" + keystoreName + ".jks");
-        System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
-        /**********************************/
 
         // Create Witness server
         WitnessGrpcServer witnessGrpcServer = new WitnessGrpcServer(witnessGrpcPort,
@@ -161,16 +146,19 @@ public class EntityApplication {
                 SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
                         witnessCommHandler, endorsementVerifier);
 
-                if(endorsement == null) {
+                if (endorsement == null) {
                     logger.warning(ErrorMessage.LOCATION_CLAIM_SEND_ERROR.message);
                 } else {
                     // Add endorsement to received endorsements list
                     locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                    entityManager.updateEntityLocation(endorsement.getEndorsement());
                 }
 
-                // Just testing
-                System.out.println("Received endorsement with ID: " +
-                        endorsement.getEndorsement().getEndorsementId());
+                // DEBUG
+                if (PropertiesReader.getDebugProperty()) {
+                    System.out.println("Received endorsement with ID: " +
+                            endorsement.getEndorsement().getEndorsementId());
+                }
             } else if (inputs[0].equals("broadcast_claim")) {
                 // Get entities within range of current entity
                 List<Entity> entities = entityManager.getEntitiesInRange(currentEntity.getLatLngPair());
@@ -181,24 +169,28 @@ public class EntityApplication {
                     SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
                             witnessCommHandler, endorsementVerifier);
 
-                    if(endorsement != null) {
+                    if (endorsement != null) {
                         // Add endorsement to received endorsements list
                         locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                        entityManager.updateEntityLocation(endorsement.getEndorsement());
 
-                        // Just testing
-                        System.out.println("Received endorsement with ID: " +
-                                endorsement.getEndorsement().getEndorsementId());
+
+                        // DEBUG
+                        if (PropertiesReader.getDebugProperty()) {
+                            System.out.println("Received endorsement with ID: " +
+                                    endorsement.getEndorsement().getEndorsementId());
+                        }
+
                     }
                 }
             } else if (inputs[0].equals("send_proof_verifier")) {
                 // send_proof_verifier address:port id
-                // Example: send_proof_verifier localhost:8082 endorsementVerifier
+                // Example: send_proof_verifier localhost:8082
                 // Receive and validate input
                 AddressValidator.validateAddress(inputs[1]);
                 String[] ipValues = inputs[1].split(":");
                 String address = ipValues[0];
                 int port = Integer.parseInt(ipValues[1]);
-                String proverId = inputs[2];
 
                 List<String> historyIds = new ArrayList<>();
 
@@ -210,7 +202,7 @@ public class EntityApplication {
                             proofBuilder);
                     LocationCertificate certificate = sendLocationProof(address, port, proof,
                             verifierCommHandler, certificateVerifier);
-                    if(certificate != null) {
+                    if (certificate != null) {
                         locationDataHandler.addLocationCertificate(claimId, certificate);
                         historyIds.add(claimId);
                     }
@@ -335,6 +327,6 @@ public class EntityApplication {
         System.out.println("Please enter one of the following commands:");
         System.out.println("1. broadcast_claim - Broadcasts a claim to all witnesses in Range");
         System.out.println("2. send_proof_verifier - To send all the proof to the verifier.");
-        System.out.println("   --> Example: send_proof_verifier localhost:8082 endorsementVerifier");
+        System.out.println("   --> Example: send_proof_verifier localhost:8082");
     }
 }

@@ -29,6 +29,18 @@ public class LocationClaimBuilder {
         this.certPath = certPath;
     }
 
+    /**
+     * Builds signed location claim to send to Witness
+     *
+     * @param cryptoAlg
+     * @param latLngPair
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws InvalidKeyException
+     */
     public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg, LatLngPair latLngPair)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
@@ -51,6 +63,13 @@ public class LocationClaimBuilder {
                 .build();
     }
 
+    /**
+     * Create Location claim
+     *
+     * @param latLongPair
+     * @param claimId
+     * @return
+     */
     private LocationClaim buildLocationClaim(LatLngPair latLongPair, String claimId) {
         LocationClaim locationClaim = LocationClaim.newBuilder()
                 .setClaimId(claimId)
@@ -62,6 +81,8 @@ public class LocationClaimBuilder {
                                 .build())
                         .build())
                 .setTime(Time.newBuilder()
+//                        .setRelativeToEpoch(EpochTime.newBuilder()
+//                                .setTimeValue(TimeHandler.getCurrentTimeInMillis()))
                         .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
                         .build())
                 .build();

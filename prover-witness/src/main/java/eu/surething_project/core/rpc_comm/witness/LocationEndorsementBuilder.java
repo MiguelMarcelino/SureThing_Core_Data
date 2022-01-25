@@ -5,17 +5,14 @@ import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.grpc.LocationEndorsement;
 import eu.surething_project.core.grpc.Signature;
-import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.grpc.SignedLocationEndorsement;
+import eu.surething_project.core.grpc.Time;
 import eu.surething_project.core.grpc.google.type.LatLng;
 import eu.surething_project.core.location_simulation.Entity;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.FileNotFoundException;
 import java.security.*;
-import java.security.cert.CertificateException;
 import java.util.UUID;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
@@ -62,6 +59,13 @@ public class LocationEndorsementBuilder {
         return locationEndorsement;
     }
 
+    /**
+     * Builds a location endorsement to send to prover
+     *
+     * @param claimId
+     * @param endorsementId
+     * @return
+     */
     private LocationEndorsement buildLocationEndorsement(String claimId, String endorsementId) {
         //	create location endorsement
         LocationEndorsement locationEndorsement = LocationEndorsement.newBuilder()

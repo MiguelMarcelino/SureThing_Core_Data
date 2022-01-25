@@ -2,7 +2,9 @@ package eu.surething_project.core.rpc_comm.witness;
 
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import io.grpc.*;
+import io.grpc.Grpc;
+import io.grpc.Server;
+import io.grpc.TlsServerCredentials;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,11 +20,17 @@ public class WitnessGrpcServer {
 
     private CryptoHandler cryptoHandler;
 
-    public WitnessGrpcServer(int port, CryptoHandler cryptoHandler){
+    public WitnessGrpcServer(int port, CryptoHandler cryptoHandler) {
         this.serverPort = port;
         this.cryptoHandler = cryptoHandler;
     }
 
+    /**
+     * Builds gRPC server
+     *
+     * @param endorseClaimService
+     * @throws InterruptedException
+     */
     public void buildServer(EndorseClaimService endorseClaimService) throws InterruptedException {
         try {
             start(endorseClaimService);
@@ -31,6 +39,12 @@ public class WitnessGrpcServer {
         }
     }
 
+    /**
+     * Starts gRPC server
+     *
+     * @param endorseClaimService
+     * @throws IOException
+     */
     public void start(EndorseClaimService endorseClaimService) throws IOException {
         File certChainFile = cryptoHandler.getCertFile();
         File privateKeyFile = cryptoHandler.getPrivateKeyFile();
@@ -57,6 +71,9 @@ public class WitnessGrpcServer {
         }
     }
 
+    /**
+     * Adds shutdown hook for graceful shutdown
+     */
     private void addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -73,6 +90,11 @@ public class WitnessGrpcServer {
         });
     }
 
+    /**
+     * Stops gRPC server
+     *
+     * @throws InterruptedException
+     */
     protected void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);

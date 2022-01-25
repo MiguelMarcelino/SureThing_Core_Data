@@ -43,7 +43,7 @@ public class DatabaseAccessManagement {
             "proverId VARCHAR(36) NOT NULL," +
             "latitude DOUBLE NOT NULL," +
             "longitude DOUBLE NOT NULL," +
-            "timeInMillis LONG NOT NULL," +
+            "timeInSeconds DOUBLE NOT NULL," +
             "proofId VARCHAR(36) NOT NULL," +
             "PRIMARY KEY(id)," +
             "FOREIGN KEY (proofId) REFERENCES Proofs(proofId))";
@@ -53,16 +53,17 @@ public class DatabaseAccessManagement {
     private static final String INSERT_ENDORSE_SQL = "INSERT INTO Endorsements (endorsementId, witnessId, claimId, " +
             "latitude, longitude, timeInMillis, proofId) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String INSERT_CLAIM_SQL = "INSERT INTO Claims (claimId, proverId, latitude, " +
-            "longitude, timeInMillis, proofId) VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String GET_PROOF_BY_ID_SQL = "SELECT * FROM Proofs WHERE (proofId = ?);";
+            "longitude, timeInSeconds, proofId) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String GET_PROOF_BY_ID_SQL = "SELECT proofId, timeInMillis FROM Proofs WHERE (proofId = ?)";
     private static final String GET_ENDORSEMENT_BY_ID_SQL = "SELECT * FROM Endorsements WHERE (endorsementId = ?);";
     private static final String GET_CLAIM_BY_ID_SQL = "SELECT * FROM Claims WHERE (claimId = ?);";
     private static final String GET_CLAIM_BY_PROVER_ID_SQL = "SELECT claimId, proverId, latitude, " +
-            "longitude, timeInMillis, proofId FROM Claims c1 " +
-            "NATURAL JOIN" +
-            " (SELECT proverId, MAX(timeInMillis) AS max_time FROM Claims c2" +
-            " GROUP BY c2.proverId) maxval " +
-            "WHERE (proverId = ?)";
+            "longitude, timeInSeconds, proofId " +
+            "FROM Claims c1 " +
+            "WHERE (proverId = ?)" +
+            "AND timeInSeconds = (SELECT MAX(timeInSeconds)" +
+            "   FROM Claims c2 " +
+            "   WHERE c2.proverId = c1.proverId)";
 
     public DatabaseAccessManagement() {
         this.dbConnection = new DatabaseConnection();
@@ -116,7 +117,7 @@ public class DatabaseAccessManagement {
         try {
             updateProof = connection.prepareStatement(INSERT_PROOF_SQL);
             updateProof.setString(1, proof.getProofId());
-            updateProof.setLong(2, proof.getTimeInMillis());
+            updateProof.setLong(2, proof.getTimeInSeconds());
             updateProof.executeUpdate();
 
             // Add locationEndorsements
@@ -141,7 +142,7 @@ public class DatabaseAccessManagement {
             updateClaims.setString(2, claim.getProverId());
             updateClaims.setDouble(3, claim.getLatitude());
             updateClaims.setDouble(4, claim.getLongitude());
-            updateClaims.setLong(5, claim.getTimeInMillis());
+            updateClaims.setDouble(5, claim.getTimeInSeconds());
             updateClaims.setString(6, proof.getProofId()); // Foreign key
             updateClaims.executeUpdate();
         } catch (SQLException e) {
@@ -160,7 +161,7 @@ public class DatabaseAccessManagement {
      * @param proverId
      * @return
      */
-    public LocationClaimData getGetClaimByProverId(String proverId) {
+    public LocationClaimData getLastClaimByProverId(String proverId) {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         Connection connection = dbConnection.connectToDatabase();
@@ -184,6 +185,29 @@ public class DatabaseAccessManagement {
         }
 
         return claimData;
+    }
+
+    public LocationProofData getProofById(String id) {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Connection connection = dbConnection.connectToDatabase();
+        LocationProofData proofData = null;
+        try {
+            stmt = connection.prepareStatement(GET_PROOF_BY_ID_SQL);
+            stmt.setString(1, id);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                proofData = new LocationProofData(rs.getString(1), rs.getLong(2));
+            }
+        } catch (SQLException e) {
+            throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
+        } finally {
+            closeConnection(connection);
+            closeStatement(stmt);
+            closeResultSet(rs);
+        }
+        return proofData;
     }
 
     /**

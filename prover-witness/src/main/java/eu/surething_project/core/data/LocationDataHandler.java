@@ -2,7 +2,6 @@ package eu.surething_project.core.data;
 
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.LocationClaim;
-import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import eu.surething_project.core.location_simulation.Pair;
 
@@ -38,7 +37,7 @@ public class LocationDataHandler {
 
     public void addLocationEndorsement(LocationClaim claim, SignedLocationEndorsement locationEndorsement) {
         String claimId = claim.getClaimId();
-        if(!this.currentEndorsements.containsKey(claimId)) {
+        if (!this.currentEndorsements.containsKey(claimId)) {
             this.currentEndorsements.put(claimId, new ArrayList<>());
         }
         this.currentEndorsements.get(claimId).add(locationEndorsement);
@@ -55,10 +54,11 @@ public class LocationDataHandler {
 
     /**
      * Not sure if needed
+     *
      * @param claimId
      */
     public void sendToHistory(String claimId) {
-        if(this.currentClaims.containsKey(claimId)) {
+        if (this.currentClaims.containsKey(claimId)) {
             this.historyEndorsements.add(new Pair<>(claimId, this.currentEndorsements.get(claimId)));
             this.historyClaims.add(this.currentClaims.get(claimId));
             this.currentEndorsements.remove(claimId);

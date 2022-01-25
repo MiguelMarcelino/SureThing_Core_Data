@@ -4,14 +4,19 @@ import java.util.List;
 
 public class LocationProofData {
     private String proofId;
-    private long timeInMillis;
+    private long timeInSeconds;
     private LocationClaimData claim;
     private List<LocationEndorsementData> endorsements;
 
-    public LocationProofData(String proofId, long timeInMillis, LocationClaimData claim,
+    public LocationProofData(String proofId, long timeInSeconds) {
+        this.proofId = proofId;
+        this.timeInSeconds = timeInSeconds;
+    }
+
+    public LocationProofData(String proofId, long timeInSeconds, LocationClaimData claim,
                              List<LocationEndorsementData> endorsements) {
         this.proofId = proofId;
-        this.timeInMillis = timeInMillis;
+        this.timeInSeconds = timeInSeconds;
         this.claim = claim;
         this.endorsements = endorsements;
     }
@@ -20,8 +25,8 @@ public class LocationProofData {
         return proofId;
     }
 
-    public long getTimeInMillis() {
-        return timeInMillis;
+    public long getTimeInSeconds() {
+        return timeInSeconds;
     }
 
     public LocationClaimData getClaim() {
@@ -30,5 +35,13 @@ public class LocationProofData {
 
     public List<LocationEndorsementData> getEndorsements() {
         return endorsements;
+    }
+
+    public void setClaim(LocationClaimData claim) {
+        this.claim = claim;
+    }
+
+    public void setEndorsements(List<LocationEndorsementData> endorsements) {
+        this.endorsements = endorsements;
     }
 }

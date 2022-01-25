@@ -6,7 +6,9 @@ import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.SignedLocationClaim;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 import eu.surething_project.core.location_simulation.Entity;
-import io.grpc.*;
+import io.grpc.Grpc;
+import io.grpc.ManagedChannel;
+import io.grpc.TlsChannelCredentials;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +31,19 @@ public class ProverWitnessCommHandler {
         this.cryptoHandler = cryptoHandler;
     }
 
+    /**
+     * Sends Signed claim to Witness
+     *
+     * @param claim
+     * @param entity
+     * @return
+     * @throws InterruptedException
+     * @throws FileNotFoundException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     */
     public SignedLocationEndorsement sendWitnessData(SignedLocationClaim claim, Entity entity)
             throws InterruptedException, FileNotFoundException, CertificateException,
             NoSuchAlgorithmException, SignatureException, InvalidKeyException {
@@ -44,6 +59,12 @@ public class ProverWitnessCommHandler {
         return endorsement;
     }
 
+    /**
+     * Builds gRPC channel with mTLS to communicate with Witness
+     *
+     * @param entity - current entity data
+     * @return - new communication channel
+     */
     private ManagedChannel buildChannel(Entity entity) {
         File certFile = cryptoHandler.getCertFile();
         File keyFile = cryptoHandler.getPrivateKeyFile();

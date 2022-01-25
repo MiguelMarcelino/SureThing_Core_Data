@@ -29,6 +29,8 @@ public class LocationCertificateBuilder {
     }
 
     /**
+     * Builds Location Certificate to send to prover
+     *
      * @param claimId
      * @param endorsementLst
      * @return
@@ -57,6 +59,8 @@ public class LocationCertificateBuilder {
     }
 
     /**
+     * Builds location verification
+     *
      * @param claimId
      * @param endorsementLst
      * @return

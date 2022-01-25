@@ -21,7 +21,11 @@ public class VerifierClient {
         blockingStub = CertifyClaimGrpc.newBlockingStub(channel);
     }
 
-
+    /**
+     * Sends Location proof to verifier
+     * @param proof - result from Verifier
+     * @return
+     */
     public LocationCertificate sendProofToVerifier(SignedLocationProof proof) {
         LocationCertificate certificate = null;
         try {

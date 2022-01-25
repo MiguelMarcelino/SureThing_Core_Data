@@ -18,13 +18,10 @@ import java.util.logging.Logger;
 public class VerifierApplication {
 	private static final Logger logger = Logger.getLogger(VerifierApplication.class.getName());
 
-	private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
-
 	public static void main(String[] args) {
 		// Read properties
-		PropertiesReader prop = new PropertiesReader(PROPERTIES);
-		String entityStorage = prop.getProperty("entity.storage");
-		String securityStorage = prop.getProperty("entity.storage.security");
+		String entityStorage = PropertiesReader.getProperty("entity.storage");
+		String securityStorage = PropertiesReader.getProperty("entity.storage.security");
 
 		// Check the args
 		checkArgs(args, entityStorage, securityStorage);
@@ -38,7 +35,7 @@ public class VerifierApplication {
 		// Create CryptoHandler
 		CryptoHandler cryptoHandler;
 		try {
-			cryptoHandler = new CryptoHandler(currentEntityId, keystoreName, keystorePassword, prop);
+			cryptoHandler = new CryptoHandler(currentEntityId, keystoreName, keystorePassword);
 		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}
@@ -49,21 +46,9 @@ public class VerifierApplication {
 		// Get external Path
 		String externalData = entityStorage + "/" + currentEntityId + "/external";
 
-		/**********************************/
-		// Keystore Properties
-//		System.setProperty("javax.net.ssl.keyStoreType", "JCEKS");
-//		System.setProperty("javax.net.ssl.keyStore",
-//				entityStorage + "/" + currentEntityId + "/" + securityStorage + "/" + keystoreName + ".jks");
-//		System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
-		/**********************************/
-
 		// Prepare Database
 		DatabaseAccessManagement dbAccessMgmt = new DatabaseAccessManagement();
 //		AsyncDatabaseAccess databaseWriter = new AsyncDatabaseAccess(dbAccessMgmt);
-
-		// Schedule services
-//		TaskScheduler scheduler = new TaskScheduler(databaseWriter);
-//		scheduler.scheduleTasks();
 
 		// Start Verifier server
 		ProverGrpcServer grpcServer = new ProverGrpcServer(verifierGrpcPort, cryptoHandler);

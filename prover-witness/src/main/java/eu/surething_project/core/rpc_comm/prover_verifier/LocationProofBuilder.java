@@ -28,6 +28,18 @@ public class LocationProofBuilder {
         this.certPath = certPath;
     }
 
+    /**
+     * Builds signed location proof
+     * @param claim
+     * @param endorsementList
+     * @param cryptoAlg
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws UnrecoverableKeyException
+     * @throws KeyStoreException
+     * @throws InvalidKeyException
+     */
     public SignedLocationProof buildSignedLocationProof(LocationClaim claim,
                                                         List<SignedLocationEndorsement> endorsementList,
                                                         String cryptoAlg)
@@ -53,6 +65,13 @@ public class LocationProofBuilder {
                 .build();
     }
 
+    /**
+     * Builds location proof
+     * @param claim
+     * @param endorsementList
+     * @param proofId
+     * @return
+     */
     private LocationProof buildLocationProof(LocationClaim claim,
                                              List<SignedLocationEndorsement> endorsementList, String proofId) {
         return LocationProof.newBuilder()

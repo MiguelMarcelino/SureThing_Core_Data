@@ -3,10 +3,10 @@ package eu.surething_project.core.exceptions;
 import java.util.logging.Logger;
 
 public class VerifierException extends RuntimeException {
-    
-	private static final long serialVersionUID = 1L;
 
-	private static final Logger entityLogger = Logger.getLogger(VerifierException.class.getName());
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger entityLogger = Logger.getLogger(VerifierException.class.getName());
 
     public VerifierException(ErrorMessage errMessage, String classType) {
         super(errMessage.message + " - TYPE: " + classType);

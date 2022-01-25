@@ -8,7 +8,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    protected DatabaseConnection() { }
+    protected DatabaseConnection() {
+    }
 
     protected Connection connectToDatabase() {
         Connection connection;

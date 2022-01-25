@@ -20,13 +20,13 @@ public class TaskScheduler {
     }
 
     public void scheduleTasks() {
-        scheduler.scheduleWithFixedDelay(runScalingPolicy, 5, 5,
+        scheduler.scheduleWithFixedDelay(runUpdateLocation, 5, 5,
                 TimeUnit.SECONDS);
     }
 
-    final Runnable runScalingPolicy = new Runnable() {
+    final Runnable runUpdateLocation = new Runnable() {
         public void run() {
-            entityManager.updateEntityLocation();
+            entityManager.simulateCurrentEntityLocation();
         }
     };
 

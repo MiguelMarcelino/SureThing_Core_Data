@@ -1,7 +1,6 @@
 package eu.surething_project.core.rpc_comm.prover;
 
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.database.AsyncDatabaseAccess;
 import eu.surething_project.core.database.DatabaseAccessManagement;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;

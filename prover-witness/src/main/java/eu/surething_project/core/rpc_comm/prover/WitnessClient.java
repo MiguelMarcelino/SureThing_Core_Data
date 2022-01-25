@@ -1,7 +1,5 @@
 package eu.surething_project.core.rpc_comm.prover;
 
-import eu.surething_project.core.EntityApplication;
-import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.EndorseClaimGrpc;
 import eu.surething_project.core.grpc.SignedLocationClaim;
@@ -11,9 +9,6 @@ import io.grpc.StatusRuntimeException;
 
 import java.util.logging.Logger;
 
-/**
- *
- */
 public class WitnessClient {
 
     private static final Logger logger = Logger.getLogger(WitnessClient.class.getName());
@@ -28,7 +23,8 @@ public class WitnessClient {
     }
 
     /**
-     * Sends a location claim to a witness
+     * Sends a signed location claim to a witness
+     *
      * @param locationClaim
      */
     public SignedLocationEndorsement sendSignedClaimToWitness(SignedLocationClaim locationClaim) {

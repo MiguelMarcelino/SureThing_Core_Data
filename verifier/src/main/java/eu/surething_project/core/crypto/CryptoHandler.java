@@ -3,12 +3,7 @@ package eu.surething_project.core.crypto;
 import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.exceptions.VerifierException;
-import eu.surething_project.core.grpc.EndorseClaimGrpc;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,14 +25,14 @@ public class CryptoHandler {
     private String certificateRepository;
     private String entityExternalStorage;
 
-    public CryptoHandler(String entityID, String keystoreName, String ksPassword, PropertiesReader prop)
+    public CryptoHandler(String entityID, String keystoreName, String ksPassword)
             throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
         // Read Properties
-        entityStorage = prop.getProperty("entity.storage");
-        securityStorage = prop.getProperty("entity.storage.security");
-        certificateRepository = prop.getProperty("entity.storage.certificates");
-        entityExternalStorage = prop.getProperty("entity.storage.external");
+        entityStorage = PropertiesReader.getProperty("entity.storage");
+        securityStorage = PropertiesReader.getProperty("entity.storage.security");
+        certificateRepository = PropertiesReader.getProperty("entity.storage.certificates");
+        entityExternalStorage = PropertiesReader.getProperty("entity.storage.external");
 
         this.ks = KeyStore.getInstance("JCEKS");
         this.ksPassword = ksPassword;
@@ -51,6 +46,7 @@ public class CryptoHandler {
 
     /**
      * Signs data using the Private Key and the given cryptoAlgorithm
+     *
      * @param data - The data to sign
      * @return
      * @throws NoSuchAlgorithmException
@@ -71,7 +67,6 @@ public class CryptoHandler {
     }
 
     /**
-     *
      * @param data
      * @param signedData
      * @param cryptoAlgorithm
@@ -95,18 +90,29 @@ public class CryptoHandler {
         return sig.verify(signedData);
     }
 
+    /**
+     * Verifies Certificate Validity
+     *
+     * @param externalEntity
+     * @throws CertificateException
+     * @throws FileNotFoundException
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     * @throws NoSuchProviderException
+     */
     public void verifyCertificate(String externalEntity) throws CertificateException,
             FileNotFoundException, NoSuchAlgorithmException, SignatureException, InvalidKeyException,
             NoSuchProviderException {
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         // Get root CA certificate
-        File rootCACert = new File(entityStorage + "/" + entityId + "/"  + entityExternalStorage
+        File rootCACert = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage
                 + "/root", "rootCA.crt");
         Certificate rootCert = cf
                 .generateCertificate(new FileInputStream(rootCACert));
 
         // Get user certificate
-        File certFile = new File(entityStorage + "/" + entityId + "/" +  entityExternalStorage + "/"
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/"
                 + externalEntity, externalEntity + ".crt");
         Certificate cert = cf
                 .generateCertificate(new FileInputStream(certFile));
@@ -115,51 +121,43 @@ public class CryptoHandler {
     }
 
     /**
-     * Decrypts data with the private key
-     * @param encryptedData
-     * @param alias
+     * Gets certificate file of current entity
+     *
      * @return
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     * @throws InvalidKeyException
-     * @throws IllegalBlockSizeException
-     * @throws BadPaddingException
      */
-    public byte[] decryptDataAssym(byte[] encryptedData, String alias, String cryptoAlg) throws UnrecoverableKeyException,
-            KeyStoreException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
-            IllegalBlockSizeException, BadPaddingException {
-        PrivateKey key = (PrivateKey) ks.getKey(alias,
-                ksPassword.toCharArray());
-        Cipher c = Cipher.getInstance(cryptoAlg);
-        c.init(Cipher.DECRYPT_MODE, key);
-        return c.doFinal(encryptedData);
-    }
-
     public File getCertFile() {
         File certFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
                 entityId + ".crt");
-        if(!certFile.exists()) {
+        if (!certFile.exists()) {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
         return certFile;
     }
 
+    /**
+     * Gets certificate of root CA
+     *
+     * @return
+     */
     public File getPrivateKeyFile() {
         File privKeyFile = new File(entityStorage + "/" + entityId + "/" + securityStorage,
                 "key_" + entityId + ".pem");
-        if(!privKeyFile.exists()) {
+        if (!privKeyFile.exists()) {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_KEY_FILE);
         }
 
         return privKeyFile;
     }
 
+    /**
+     * gets Private key file of current entity
+     *
+     * @return
+     */
     public File getRootCertificate() {
         File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage +
                 "/root", "rootCA.crt");
-        if(!certFile.exists()) {
+        if (!certFile.exists()) {
             throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
         }
         return certFile;
