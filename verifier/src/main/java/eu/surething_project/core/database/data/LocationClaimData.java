@@ -5,16 +5,16 @@ public class LocationClaimData {
     private String proverId;
     private double latitude;
     private double longitude;
-    private double timeInSeconds;
+    private long timeInSeconds;
     private String proofId;
 
     public LocationClaimData(String claimId, String proverId, double latitude,
-                             double longitude, double timeInSeconds, String proofId) {
+                             double longitude, long timeInMillis, String proofId) {
         this.claimId = claimId;
         this.proverId = proverId;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.timeInSeconds = timeInSeconds;
+        this.timeInSeconds = timeInMillis;
         this.proofId = proofId;
     }
 
@@ -34,7 +34,7 @@ public class LocationClaimData {
         return longitude;
     }
 
-    public double getTimeInSeconds() {
+    public long getTimeInMillis() {
         return timeInSeconds;
     }
 

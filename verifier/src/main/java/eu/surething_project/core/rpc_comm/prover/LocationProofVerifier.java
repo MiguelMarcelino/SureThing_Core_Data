@@ -4,6 +4,7 @@ import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
 import eu.surething_project.core.config.PropertiesReader;
+import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.database.DatabaseAccessManagement;
@@ -104,8 +105,10 @@ public class LocationProofVerifier {
         // verify proof with last received proof
         boolean verifyEndorsements = true;
         LocationClaimData lastReceivedClaim = dbAccessMgmt.getLastClaimByProverId(proverId);
-        LocationProofData lastReceivedProof = dbAccessMgmt.getProofById(lastReceivedClaim.getProofId());
         if (lastReceivedClaim != null) {
+            // get associated proof
+            LocationProofData lastReceivedProof = dbAccessMgmt.getProofById(lastReceivedClaim.getProofId());
+
             // Get latitude and longitude
             LatLng latLngClaim = getLatLngFromLocation(claim.getLocation());
             double latitudeClaim = latLngClaim.getLatitude();
@@ -113,9 +116,9 @@ public class LocationProofVerifier {
             double distance = DistanceCalculator.haversineFormula(latitudeClaim, longitudeClaim,
                     lastReceivedClaim.getLatitude(), lastReceivedClaim.getLongitude());
 
-            // get time
-            double lastProofTime = lastReceivedProof.getTimeInSeconds();
-            double currentTime = System.currentTimeMillis();
+            // Get time from corresponding proof
+            double lastProofTime = lastReceivedProof.getTimeInMillis();
+            double currentTime = TimeHandler.getCurrentTimeInMillis();
             double timeDiff = currentTime - lastProofTime;
 
             // DEBUG
@@ -127,6 +130,7 @@ public class LocationProofVerifier {
             }
 
             // Only verify endorsements if prover is in range of last location
+            // In less than 30 seconds the prover cannot cover a distance larger than 4 km
             if (timeDiff < 30000 && distance > 4) {
                 verifyEndorsements = false;
             }
@@ -207,19 +211,14 @@ public class LocationProofVerifier {
      */
     private boolean checkData(LocationEndorsement locEndorsement, LocationClaim locClaim) {
         // Check if timestamp is not old when compared to locClaim
-        double t1 = getSeconds(locClaim.getTime());
-        double t2 = getSeconds(locEndorsement.getTime());
+        double t1 = getMilliseconds(locClaim.getTime());
+        double t2 = getMilliseconds(locEndorsement.getTime());
 
         // Assuming endorse happens after claim
+        // If endorse happens 20 seconds after claim, assume connection between
+        // Prover and Witness is not stable
         if ((t2 - t1) > 20000) {
             return false;
-        }
-
-        // DEBUG
-        if (PropertiesReader.getDebugProperty()) {
-            System.out.println("CHECK DATA t1: " + t1);
-            System.out.println("CHECK DATA t2: " + t2);
-            System.out.println("CHECK DATA diff: " + (t2-t1));
         }
 
         // Check location
@@ -236,12 +235,18 @@ public class LocationProofVerifier {
 
         // DEBUG
         if (PropertiesReader.getDebugProperty()) {
-            System.out.println("Distance between Proof and Endorsement: "
+            System.out.println("Timestamp claim: " + t1);
+            System.out.println("Timestamp endorsement: " + t2);
+            System.out.println("Difference in milliseconds between endorsement and claim: "
+                    + (t2 - t1));
+            System.out.println("Distance between Claim and Endorsement: "
                     + distance);
+            if (distance >= 0.2)
+                System.out.print(" --> Rejected");
         }
 
         // difference of more than 200 meters results in proof rejection
-        if (distance > 0.2) {
+        if (distance >= 0.2) {
             return false;
         }
 
@@ -271,12 +276,12 @@ public class LocationProofVerifier {
         double latitudeClaim = latLngClaim.getLatitude();
         double longitudeClaim = latLngClaim.getLongitude();
         LocationClaimData claimData = new LocationClaimData(claim.getClaimId(), claim.getProverId(),
-                latitudeClaim, longitudeClaim, getSeconds(claim.getTime()),
+                latitudeClaim, longitudeClaim, getMilliseconds(claim.getTime()),
                 proof.getProofId());
 
         // Build data
         LocationProofData data = new LocationProofData(proof.getProofId(),
-                System.currentTimeMillis(), claimData, endorsementData);
+                TimeHandler.getCurrentTimeInMillis(), claimData, endorsementData);
 
         // Schedule database write
         dbAccessMgmt.addProofData(data);
@@ -288,26 +293,26 @@ public class LocationProofVerifier {
      * @param time - oneof (TIMESTAMP, INTERVAL, RELATIVETOEPOCH, EMPTY)
      * @return
      */
-    private long getSeconds(Time time) {
+    private long getMilliseconds(Time time) {
         Time.TimeCase timeCase = time.getTimeCase();
-        long seconds = 0;
+        long milliseconds = 0;
         Timestamp timestamp = null;
         switch (timeCase) {
             case TIMESTAMP:
-                seconds = time.getTimestamp().getSeconds();
+                milliseconds = time.getTimestamp().getNanos() * 1000000;
                 break;
             case INTERVAL:
-                seconds = time.getInterval().getEnd().getSeconds() -
-                        time.getInterval().getBegin().getSeconds();
+                milliseconds = time.getInterval().getEnd().getNanos() * 1000000 -
+                        time.getInterval().getBegin().getNanos() * 1000000;
                 break;
             case RELATIVETOEPOCH:
                 // seconds relative to epoch, which is January 1, 1970
-                seconds = time.getRelativeToEpoch().getTimeValue();
+                milliseconds = time.getRelativeToEpoch().getTimeValue();
                 break;
             case TIME_NOT_SET, EMPTY:
                 break;
         }
-        return seconds;
+        return milliseconds;
     }
 
     /**

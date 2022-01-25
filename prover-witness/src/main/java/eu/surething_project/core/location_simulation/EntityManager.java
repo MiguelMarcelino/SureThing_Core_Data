@@ -20,9 +20,13 @@ public class EntityManager {
 
     private List<Entity> entities;
     private Entity currentEntity;
+    private double range;
+    private double randomApproximation;
 
     public EntityManager() {
         this.entities = new ArrayList<>();
+        this.range = Double.parseDouble(PropertiesReader.getProperty("entity.range"));
+        this.randomApproximation = Double.parseDouble(PropertiesReader.getProperty("entity.random_approximation"));
     }
 
     /**
@@ -121,13 +125,7 @@ public class EntityManager {
             double distance = DistanceCalculator.haversineFormula(latLngCurr.getLatitude(),
                     latLngCurr.getLongitude(), latLngEntity.getLatitude(),
                     latLngEntity.getLongitude());
-
-            // DEBUG
-            if(PropertiesReader.getDebugProperty()) {
-                System.out.println("Distance to witness: " + distance);
-            }
-
-            if (distance < 0.2) {
+            if (distance <= range) {
                 entitiesInRange.add(entity);
             }
         }
@@ -155,7 +153,7 @@ public class EntityManager {
     public void simulateCurrentEntityLocation() {
         LatLngPair latLngPair = currentEntity.getLatLngPair();
         LatLngPair pair = LocationSimulator.genLatLngCoordinates(latLngPair.getLatitude(),
-                latLngPair.getLongitude(), 0.000005);
+                latLngPair.getLongitude(), randomApproximation);
         currentEntity.setLatLongPair(pair);
     }
 

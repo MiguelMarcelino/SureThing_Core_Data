@@ -5,10 +5,8 @@ import com.google.protobuf.ByteString;
 import eu.surething_project.core.config.TimeHandler;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
-import eu.surething_project.core.grpc.LocationEndorsement;
+import eu.surething_project.core.grpc.*;
 import eu.surething_project.core.grpc.Signature;
-import eu.surething_project.core.grpc.SignedLocationEndorsement;
-import eu.surething_project.core.grpc.Time;
 import eu.surething_project.core.grpc.google.type.LatLng;
 import eu.surething_project.core.location_simulation.Entity;
 
@@ -73,7 +71,9 @@ public class LocationEndorsementBuilder {
                 .setWitnessId(witnessId)
                 .setClaimId(claimId)
                 .setTime(Time.newBuilder()
-                        .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
+                        .setRelativeToEpoch(EpochTime.newBuilder()
+                                .setTimeValue(TimeHandler.getCurrentTimeInMillis())
+                                .build())
                         .build())
                 .setEvidenceType("eu.surething_project.core.grpc.google.type.LatLng")
                 .setEvidence(Any.pack(LatLng.newBuilder()

@@ -81,9 +81,9 @@ public class LocationClaimBuilder {
                                 .build())
                         .build())
                 .setTime(Time.newBuilder()
-//                        .setRelativeToEpoch(EpochTime.newBuilder()
-//                                .setTimeValue(TimeHandler.getCurrentTimeInMillis()))
-                        .setTimestamp(fromMillis(TimeHandler.getCurrentTimeInMillis()))
+                        .setRelativeToEpoch(EpochTime.newBuilder()
+                                .setTimeValue(TimeHandler.getCurrentTimeInMillis())
+                                .build())
                         .build())
                 .build();
 

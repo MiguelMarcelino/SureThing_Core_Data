@@ -7,6 +7,7 @@ import eu.surething_project.core.data.LocationDataHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.*;
+import eu.surething_project.core.location_simulation.DistanceCalculator;
 import eu.surething_project.core.location_simulation.Entity;
 import eu.surething_project.core.location_simulation.EntityManager;
 import eu.surething_project.core.location_simulation.LatLngPair;
@@ -174,13 +175,19 @@ public class EntityApplication {
                         locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
                         entityManager.updateEntityLocation(endorsement.getEndorsement());
 
-
                         // DEBUG
                         if (PropertiesReader.getDebugProperty()) {
                             System.out.println("Received endorsement with ID: " +
                                     endorsement.getEndorsement().getEndorsementId());
+                            // Get distance
+                            LatLngPair latLngCurr = currentEntity.getLatLngPair();
+                            LatLngPair latLngEntity = entity.getLatLngPair();
+                            double distance = DistanceCalculator.haversineFormula(latLngCurr.getLatitude(),
+                                    latLngCurr.getLongitude(), latLngEntity.getLatitude(),
+                                    latLngEntity.getLongitude());
+                            final double range = Double.parseDouble(PropertiesReader.getProperty("entity.range"));
+                            System.out.print("Distance to witness: " + distance);
                         }
-
                     }
                 }
             } else if (inputs[0].equals("send_proof_verifier")) {
