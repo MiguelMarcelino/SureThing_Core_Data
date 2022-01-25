@@ -87,7 +87,8 @@ public class DatabaseAccessManagement {
      * @param sqlStatement - Statement to execute
      * @param errorMessage - message to display on error
      */
-    private void createTable(String tableName, String sqlStatement, ErrorMessage errorMessage) {
+    private void createTable(String tableName, String sqlStatement,
+                             ErrorMessage errorMessage) {
         // Return if table already exists
         if (tableExists(tableName)) {
             return;
@@ -125,7 +126,6 @@ public class DatabaseAccessManagement {
                 updateEndorsements.setString(1, locEndorse.getEndorsementId());
                 updateEndorsements.setString(2, locEndorse.getWitnessId());
                 updateEndorsements.setString(3, locEndorse.getClaimId());
-                System.out.println(locEndorse.getClaimId());
                 updateEndorsements.setDouble(4, locEndorse.getLatitude());
                 updateEndorsements.setDouble(5, locEndorse.getLongitude());
                 updateEndorsements.setLong(6, locEndorse.getTimeInMillis());
@@ -140,14 +140,11 @@ public class DatabaseAccessManagement {
             updateClaims.setString(1, claim.getClaimId());
             updateClaims.setString(2, claim.getProverId());
             updateClaims.setDouble(3, claim.getLatitude());
-            System.out.println(claim.getLatitude());
             updateClaims.setDouble(4, claim.getLongitude());
             updateClaims.setLong(5, claim.getTimeInMillis());
             updateClaims.setString(6, proof.getProofId()); // Foreign key
             updateClaims.executeUpdate();
-            System.out.println("REACHED");
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             throw new VerifierException(ErrorMessage.ERROR_ACCESSING_SQL_TABLE, e);
         } finally {
             closeConnection(connection);
@@ -173,7 +170,7 @@ public class DatabaseAccessManagement {
             stmt.setString(1, proverId);
             rs = stmt.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 claimData = new LocationClaimData(rs.getString(1), rs.getString(2),
                         rs.getDouble(3), rs.getDouble(4), rs.getLong(5),
                         rs.getString(6));
@@ -198,18 +195,19 @@ public class DatabaseAccessManagement {
     private boolean tableExists(String tableName) {
         Connection connection = dbConnection.connectToDatabase();
         ResultSet rs = null;
+        boolean tExists = false;
         try {
             DatabaseMetaData meta = connection.getMetaData();
             rs = meta.getTables(null, null, tableName,
                     new String[]{"TABLE"});
-            return rs.next();
+            tExists = rs.next();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new VerifierException(ErrorMessage.ERROR_VERIFYING_TABLE, e);
         } finally {
             closeConnection(connection);
             closeResultSet(rs);
         }
-        return false;
+        return tExists;
     }
 
     /**

@@ -72,7 +72,7 @@ public class VerifierApplication {
 		CertifyClaimService certifyClaimService = new CertifyClaimService(cryptoHandler,
 				currentEntityId, externalData, certificatePath, dbAccessMgmt);
 		try {
-			grpcServer.buildServer(cryptoHandler, verifierGrpcPort, certifyClaimService);
+			grpcServer.buildServer(certifyClaimService);
 		} catch (InterruptedException e) {
 			throw new VerifierException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
 		}

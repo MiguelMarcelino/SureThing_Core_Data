@@ -182,14 +182,14 @@ public class CryptoHandler {
         return privKeyFile;
     }
 
-    public File getExternalCertificate(String witnessId) {
-        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/" +
-                witnessId, witnessId + ".crt");
-        System.out.println(certFile.getAbsolutePath());
-        if(!certFile.exists()) {
-            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
-        }
-
-        return certFile;
-    }
+//    public File getExternalCertificate(String witnessId) {
+//        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage + "/" +
+//                witnessId, witnessId + ".crt");
+//        System.out.println(certFile.getAbsolutePath());
+//        if(!certFile.exists()) {
+//            throw new EntityException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+//        }
+//
+//        return certFile;
+//    }
 }

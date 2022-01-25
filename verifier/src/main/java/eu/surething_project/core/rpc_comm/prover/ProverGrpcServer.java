@@ -22,7 +22,7 @@ public class ProverGrpcServer {
         this.cryptoHandler = cryptoHandler;
     }
 
-    public void buildServer(CryptoHandler cryptoHandler, int port, CertifyClaimService certifyClaimService)
+    public void buildServer(CertifyClaimService certifyClaimService)
             throws InterruptedException {
         try {
             start(certifyClaimService);
@@ -35,12 +35,12 @@ public class ProverGrpcServer {
     private void start(CertifyClaimService certifyClaimService) throws IOException {
         File certChainFile = cryptoHandler.getCertFile();
         File privateKeyFile = cryptoHandler.getPrivateKeyFile();
-//        ServerCredentials creds = TlsServerCredentials.create(certChainFile, privateKeyFile);
-        // "12345678"
-        ServerCredentials creds = TlsServerCredentials.newBuilder()
-                .keyManager(certChainFile, privateKeyFile)
-                .build();
-        this.server = Grpc.newServerBuilderForPort(serverPort, creds)
+        TlsServerCredentials.Builder tlsBuilder = TlsServerCredentials.newBuilder()
+                .keyManager(certChainFile, privateKeyFile);
+        tlsBuilder.trustManager(cryptoHandler.getRootCertificate());
+        tlsBuilder.clientAuth(TlsServerCredentials.ClientAuth.REQUIRE);
+
+        this.server = Grpc.newServerBuilderForPort(serverPort, tlsBuilder.build())
                 .addService(certifyClaimService)
                 .build()
                 .start();

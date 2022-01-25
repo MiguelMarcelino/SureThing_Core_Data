@@ -53,18 +53,24 @@ public class LocationProofVerifier {
             throws UnrecoverableKeyException, NoSuchPaddingException, IllegalBlockSizeException,
             KeyStoreException, NoSuchAlgorithmException, BadPaddingException, SignatureException,
             InvalidKeyException, FileNotFoundException, CertificateException, NoSuchProviderException {
+        LocationProof proof = locationProof.getVerification();
+
+        // Debugging
+        System.out.println("Received proof with id: " + proof.getProofId());
+        System.out.println("ID of attached Location claim: " + proof.getLocClaim().getClaimId());
+
         // Get list Endorsements
-        List<SignedLocationEndorsement> endorsementList = locationProof.getVerification().getLocationEndorsementsList();
+        List<SignedLocationEndorsement> endorsementList = proof.getLocationEndorsementsList();
         List<String> endorsementIds = new ArrayList<>();
 
         // Validated endorsement Data
         List<LocationEndorsement> approvedEndorsements = new ArrayList<>();
 
         // Get location claim
-        LocationClaim claim = locationProof.getVerification().getLocClaim();
+        LocationClaim claim = proof.getLocClaim();
 
         // Prover id
-        String proverId = locationProof.getVerification().getLocClaim().getProverId();
+        String proverId = proof.getLocClaim().getProverId();
 
         // Get Proof signature data
         Signature sig = locationProof.getProverSignature();
@@ -120,6 +126,7 @@ public class LocationProofVerifier {
 
     /**
      * Validates the location endorsement
+     *
      * @param signedLocationEndorsement
      */
     private boolean validateLocationEndorsement(SignedLocationEndorsement signedLocationEndorsement,
@@ -192,6 +199,7 @@ public class LocationProofVerifier {
 
     /**
      * Adds verified data to database
+     *
      * @param proof
      * @param verifiedEndorsements
      */
@@ -251,6 +259,7 @@ public class LocationProofVerifier {
 
     /**
      * Gets LatLng from evidence
+     *
      * @param evidenceType
      * @param evidence
      * @return
@@ -273,6 +282,7 @@ public class LocationProofVerifier {
 
     /**
      * Gets LatLng from Location object
+     *
      * @param location
      * @return
      */

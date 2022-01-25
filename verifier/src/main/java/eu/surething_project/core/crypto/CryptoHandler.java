@@ -155,4 +155,13 @@ public class CryptoHandler {
 
         return privKeyFile;
     }
+
+    public File getRootCertificate() {
+        File certFile = new File(entityStorage + "/" + entityId + "/" + entityExternalStorage +
+                "/root", "rootCA.crt");
+        if(!certFile.exists()) {
+            throw new VerifierException(ErrorMessage.ERROR_GETTING_CERTIFICATE);
+        }
+        return certFile;
+    }
 }

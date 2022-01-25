@@ -16,10 +16,10 @@ public class PropertiesReader {
     private static Properties properties;
 
     public PropertiesReader(String filename) {
-        getProperties(filename);
+        loadProperties(filename);
     }
 
-    private void getProperties(String fileName) {
+    private void loadProperties(String fileName) {
         Properties prop = null;
         FileInputStream fis = null;
 

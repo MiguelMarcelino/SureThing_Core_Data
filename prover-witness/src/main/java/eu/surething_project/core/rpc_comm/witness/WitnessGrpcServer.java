@@ -34,13 +34,12 @@ public class WitnessGrpcServer {
     public void start(EndorseClaimService endorseClaimService) throws IOException {
         File certChainFile = cryptoHandler.getCertFile();
         File privateKeyFile = cryptoHandler.getPrivateKeyFile();
-//        TlsServerCredentials.Builder tlsBuilder = TlsServerCredentials.newBuilder()
-//                .keyManager(certChainFile, privateKeyFile);
-        ServerCredentials credentials = TlsServerCredentials.create(certChainFile, privateKeyFile);
-//        tlsBuilder.trustManager(cryptoHandler.getRootCertificate());
-//        tlsBuilder.clientAuth(TlsServerCredentials.ClientAuth.REQUIRE);
+        TlsServerCredentials.Builder tlsBuilder = TlsServerCredentials.newBuilder()
+                .keyManager(certChainFile, privateKeyFile);
+        tlsBuilder.trustManager(cryptoHandler.getRootCertificate());
+        tlsBuilder.clientAuth(TlsServerCredentials.ClientAuth.REQUIRE);
 
-        this.server = Grpc.newServerBuilderForPort(serverPort, credentials)
+        this.server = Grpc.newServerBuilderForPort(serverPort, tlsBuilder.build())
                 .addService(endorseClaimService)
                 .build()
                 .start();

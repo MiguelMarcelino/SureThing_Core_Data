@@ -43,7 +43,8 @@ public enum ErrorMessage {
     ERROR_CREATING_ENDORSEMENTS_TABLE("Error creating Endorsements table"),
     ERROR_CREATING_CLAIMS_TABLE("Error creating Claims table"),
     ERROR_CLOSING_DB_STATEMENT("Error closing Database statement"),
-    ERROR_CLOSING_RESULTSET("Error closing ResultSet");
+    ERROR_CLOSING_RESULTSET("Error closing ResultSet"),
+    ERROR_VERIFYING_TABLE("Error verifying table");
 
     public final String message;
 

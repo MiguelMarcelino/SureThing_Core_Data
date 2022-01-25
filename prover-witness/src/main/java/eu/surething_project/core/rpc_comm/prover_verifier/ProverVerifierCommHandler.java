@@ -1,12 +1,18 @@
 package eu.surething_project.core.rpc_comm.prover_verifier;
 
 import eu.surething_project.core.crypto.CryptoHandler;
+import eu.surething_project.core.exceptions.EntityException;
+import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationProof;
+import io.grpc.Grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.TlsChannelCredentials;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -52,10 +58,19 @@ public class ProverVerifierCommHandler {
      * @return - a new Channel
      */
     private ManagedChannel buildChannel(String address, int port) {
-        String target = address + ":" + port;
+        File certFile = cryptoHandler.getCertFile();
+        File keyFile = cryptoHandler.getPrivateKeyFile();
+        File rootCACert = cryptoHandler.getRootCertificate();
+        TlsChannelCredentials.Builder tlsBuilder = TlsChannelCredentials.newBuilder();
+        try {
+            tlsBuilder.keyManager(certFile, keyFile);
+            tlsBuilder.trustManager(rootCACert);
+        } catch (IOException e) {
+            throw new EntityException(ErrorMessage.ERROR_CREATING_CHANNEL);
+        }
 
-        return ManagedChannelBuilder.forTarget(target)
-                .usePlaintext()
+        return Grpc.newChannelBuilderForAddress(
+                address, port, tlsBuilder.build())
                 .build();
     }
 }

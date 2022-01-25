@@ -46,12 +46,11 @@ public class ProverWitnessCommHandler {
 
     private ManagedChannel buildChannel(Entity entity) {
         File certFile = cryptoHandler.getCertFile();
-//        File certFile = cryptoHandler.getExternalCertificate("witness");
         File keyFile = cryptoHandler.getPrivateKeyFile();
         File rootCACert = cryptoHandler.getRootCertificate();
         TlsChannelCredentials.Builder tlsBuilder = TlsChannelCredentials.newBuilder();
         try {
-//            tlsBuilder.keyManager(certFile, keyFile);
+            tlsBuilder.keyManager(certFile, keyFile);
             tlsBuilder.trustManager(rootCACert);
         } catch (IOException e) {
             throw new EntityException(ErrorMessage.ERROR_CREATING_CHANNEL);
