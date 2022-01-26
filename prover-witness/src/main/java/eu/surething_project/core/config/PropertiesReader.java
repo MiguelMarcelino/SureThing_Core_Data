@@ -12,24 +12,33 @@ public class PropertiesReader {
 
     private static final String DEBUG_PROPERTY = System.getProperty("detailedDebugMode");
 
-    private static final String PROPERTIES = "src/main/java/eu/surething_project/core/application.properties";
+    private static final String EXECUTION_MODE = System.getProperty("externalRunMode");
 
     private static Properties properties;
 
     static {
-        properties = loadProperties();
+        String propertiesFile;
+        if (EXECUTION_MODE != null &&
+                "true".equalsIgnoreCase(DEBUG_PROPERTY)) {
+            propertiesFile = System.getProperty("user.dir") + "/application.properties";
+        } else {
+            propertiesFile = "src/main/java/eu/surething_project/core/application.properties";
+        }
+
+        properties = loadProperties(propertiesFile);
     }
 
     /**
      * Loads properties
+     *
      * @return - loaded properties
      */
-    private static Properties loadProperties() {
+    private static Properties loadProperties(String propertiesFile) {
         Properties prop;
         FileInputStream fis = null;
 
         try {
-            fis = new FileInputStream(PROPERTIES);
+            fis = new FileInputStream(propertiesFile);
             prop = new Properties();
             prop.load(fis);
         } catch (FileNotFoundException e) {
@@ -38,7 +47,7 @@ public class PropertiesReader {
             throw new EntityException(ErrorMessage.DEFAULT_EXCEPTION_MSG, e);
         } finally {
             try {
-                if(fis!=null) {
+                if (fis != null) {
                     fis.close();
                 }
             } catch (IOException e) {
@@ -51,6 +60,7 @@ public class PropertiesReader {
 
     /**
      * Gets property with given name
+     *
      * @param propertyName
      * @return - value of property
      */
@@ -60,6 +70,7 @@ public class PropertiesReader {
 
     /**
      * Gets value of System debug property
+     *
      * @return - value of debug property
      */
     public static boolean getDebugProperty() {

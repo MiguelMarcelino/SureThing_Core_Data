@@ -1,8 +1,10 @@
 package eu.surething_project.core.rpc_comm.prover;
 
+import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
+import eu.surething_project.core.grpc.LocationEndorsement;
 import eu.surething_project.core.grpc.Signature;
 import eu.surething_project.core.grpc.SignedLocationEndorsement;
 
@@ -41,22 +43,22 @@ public class LocationEndorsementVerifier {
             SignatureException, InvalidKeyException, NoSuchProviderException {
         // Get signed data
         Signature signature = signedLocationEndorsement.getWitnessSignature();
-//        String externalEntityId = signedLocationEndorsement.getEndorsement().getWitnessId();
-//        byte[] signedEndorsement = signature.getValue().toByteArray();
-//        byte[] certData = signature.getCertificateData().toByteArray();
-//        String cryptoAlg = signature.getCryptoAlgo();
-//
-//        // Get LocationEndorsement data
-//        LocationEndorsement endorsement = signedLocationEndorsement.getEndorsement();
-//
-//        // Create Certificate if necessary
-//        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
-//
-//        // create Certificate and verify validity
-//        cryptoHandler.verifyCertificate(externalEntityId);
-//
-//        // Verify signed data
-//        cryptoHandler.verifyData(endorsement.toByteArray(), signedEndorsement, externalEntityId, cryptoAlg);
+        String externalEntityId = signedLocationEndorsement.getEndorsement().getWitnessId();
+        byte[] signedEndorsement = signature.getValue().toByteArray();
+        byte[] certData = signature.getCertificateData().toByteArray();
+        String cryptoAlg = signature.getCryptoAlgo();
+
+        // Get LocationEndorsement data
+        LocationEndorsement endorsement = signedLocationEndorsement.getEndorsement();
+
+        // Create Certificate if necessary
+        boolean certFileCreate = CertificateAccess.createCertificateFile(externalData, externalEntityId, certData);
+
+        // create Certificate and verify validity
+        cryptoHandler.verifyCertificate(externalEntityId);
+
+        // Verify signed data
+        cryptoHandler.verifyData(endorsement.toByteArray(), signedEndorsement, externalEntityId, cryptoAlg);
 
         // Verify Nonce
         long nonce = signature.getNonce();
