@@ -40,6 +40,8 @@ public class LocationProofVerifier {
 
     private DatabaseAccessManagement dbAccessMgmt;
 
+    private double range = Double.parseDouble(PropertiesReader.getProperty("entity.range"));
+
     public LocationProofVerifier(CryptoHandler cryptoHandler, String verifierId, String externalData,
                                  String certPath, DatabaseAccessManagement dbAccessMgmt) {
         this.certificateBuilder = new LocationCertificateBuilder(cryptoHandler, verifierId, certPath);
@@ -241,12 +243,12 @@ public class LocationProofVerifier {
                     + (t2 - t1));
             System.out.println("Distance between Claim and Endorsement: "
                     + distance);
-            if (distance >= 0.2)
+            if (distance >= range)
                 System.out.print(" --> Rejected");
         }
 
         // difference of more than 200 meters results in proof rejection
-        if (distance >= 0.2) {
+        if (distance >= range) {
             return false;
         }
 
