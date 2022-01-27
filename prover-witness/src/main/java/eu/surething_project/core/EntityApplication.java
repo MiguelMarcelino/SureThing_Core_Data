@@ -143,15 +143,17 @@ public class EntityApplication {
                         null);
 
                 // communicate with witness
-                SignedLocationClaim claim = buildLocationClaim(claimBuilder, currentEntity.getLatLngPair());
-                SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
+                LocationClaim claim = claimBuilder.buildLocationClaim(currentEntity.getLatLngPair());
+                byte[] signedData = signLocationClaim(claim, cryptoHandler);
+                SignedLocationClaim signedClaim = buildSignedClaim(claimBuilder, claim, signedData);
+                SignedLocationEndorsement endorsement = sendWitnessData(entity, signedClaim,
                         witnessCommHandler, endorsementVerifier);
 
                 if (endorsement == null) {
                     logger.warning(ErrorMessage.LOCATION_CLAIM_SEND_ERROR.message);
                 } else {
                     // Add endorsement to received endorsements list
-                    locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                    locationDataHandler.addLocationEndorsement(claim, endorsement);
                     entityManager.updateEntityLocation(endorsement.getEndorsement());
                 }
 
@@ -165,14 +167,16 @@ public class EntityApplication {
                 List<Entity> entities = entityManager.getEntitiesInRange(currentEntity.getLatLngPair());
 
                 // build location claim to send to multiple witnesses
-                SignedLocationClaim claim = buildLocationClaim(claimBuilder, currentEntity.getLatLngPair());
+                LocationClaim claim = claimBuilder.buildLocationClaim(currentEntity.getLatLngPair());
+                byte[] signedData = signLocationClaim(claim, cryptoHandler);
                 for (Entity entity : entities) {
-                    SignedLocationEndorsement endorsement = sendWitnessData(entity, claim,
+                    SignedLocationClaim signedClaim = buildSignedClaim(claimBuilder, claim, signedData);
+                    SignedLocationEndorsement endorsement = sendWitnessData(entity, signedClaim,
                             witnessCommHandler, endorsementVerifier);
 
                     if (endorsement != null) {
                         // Add endorsement to received endorsements list
-                        locationDataHandler.addLocationEndorsement(claim.getClaim(), endorsement);
+                        locationDataHandler.addLocationEndorsement(claim, endorsement);
                         entityManager.updateEntityLocation(endorsement.getEndorsement());
 
                         // DEBUG
@@ -221,11 +225,22 @@ public class EntityApplication {
         }
     }
 
-    private static SignedLocationClaim buildLocationClaim(LocationClaimBuilder builder, LatLngPair latLngPair) {
+    public static byte[] signLocationClaim(LocationClaim claim, CryptoHandler cryptoHandler) {
+        try {
+            return cryptoHandler.signData(claim.toByteArray(), CRYPTO_ALGO);
+        } catch (NoSuchAlgorithmException | SignatureException e) {
+            throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
+        } catch (KeyStoreException | InvalidKeyException | UnrecoverableKeyException e) {
+            throw new EntityException(ErrorMessage.ERROR_ENCRYPTING_DATA, e);
+        }
+    }
+
+    private static SignedLocationClaim buildSignedClaim(LocationClaimBuilder builder,
+                                                        LocationClaim locClaim, byte[] signedClaim) {
         // send a location claim from this entity
         SignedLocationClaim claim;
         try {
-            claim = builder.buildSignedLocationClaim(CRYPTO_ALGO, latLngPair);
+            claim = builder.buildSignedLocationClaim(CRYPTO_ALGO, locClaim, signedClaim);
         } catch (NoSuchAlgorithmException | SignatureException e) {
             throw new EntityException(ErrorMessage.ERROR_SIGNING_DATA, e);
         } catch (KeyStoreException | InvalidKeyException | UnrecoverableKeyException e) {

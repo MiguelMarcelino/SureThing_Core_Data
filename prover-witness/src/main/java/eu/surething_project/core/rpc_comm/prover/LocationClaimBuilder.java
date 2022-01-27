@@ -33,7 +33,7 @@ public class LocationClaimBuilder {
      * Builds signed location claim to send to Witness
      *
      * @param cryptoAlg
-     * @param latLngPair
+     * @param claim
      * @return
      * @throws NoSuchAlgorithmException
      * @throws SignatureException
@@ -41,17 +41,14 @@ public class LocationClaimBuilder {
      * @throws KeyStoreException
      * @throws InvalidKeyException
      */
-    public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg, LatLngPair latLngPair)
+    public SignedLocationClaim buildSignedLocationClaim(String cryptoAlg, LocationClaim claim,
+                                                        byte[] endorsementSigned)
             throws NoSuchAlgorithmException, SignatureException, UnrecoverableKeyException,
             KeyStoreException, InvalidKeyException {
-        UUID uuid = UUID.randomUUID();
-        LocationClaim claim = buildLocationClaim(latLngPair, uuid.toString());
-
         // Get certificate data
         byte[] certificate = CertificateAccess.getCertificateContentAsBytes(certPath, proverId);
 
         long nonce = cryptoHandler.createNonce();
-        byte[] endorsementSigned = cryptoHandler.signData(claim.toByteArray(), cryptoAlg);
         return SignedLocationClaim.newBuilder()
                 .setClaim(claim)
                 .setProverSignature(Signature.newBuilder()
@@ -67,12 +64,12 @@ public class LocationClaimBuilder {
      * Create Location claim
      *
      * @param latLongPair
-     * @param claimId
      * @return
      */
-    private LocationClaim buildLocationClaim(LatLngPair latLongPair, String claimId) {
+    public LocationClaim buildLocationClaim(LatLngPair latLongPair) {
+        UUID uuid = UUID.randomUUID();
         LocationClaim locationClaim = LocationClaim.newBuilder()
-                .setClaimId(claimId)
+                .setClaimId(uuid.toString())
                 .setProverId(proverId)
                 .setLocation(Location.newBuilder()
                         .setLatLng(LatLng.newBuilder()
