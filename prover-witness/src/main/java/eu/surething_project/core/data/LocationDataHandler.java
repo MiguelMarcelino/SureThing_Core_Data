@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Manages received data of the Prover
+ */
 public class LocationDataHandler {
 
     private HashMap<String, List<SignedLocationEndorsement>> currentEndorsements;
@@ -53,7 +56,7 @@ public class LocationDataHandler {
     }
 
     /**
-     * Not sure if needed
+     * Sends already sent data to history
      *
      * @param claimId
      */

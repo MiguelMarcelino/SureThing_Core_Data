@@ -19,7 +19,7 @@ public class PropertiesReader {
     static {
         String propertiesFile;
         if (EXECUTION_MODE != null &&
-                "true".equalsIgnoreCase(DEBUG_PROPERTY)) {
+                "true".equalsIgnoreCase(EXECUTION_MODE)) {
             propertiesFile = System.getProperty("user.dir") + "/application.properties";
         } else {
             propertiesFile = "src/main/java/eu/surething_project/core/application.properties";
@@ -29,7 +29,7 @@ public class PropertiesReader {
     }
 
     /**
-     * Loads properties
+     * Loads properties file
      *
      * @return - loaded properties
      */
@@ -70,11 +70,11 @@ public class PropertiesReader {
 
     /**
      * Gets value of System debug property
+     * Use with: -DdetailedDebugMode=true
      *
      * @return - value of debug property
      */
     public static boolean getDebugProperty() {
-        // Use with -DdetailedDebugMode=true
         return DEBUG_PROPERTY != null &&
                 "true".equalsIgnoreCase(DEBUG_PROPERTY);
     }

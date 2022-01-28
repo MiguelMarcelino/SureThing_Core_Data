@@ -12,8 +12,6 @@ import java.security.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.protobuf.util.Timestamps.fromMillis;
-
 public class LocationCertificateBuilder {
 
     private String verifierId;

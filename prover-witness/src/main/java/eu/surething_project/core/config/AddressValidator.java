@@ -8,6 +8,11 @@ import java.util.logging.Logger;
 public class AddressValidator {
     private static final Logger logger = Logger.getLogger(AddressValidator.class.getName());
 
+    /**
+     * Validates an IP address
+     *
+     * @param address
+     */
     public static void validateAddress(String address) {
         String[] ipPort = address.split(":");
         if (ipPort.length != 2) {
@@ -36,6 +41,11 @@ public class AddressValidator {
         validatePort(ipPort[1]);
     }
 
+    /**
+     * Validates a port
+     *
+     * @param port
+     */
     public static void validatePort(String port) {
         int portValue = Integer.parseInt(port);
         if (portValue < 1024 || portValue > 65535) {

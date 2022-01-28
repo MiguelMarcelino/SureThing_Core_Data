@@ -108,6 +108,10 @@ public class DatabaseAccessManagement {
         }
     }
 
+    /**
+     * Adds proof data to database
+     * @param proof - proof to add
+     */
     public void addProofData(LocationProofData proof) {
         PreparedStatement updateProof = null;
         PreparedStatement updateEndorsements = null;
@@ -158,8 +162,8 @@ public class DatabaseAccessManagement {
     /**
      * Get most recent claim
      *
-     * @param proverId
-     * @return
+     * @param proverId - provider id to get claims from
+     * @return - claim data
      */
     public LocationClaimData getLastClaimByProverId(String proverId) {
         PreparedStatement stmt = null;
@@ -187,6 +191,11 @@ public class DatabaseAccessManagement {
         return claimData;
     }
 
+    /**
+     * Gets a proof by its id
+     * @param id - the if of the proof
+     * @return - the location proof
+     */
     public LocationProofData getProofById(String id) {
         PreparedStatement stmt = null;
         ResultSet rs = null;

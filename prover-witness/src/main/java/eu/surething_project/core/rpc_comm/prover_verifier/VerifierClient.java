@@ -1,11 +1,9 @@
 package eu.surething_project.core.rpc_comm.prover_verifier;
 
-import eu.surething_project.core.exceptions.EntityException;
 import eu.surething_project.core.exceptions.ErrorMessage;
 import eu.surething_project.core.grpc.CertifyClaimGrpc;
 import eu.surething_project.core.grpc.LocationCertificate;
 import eu.surething_project.core.grpc.SignedLocationProof;
-import eu.surething_project.core.rpc_comm.prover.WitnessClient;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 

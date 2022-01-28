@@ -312,9 +312,8 @@ public class LocationProofVerifier {
                 milliseconds = time.getRelativeToEpoch().getTimeValue();
                 break;
             case TIME_NOT_SET:
-                break;
             case EMPTY:
-            	break;
+                break;
         }
         return milliseconds;
     }
@@ -355,14 +354,11 @@ public class LocationProofVerifier {
                 latLng = location.getLatLng();
                 break;
             case POI:
-                break;
-            case PROXIMITYTOPOI:
-            	break;
             case OLC:
-            	break;
+            case PROXIMITYTOPOI:
             case LOCATION_NOT_SET:
-            	break;
-            
+                break;
+
         }
         return latLng;
     }

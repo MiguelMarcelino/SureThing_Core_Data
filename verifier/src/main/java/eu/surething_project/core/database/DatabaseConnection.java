@@ -11,6 +11,10 @@ public class DatabaseConnection {
     protected DatabaseConnection() {
     }
 
+    /**
+     * Creates connection to database
+     * @return - Database connection
+     */
     protected Connection connectToDatabase() {
         Connection connection;
         String timezone = "?serverTimezone=UTC";
