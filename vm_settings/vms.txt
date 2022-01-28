@@ -30,7 +30,3 @@ sudo ip route add default via 192.168.0.10
 sudo sysctl net.ipv4.ip_forward=1
 /sbin/sysctl net.ipv4.conf.all.forwarding
 
-sudo iptables -P FORWARD ACCEPT
-sudo iptables -F FORWARD
-sudo iptables -t nat -F
-sudo iptables -t nat -A POSTROUTING  -o enp0s9 -j MASQUERADE
