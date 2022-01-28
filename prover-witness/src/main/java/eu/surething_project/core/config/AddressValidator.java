@@ -16,7 +16,7 @@ public class AddressValidator {
         }
 
         if (!ipPort[0].equals("localhost")) {
-            String[] ipValues = ipPort[0].split("[.]");
+            String[] ipValues = ipPort[0].split("\\.");
             // validate address
             if (ipValues.length != 4) {
                 logger.severe("Invalid address length: " + ipValues.length);
@@ -25,9 +25,10 @@ public class AddressValidator {
 
             for (String value : ipValues) {
                 int ipValue = Integer.parseInt(value);
-                if (ipValue < 0 || ipValue > 255)
+                if (ipValue < 0 || ipValue > 255) {
                     logger.severe("Invalid IP Address Value: " + ipValue);
-                throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
+                    throw new EntityException(ErrorMessage.INVALID_ARGS_DATA);
+                }
             }
         }
 

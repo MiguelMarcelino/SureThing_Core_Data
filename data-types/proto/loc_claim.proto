@@ -14,21 +14,21 @@ import "signature.proto";
 message LocationClaim {
     // unique identifier for claim
     string claimId = 1;
-	// prover unique id - can also be a pseudonym
-	string proverId = 2;
-	// prover's location - in one of alternative location schemas
-	Location location = 3;
+    // prover unique id - can also be a pseudonym
+    string proverId = 2;
+    // prover's location - in one of alternative location schemas
+    Location location = 3;
     // time of location claim -- in one of alternative time schemas
     Time time = 4;
     // type of the evidence that supports the claim - fully-qualified protobuf message name
     string evidenceType = 5;
-	// location evidence e.g. sensor readings, photo, screen signing - according to evidence type
-	google.protobuf.Any evidence = 6;
+    // location evidence e.g. sensor readings, photo, screen signing - according to evidence type
+    google.protobuf.Any evidence = 6;
 }
 
 // signed location claim 
 message SignedLocationClaim {
     LocationClaim claim = 1; // claim
-	Signature proverSignature = 2; // prover's signature
+	  Signature proverSignature = 2; // prover's signature
 }
 

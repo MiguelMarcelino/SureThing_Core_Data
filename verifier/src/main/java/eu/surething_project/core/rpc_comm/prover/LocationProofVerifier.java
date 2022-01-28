@@ -311,8 +311,10 @@ public class LocationProofVerifier {
                 // seconds relative to epoch, which is January 1, 1970
                 milliseconds = time.getRelativeToEpoch().getTimeValue();
                 break;
-            case TIME_NOT_SET, EMPTY:
+            case TIME_NOT_SET:
                 break;
+            case EMPTY:
+            	break;
         }
         return milliseconds;
     }
@@ -352,8 +354,15 @@ public class LocationProofVerifier {
             case LATLNG:
                 latLng = location.getLatLng();
                 break;
-            case POI, PROXIMITYTOPOI, OLC, LOCATION_NOT_SET:
+            case POI:
                 break;
+            case PROXIMITYTOPOI:
+            	break;
+            case OLC:
+            	break;
+            case LOCATION_NOT_SET:
+            	break;
+            
         }
         return latLng;
     }

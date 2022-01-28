@@ -19,7 +19,7 @@ public class PropertiesReader {
     static {
         String propertiesFile;
         if (EXECUTION_MODE != null &&
-                "true".equalsIgnoreCase(DEBUG_PROPERTY)) {
+                "true".equalsIgnoreCase(EXECUTION_MODE)) {
             propertiesFile = System.getProperty("user.dir") + "/application.properties";
         } else {
             propertiesFile = "src/main/java/eu/surething_project/core/application.properties";

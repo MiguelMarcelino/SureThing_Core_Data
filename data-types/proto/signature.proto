@@ -11,4 +11,5 @@ message Signature {
     bytes value = 1; // binary value of signature
     string cryptoAlgo = 2; // identification of cryptographic signature algorithm
     int64 nonce = 3; // number used once - to assure message freshness
+    bytes certificateData = 4; // binary data of the certificate
 }
