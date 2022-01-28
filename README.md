@@ -1,15 +1,21 @@
-# SureThing Core Data
+# SureThing Implementation
 
-This repository contains the central datatypes defined for the SureThing framework.  
-The underlying representation format is **protobuf** (Protocol Buffers).
+This repository contains the implementation Group 39. We used **protobuf** (Protocol Buffers) to transmit data between the entities in our system.
+
+## Requirements
+We used Maven version 3.8.4 with Java 17 to compile and run our project. We ran VirtualBox version 6.1 and our VMs ran Ubuntu 20.04.
+
+## Folder Structure
 
 - `data-types/` - contains the protobuf definitions
-- `java-marshaller/` - contains Java classes that can represent the types
-- `python-marshaller/` - contains Python code to represent the types
+- `prover-witness/` - contains the application for the Prover and the Witness
+- `verifier/` - contains the application for the Prover and the Witness
+- `db/` - contains the files for the setup of the verifier's database
+- `vm_settings/` - contains the setup settings for the VM machines
 
-## Entities
+## Message Types
 
-We present an overview of the main message types defined in `data-types/`.
+The entities can be found in the `data-types/` folder. These have been adapted for our project.
 
 ### Location Claim
 
@@ -23,6 +29,12 @@ The `LocationEndorsement` represents an endorsement made by a *Witness* of a loc
 
 The *Witness* should sign his endorsement and produce a `SignedLocationEndorsement`.
 
+### Location Proof
+
+The `LocationProof` includes the claim made by the *Prover* and the respective endorsements made by the *Witnesses*.
+
+The *Prover* signs this proof and produces a `SignedLocationProof`. This is then sent to the Verifier.
+
 ### Location Certificate
 
 The `LocationVerification` represents a verification made by a *Verifier* of a location claim made by a *Prover*.
@@ -30,89 +42,110 @@ The certificate may or may not reference endorsements.
 
 The *Verifier* should sign his endorsement and produce a `LocationCertificate`.
 
-## Location schemes
+## Sent Data
 
-The SureThing framework supports a set of alternative location schemes.
-This is represented with the protobuf `oneof` construct.
+### Timestamps
+All our requests include timestamps. This is so that the verifier can validate the data that is received. We chose `EpochTime` as our timestamp type.
 
-SureThing locations are extensible but only with new releases of the core library.
-Once a new location alternative is added, it can be recognized by new applications, but existing applications can safely ignore them.
-This is because of protobuf design that allows the safe addition of new fields.
+### Location information
+To prove the location, we use latitude and longitude and send the information in a  `LatLng` object. The Prover sends its location through the `location` field of the `LocationClaim` message. As `LocationEndorsement` messages don't have this field, we use the provided `evidence` field to send the location data.
+The Verifier validates the distances between endorsements and claims using the haversine formula.
 
-## Time schemes
+### Message Identification
 
-The SureThing framework also supports a set of alternative time schemes.
-Again, this is represented with the protobuf `oneof` construct.
+All messages have an id field, which is represented by a `string`. We chose to use a `UUID` to identify each request, which is converted to a `string`. This uuid is useful for the verifier to identify any requests and retrieve them from the database.
 
-SureThing time descriptiosn are extensible but only with new releases of the core library.
+## VirtualBox VMs Setup
+We chose the `SEED-Ubuntu20.04` VMs to setup our project. The configuration settings we used to create our VMs can be found in the `vm_settings` folder. To create our network configuration, we first run a script to configure the VM networking rules. The command below was run on all VMs and is included in the `setup_script.sh` file:
 
-This designed choice was done to accomodate change, but at a slow pace.
-This adds programmer convenience with the marshalled types.
+```
+sudo apt update
+sudo apt install ifupdown net-tools
+```
 
-## Identity schemes
+### Network configuration
+In our system we have 4 virtual machines and setup three sub-networks. The first includes the provers and the witnesses, the second the provers and the gateway and the third the gateway and the verifiers. The gateway serves as an access point for the verifier. 
+<!-- The internal network names are as follows:
+- Prover: 
+  - internal-2
+  - internal-3
+- Witness
+  - internal-3
+- Verifier
+  - internal-1
+- Gateway
+  - internal-1
+  - internal-2
+  - nat -->
 
-The SureThing entities -- Prover, Witness, Verifier -- are represented by a `string` identifier that can be assumed to be **unique** in the application scope.
-The identity can be a number, a textual name, a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), etc.
-Despite this enumeration there are no predefined types for these identities and it will be up to the application to make sense of the identifier and its internal structure.
-For this reason, the identifiers do not carry an identity type discriminant.
-It is assumed that the identifier type can be recognized by syntax of the text it contains.
+The setup for the VM interfaces retrieved from the folder `vm_settings/interface_config` can be found below:
 
-Example numeric identifier: `2207`  
-Example textual identifier: `Alice Sure`  
-Example UUID: `123e4567-e89b-12d3-a456-426614174000`.
+Prover VM interface:
+```
+auto lo
+iface lo inet loopback
+auto enp0s3
+iface enp0s3 inet static
+    address 192.168.1.1
+    netmask 255.255.255.0
+    gateway 192.168.1.254
+    dns-nameservers 8.8.8.8 8.8.4.4
+auto enp0s8
+iface enp0s8 inet static
+    address 192.168.2.1
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
 
-If we do not want to provide an identifier, then the empty string value should be used "".
+```
 
-When using a name, it does not have to be the actual name of the entity/person, it can a pseudonym.
+Witness VM interface:
+```
+auto lo
+iface lo inet loopback
+auto enp0s3
+iface enp0s3 inet static
+    address 192.168.2.2
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+```
 
-## Generic signature element
+Verifier VM interface:
+```
+auto lo
+iface lo inet loopback
+auto enp0s3
+iface enp0s3 inet static
+    address 192.168.0.100
+    netmask 255.255.255.0
+    gateway 192.168.0.10
+    dns-nameservers 8.8.8.8 8.8.4.4
+```
 
-The data entities defined exist without signature.
-The signature is an external data definition, so that generic code for signing the data can be implemented.
+Gateway VM interfaces:
+```
+auto lo
+iface lo inet loopback
+auto enp0s3
+iface enp0s3 inet static
+    address 192.168.0.10
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+auto enp0s8
+iface enp0s8 inet static
+    address 192.168.1.254
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+auto enp0s9
+iface enp0s9 inet dhcp
+```
 
-The nonce element is a placeholder for a freshness token.
-It should be a unique number that should not be repeated, even though the verification of the uniqueness is left to the issuer.
-The nonce is optional if the data element already contains some unique data, like an unique identifier.
+### Firewall Configuration
 
-## Extensibility
+We included several scripts for the setup of the firewall. These can be found in the `vm_settings/firewall_setup` folder. We will briefly cover the noteworthy configurations we have made to the firewalls of each entity:
 
-The SureThing framework data types need to be extensible, since the range of applications to support is not pre-determined.
-We consider two types of extensibility with different degrees of agility, i.e., ability to cope with change.
+- For the `FORWARD` and `INPUT` rules our default policy is to drop packets in all VMs
+- Both the prover and the witness have the same rules but differ in the ports they use. We accept input connections if they were previously established or if they connect to the port of the server running on the VM (for the prover VM, this is port 8080 and for the verifier VM this is port 8081). For the `OUTPUT` our default policy is to accept the connections, since a prover can communicate with any witnesses surrounding it.
+- For the Verifier, the standard `OUTPUT` policy is to drop packets. We add another rule to accept output packets of established connections. The Verifier does not start any connections, it only receives and responds to incoming requests. We only accept input packets with the destination of the verifier's server. Furthermore, we add a loopback rule to accept connections from the database.
 
-First, we have *release extensibility*, where a specific set of alternatives is presented in a released version of the framework.
-More options can be added in a future release, maintaining backward compatibility.
-
-Second, we have *open extensibility*, where the Protocol Buffers `Any` data type is used as a placeholder for an unspecified data type, and a `string` is used to describe the type to be added.
-This type and data fields allow for applications to recognize a subset of types, and to have special unpacking code for them.
-This extensibility does not require a new release from the framework, which allows more innovation on behalf of the applications.
-
-### Alternatives
-
-The approach taken with time and location, using the Protocol Buffers `oneof` construct, allows for the *release extensibility*.
-Applications can choose a scheme from one of the supported alternatives, or upgrade to a later release of the framework for unsupported schemes.
-
-### Any evidence
-
-The SureThing framework supports any kind of evidence.
-The way this information is represented is by two fields: the *type* string and the any field.
-The type string is the fully-qualified protobuf name of the evidence type, e.g., "eu.surething_project.core.wi_fi.WiFiNetworksEvidence", this allows the application to check if it recognizes the type of evidence, and, if so, unpack it and use it.
-
-### Representing lack of information (null)
-
-For a string field, the lack of information is represented as the empty string "".
-
-For a time field, the lack of information is represented as the Empty message (`google.protobuf.Empty`).
-
-For a evidence type field, which is a string, we represent the absence of evidence using the "".
-
-Reference: <https://itnext.io/protobuf-and-null-support-1908a15311b6>
-
-## Evidence
-
-The data entities contain a field for evidence of *Any* type.
-It is up to the applications to define new data definitions for specific types of evidence, and then, utility code to help with evidence data collection, evidence data summarization/fingerprinting, and evidence data verification and comparison, to check similarity between the presented and the expected evidence.
-
-In code organization, we need repositories with the following naming conventions:
-
-- `SureThing_EVIDENCE_Data` for defining evidence types
-- `Surething_EVIDENCE_Util` for implementing auxiliary procedures that can be used by applications relying on evidence.
+## Database
+We used a Database for the Verifier to store the Location data that is approved. The database configuration can be found in the `db/` folder. We included an SQL configuration file to configure the database. We also provided a script called `createDB.sh` that can be used to create the database at the verifier VM.
