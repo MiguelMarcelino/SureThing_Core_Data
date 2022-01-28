@@ -220,6 +220,9 @@ coverage.xml
 docs/_build/
 
 # Ignore generated Certificates
-/pki
+/pki/root
+/pki/prover
+/pki/witness
+/pki/verifier
 *.jks
 *.crt

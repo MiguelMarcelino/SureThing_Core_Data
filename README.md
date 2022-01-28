@@ -42,19 +42,6 @@ The certificate may or may not reference endorsements.
 
 The *Verifier* should sign his endorsement and produce a `LocationCertificate`.
 
-## Sent Data
-
-### Timestamps
-All our requests include timestamps. This is so that the verifier can validate the data that is received. We chose `EpochTime` as our timestamp type.
-
-### Location information
-To prove the location, we use latitude and longitude and send the information in a  `LatLng` object. The Prover sends its location through the `location` field of the `LocationClaim` message. As `LocationEndorsement` messages don't have this field, we use the provided `evidence` field to send the location data.
-The Verifier validates the distances between endorsements and claims using the haversine formula.
-
-### Message Identification
-
-All messages have an id field, which is represented by a `string`. We chose to use a `UUID` to identify each request, which is converted to a `string`. This uuid is useful for the verifier to identify any requests and retrieve them from the database.
-
 ## VirtualBox VMs Setup
 We chose the `SEED-Ubuntu20.04` VMs to setup our project. The configuration settings we used to create our VMs can be found in the `vm_settings` folder. To create our network configuration, we first run a script to configure the VM networking rules. The command below was run on all VMs and is included in the `setup_script.sh` file:
 
@@ -149,3 +136,6 @@ We included several scripts for the setup of the firewall. These can be found in
 
 ## Database
 We used a Database for the Verifier to store the Location data that is approved. The database configuration can be found in the `db/` folder. We included an SQL configuration file to configure the database. We also provided a script called `createDB.sh` that can be used to create the database at the verifier VM.
+
+## Generate Keys and Keystores
+We include a script called `createCertificates.sh` to generate the keystores, certificates and necessary keys. This can be found in the `pki/` folder. The script only requires setting the password for the exported keystores, the Country Name and the Locality Name. 
