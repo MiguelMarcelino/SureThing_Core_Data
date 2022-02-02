@@ -174,6 +174,11 @@ public class EntityApplication {
                     SignedLocationEndorsement endorsement = sendWitnessData(entity, signedClaim,
                             witnessCommHandler, endorsementVerifier);
 
+                    // DEBUG
+                    if (PropertiesReader.getDebugProperty()) {
+                        System.out.println("Sent claim with ID: " + claim.getClaimId());
+                    }
+
                     if (endorsement != null) {
                         // Add endorsement to received endorsements list
                         locationDataHandler.addLocationEndorsement(claim, endorsement);
@@ -211,6 +216,13 @@ public class EntityApplication {
                     SignedLocationProof proof = buildLocationProof(
                             locationDataHandler.getClaim(claimId), endorsementList,
                             proofBuilder);
+
+                    // DEBUG
+                    if (PropertiesReader.getDebugProperty()) {
+                        System.out.println("Sent proof with ID: " +
+                                proof.getVerification().getProofId());
+                    }
+
                     LocationCertificate certificate = sendLocationProof(address, port, proof,
                             verifierCommHandler, certificateVerifier);
                     if (certificate != null) {

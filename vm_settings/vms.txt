@@ -1,0 +1,33 @@
+# Network
+prover 
+- internal-2 
+- internal-3 
+- nat
+
+witness 
+- internal-2 
+- internal-3 
+- nat
+
+verifier 
+- internal-1 
+- nat
+
+gateway 
+- internal-1 
+- internal-2 
+- nat
+
+# Reload:
+sudo /etc/init.d/networking force-reload
+
+# On prover:
+sudo ip route add default via 192.168.1.254
+
+# On Verifier:
+sudo ip route add default via 192.168.0.10
+
+# On gateway:
+sudo sysctl net.ipv4.ip_forward=1
+/sbin/sysctl net.ipv4.conf.all.forwarding
+

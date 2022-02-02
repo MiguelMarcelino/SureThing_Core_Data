@@ -1,5 +1,6 @@
 package eu.surething_project.core.rpc_comm.witness;
 
+import eu.surething_project.core.config.PropertiesReader;
 import eu.surething_project.core.crypto.CertificateAccess;
 import eu.surething_project.core.crypto.CryptoHandler;
 import eu.surething_project.core.exceptions.EntityException;
@@ -40,6 +41,7 @@ public class LocationClaimVerifier {
             throws NoSuchAlgorithmException, SignatureException, InvalidKeyException,
             UnrecoverableKeyException, KeyStoreException, FileNotFoundException, CertificateException,
             NoSuchProviderException {
+
         // Get signed data
         Signature signature = signedLocationClaim.getProverSignature();
         String externalEntityId = signedLocationClaim.getClaim().getProverId();
@@ -70,6 +72,15 @@ public class LocationClaimVerifier {
         // Build Signed endorsement
         SignedLocationEndorsement signedEndorsement = this.endorsementBuilder
                 .buildSignedLocationEndorsement(claimId, nonce, cryptoAlg);
+
+        // DEBUG
+        if (PropertiesReader.getDebugProperty()) {
+            System.out.println(" -------- \nReceived Claim from Prover with claimId: " + locClaim.getClaimId());
+            System.out.println("Sending Endorsement with ID: " +
+                    signedEndorsement.getEndorsement().getEndorsementId());
+            System.out.print("\n>> ");
+        }
+
         return signedEndorsement;
     }
 
